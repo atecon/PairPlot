@@ -2,10 +2,15 @@
 function scalar ScatterPlotMatrix (const list L,
                                    const series factor[null],
                                    string filename[null],
-                                   bundle *options)
+                                   bundle *opts[null])
     /* Main function */
 
     # Initial settings
+    bundle self = default_options()
+    if exists(opts)
+        self = opts + default_options()  
+    endif
+
     if !exists(filename)
         string filename = "display"
     endif
@@ -15,15 +20,31 @@ function scalar ScatterPlotMatrix (const list L,
     # Constructor
     string buffer += sprintf("set encoding utf8\n")
     string buffer += sprintf("set terminal pngcairo \
-      font 'League Spartan,8' size %d,%d noenhanced;", 1.5*512, 1.5*384)
+      font '%s,%d' size %d,%d noenhanced;", self.font, self.fontsize,\
+      self.size_scaling*512, self.size_scaling*384)
     string buffer += write_linetype(L)
     string buffer += sprintf("set multiplot layout %d,%d\n", n_L, n_L)
-    string buffer += write_options(L)
+    string buffer += write_options(L, &self)
 
     # Write plot cmd + data
-    string buffer += write_plot_cmd_and_data(L, factor)
+    string buffer += write_plot_cmd_and_data(L, &self, factor)
 
     return send_to_gnuplot(buffer, filename)
+end function
+
+function bundle default_options (void)
+    /* Define default parameter values */
+    
+    bundle self = null
+
+    scalar self.size_scaling = 1.2	# scaling factor for size
+    scalar self.fontsize = 8
+    string self.font = "League Spartan"
+    scalar self.pointsize = 0.5
+    matrix self.pointtype = 7
+    scalar self.offset_level = 0.02
+
+    return self
 end function
 
 
@@ -42,6 +63,7 @@ function scalar send_to_gnuplot (const string buffer,
 end function
 
 function string write_plot_cmd_and_data (const list L,
+                                         bundle *self,
                                          const series factor[null])
     /* */
 
@@ -70,7 +92,7 @@ function string write_plot_cmd_and_data (const list L,
             # New subplot always starts with 'plot' cmd
             outfile --buffer=buffer
                 write_labels (varnames(yx)[1], varnames(yx)[2])
-                write_plot_cmd(factor, n_factor_values)
+                write_plot_cmd(&self, n_factor_values, factor)
 
                 if exists(factor)
                     write_plot_data(yx, factor, n_factor_values)
@@ -89,10 +111,12 @@ function string write_plot_cmd_and_data (const list L,
     return BUFFER
 end function
 
+
 function void write_labels (const string yname, const string xname)
     printf "set ylabel '%s'\n", yname
     printf "set xlabel '%s'\n", xname
 end function
+
 
 function void write_plot_data (const list yx,
                                const series factor[null],
@@ -126,14 +150,20 @@ function void write_plot_data (const list yx,
 end function
 
 
-function void write_plot_cmd (const series factor[null],
-                              const int n_factor_values)
+function void write_plot_cmd (bundle *self,
+                              const int n_factor_values,
+                              const series factor[null])
     /* */
 
-
+    if rows(vec(self.pointtype)) == 1
+        matrix pt = self.pointtype * ones(n_factor_values,1)
+    else
+        matrix pt = self.pointtype
+    endif
+    
     printf "plot \\\n"
     loop i=1..n_factor_values -q
-        printf "'-' using 1:2 w points pt 7" # lc rgb '#4682B4'"
+        printf "'-' using 1:2 w points pt %d", pt[i]
         if i < n_factor_values
             printf ", \\\n"
         else
@@ -144,11 +174,11 @@ function void write_plot_cmd (const series factor[null],
 end function
 
 
-function string write_options (const list L)
+function string write_options (const list L, bundle *self)
     /* */
 
     scalar n_L = nelem(L)
-    scalar off_set = 0.02
+    scalar off_set = self.offset_level
 
 
     string options_out = ""
@@ -166,7 +196,7 @@ function string write_options (const list L)
         printf "set noxtics\n"
         printf "set noytics\n"
 
-        printf "set pointsize 0.5\n"
+        printf "set pointsize %.2f\n", self.pointsize
 
     end outfile
 
