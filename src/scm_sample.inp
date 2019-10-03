@@ -10,8 +10,8 @@ list y = 1..4
 # override default value
 bundle opts = null
 matrix opts.pointtype = {1,7,8}
-matrix opts.pointsize = 0.8
-matrix opts.size_scaling = 1.5
+matrix opts.pointsize = 2
+matrix opts.size_scaling = 1.8
 scalar opts.key = 1				# print values of factor as legend
 
 string filename = "display" #"/home/at/test.png"		# optional: default 'display'

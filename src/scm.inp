@@ -180,9 +180,9 @@ function void write_plot_cmd (bundle *self,
         
         if exists(factor_has_str_values)
             if factor_has_str_values
-                printf " title '%s'", str_values_factor[i]
+                printf " title 'factor=%s'", str_values_factor[i]
             else
-                printf " title '%d'", num_values_factor[i]
+                printf " title 'factor=%d'", num_values_factor[i]
             endif
         endif
         
