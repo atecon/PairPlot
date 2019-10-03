@@ -1,0 +1,188 @@
+
+function scalar scatterplot_matrix (const list L,
+                                    const series factor[null],
+                                    const string filename[null])
+
+    scalar n_L = nelem(L)
+
+    string buffer = ""
+
+    string buffer += sprintf("set encoding utf8\n")
+    string buffer += write_linetype(L)
+
+    # TODO: only if nelem(L)>1?
+    string buffer += sprintf("set multiplot layout %d,%d\n", n_L, n_L)
+    string buffer += write_options(L)
+
+    # Now write data and plot cmd
+    
+    string buffer += write_plot_cmd_and_data(L, factor)
+
+    string mytemp
+    outfile --tempfile=mytemp
+        print buffer
+    end outfile
+    gnuplot --input=@mytemp --output=display
+    stop
+
+    return 1
+end function
+
+
+function string write_plot_cmd_and_data (const list L,
+                                         const series factor[null])
+    /* */
+
+    string BUFFER = ""
+
+    scalar n_factor_values = 1
+    n_factor_values = (exists(factor)) ? rows(values(factor)) : n_factor_values
+
+    # 1) Loop over all possible nelem(y)*(nelem(y)-1)) combinations
+    # -> Each one starts with a new plot cmd
+    # 2) For each combination, consider the n_factor_values
+
+
+    loop foreach y L -q
+        
+        loop foreach x L -q
+
+#            if varname(L.$y) == varname(L.$x)
+#            else
+                list yx = null
+                list yx = L.$y L.$x
+                string buffer = ""
+#            endif
+
+            # New subplot always starts with 'plot' cmd
+            outfile --buffer=buffer
+                write_plot_cmd(factor, n_factor_values)
+                
+                if exists(factor)
+                    write_plot_data(yx, factor, n_factor_values)
+                else
+                    write_plot_data(yx, , n_factor_values)
+                endif
+            end outfile            
+            BUFFER += buffer
+
+        endloop
+        
+    endloop
+
+    BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
+
+    return BUFFER
+end function
+
+
+function void write_plot_data (const list yx,
+                               const series factor[null],
+                               const int n_factor_values)
+    /* Write data for a single subplot. */
+
+    if n_factor_values > 1
+        factor_values = values(factor)
+    endif
+
+    loop i=1..n_factor_values -q
+
+        if n_factor_values > 1
+            smpl factor == factor_values[i] --restrict --replace
+        endif
+
+        smpl --no-missing yx
+        matrix m_yx = {yx}
+
+        loop j=1..$nobs -q		# TODO: Use 'print' instead of the loop?
+            printf "%.3f %.3f", m_yx[j,1], m_yx[j,2]
+            if j < $nobs
+                printf "\n"
+            else
+                printf "\ne\n"
+            endif
+        endloop
+
+    endloop
+
+end function
+
+
+function void write_plot_cmd (const series factor[null],
+                              const int n_factor_values)
+    /* */
+
+
+    printf "plot \\\n"
+    loop i=1..n_factor_values -q
+        printf "'-' using 1:2 w points pt 7" # lc rgb '#4682B4'"
+        if i < n_factor_values
+            printf ", \\\n"
+        else
+            printf "\n"
+        endif
+    endloop
+
+end function
+
+
+function string write_options (const list L)
+    /* */
+
+    scalar n_L = nelem(L)
+    scalar off_set = 0.02
+
+
+    string options_out = ""
+    outfile --buffer=options_out
+        printf "set offsets "
+        loop i=1..n_L -q
+            if i < n_L
+                printf "graph %.2f, ", off_set
+            else
+                printf "graph %.2f\n", off_set
+            endif
+        endloop
+
+        printf "set nokey\n"
+        printf "set noxtics\n"
+        printf "set noytics\n"
+
+        printf "set pointsize 0.5\n"
+
+    end outfile
+
+    return options_out
+end function
+
+
+function strings get_color_definitions (void)
+    /* */
+
+    strings color_definitions = defarray("#C41E3A", \
+      "#4682B4", \
+      "#FFBF00", \
+    "#ff0000", \
+    "#0000ff", \
+    "#00cc00", \
+    "#bf25b2", \
+    "#8faab3", \
+    "#ffa500")
+
+    return color_definitions
+end function
+
+function string write_linetype (const list L)
+    /* */
+
+    strings color_definitions = get_color_definitions()
+
+    string linetype_out = ""
+    outfile --buffer=linetype_out
+        loop i=1..nelem(L) -q
+            printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[i]
+        endloop
+    end outfile
+
+    return linetype_out
+end function
