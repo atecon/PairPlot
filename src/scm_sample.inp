@@ -8,4 +8,4 @@ open /home/at/git/scatterplot_matrix/data/iris.csv --quiet
 list y = 1..4
 
 scalar err = scatterplot_matrix (y, variety)
-
+err

@@ -22,10 +22,13 @@ function scalar scatterplot_matrix (const list L,
     outfile --tempfile=mytemp
         print buffer
     end outfile
-    gnuplot --input=@mytemp --output=display
-    stop
-
-    return 1
+    catch gnuplot --input=@mytemp --output=display
+    
+    if $error
+        return 0
+    else
+        return 1
+    endif    
 end function
 
 
@@ -138,9 +141,9 @@ function string write_options (const list L)
         printf "set offsets "
         loop i=1..n_L -q
             if i < n_L
-                printf "graph %.2f, ", off_set
+                printf "%.2f, ", off_set
             else
-                printf "graph %.2f\n", off_set
+                printf "%.2f\n", off_set
             endif
         endloop
 
