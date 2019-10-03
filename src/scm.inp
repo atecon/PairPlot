@@ -11,6 +11,8 @@ function scalar ScatterPlotMatrix (const list L,
         self = opts + default_options()  
     endif
 
+    # TODO: Add check that rows(pointtype)=1 or if > 1 equal the number of distinct values of factor!
+
     if !exists(filename)
         string filename = "display"
     endif
@@ -43,6 +45,7 @@ function bundle default_options (void)
     scalar self.pointsize = 0.5
     matrix self.pointtype = 7
     scalar self.offset_level = 0.02
+    scalar self.key = 1				# print distinct values of factor variable
 
     return self
 end function
@@ -78,7 +81,6 @@ function string write_plot_cmd_and_data (const list L,
 
 
     loop foreach y L -q
-
         loop foreach x L -q
             
             # TODO
@@ -91,7 +93,8 @@ function string write_plot_cmd_and_data (const list L,
 
             # New subplot always starts with 'plot' cmd
             outfile --buffer=buffer
-                write_labels (varnames(yx)[1], varnames(yx)[2])
+
+                write_labels (varnames(yx)[1], varnames(yx)[2])                
                 write_plot_cmd(&self, n_factor_values, factor)
 
                 if exists(factor)
@@ -161,9 +164,28 @@ function void write_plot_cmd (bundle *self,
         matrix pt = self.pointtype
     endif
     
+
+    if self.key && exists(factor)
+        strings str_values_factor = strvals(factor)
+        scalar factor_has_str_values = 1
+        if nelem(str_values_factor) == 0 # factor includes only numeric values
+            matrix num_values_factor = values(factor)
+            factor_has_str_values = 0
+        endif
+    endif
+        
     printf "plot \\\n"
     loop i=1..n_factor_values -q
         printf "'-' using 1:2 w points pt %d", pt[i]
+        
+        if exists(factor_has_str_values)
+            if factor_has_str_values
+                printf " title '%s'", str_values_factor[i]
+            else
+                printf " title '%d'", num_values_factor[i]
+            endif
+        endif
+        
         if i < n_factor_values
             printf ", \\\n"
         else
@@ -192,7 +214,11 @@ function string write_options (const list L, bundle *self)
             endif
         endloop
 
-        printf "set nokey\n"
+        if self.key
+            printf "set key top left\n"			# TODO: make position optional, e.g. 'bottom below'
+        else
+            printf "set nokey\n"
+        endif
         printf "set noxtics\n"
         printf "set noytics\n"
 

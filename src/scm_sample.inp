@@ -11,7 +11,16 @@ list y = 1..4
 bundle opts = null
 matrix opts.pointtype = {1,7,8}
 matrix opts.pointsize = 0.8
+matrix opts.size_scaling = 1.5
+scalar opts.key = 1				# print values of factor as legend
 
-scalar err = ScatterPlotMatrix(y, variety, , &opts)
+string filename = "display" #"/home/at/test.png"		# optional: default 'display'
+scalar err = ScatterPlotMatrix(y, variety, filename, &opts)
 err
 
+
+open credscore.gdt -q -p
+list y = 1..4
+
+scalar err = ScatterPlotMatrix(y, Selfempl, filename, &opts)
+err
