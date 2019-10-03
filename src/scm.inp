@@ -1,36 +1,45 @@
 
-function scalar scatterplot_matrix (const list L,
-                                    const series factor[null],
-                                    const string filename[null])
+function scalar ScatterPlotMatrix (const list L,
+                                   const series factor[null],
+                                   string filename[null],
+                                   bundle *options)
+    /* Main function */
 
+    # Initial settings
+    if !exists(filename)
+        string filename = "display"
+    endif
     scalar n_L = nelem(L)
-
     string buffer = ""
 
+    # Constructor
     string buffer += sprintf("set encoding utf8\n")
+    string buffer += sprintf("set terminal pngcairo \
+      font 'League Spartan,8' size %d,%d noenhanced;", 1.5*512, 1.5*384)
     string buffer += write_linetype(L)
-
-    # TODO: only if nelem(L)>1?
     string buffer += sprintf("set multiplot layout %d,%d\n", n_L, n_L)
     string buffer += write_options(L)
 
-    # Now write data and plot cmd
-    
+    # Write plot cmd + data
     string buffer += write_plot_cmd_and_data(L, factor)
 
-    string mytemp
-    outfile --tempfile=mytemp
-        print buffer
-    end outfile
-    catch gnuplot --input=@mytemp --output=display
-    
-    if $error
-        return 0
-    else
-        return 1
-    endif    
+    return send_to_gnuplot(buffer, filename)
 end function
 
+
+function scalar send_to_gnuplot (const string buffer,
+                                 const string filename)
+    /* Write buffer to temp file and send to gnuplot */
+
+    string mytemp
+    outfile --tempfile=mytemp --quiet
+        print buffer
+    end outfile
+
+    catch gnuplot --input=@mytemp --output=@filename
+
+    return $error
+end function
 
 function string write_plot_cmd_and_data (const list L,
                                          const series factor[null])
@@ -47,30 +56,32 @@ function string write_plot_cmd_and_data (const list L,
 
 
     loop foreach y L -q
-        
-        loop foreach x L -q
 
-#            if varname(L.$y) == varname(L.$x)
-#            else
-                list yx = null
-                list yx = L.$y L.$x
-                string buffer = ""
-#            endif
+        loop foreach x L -q
+            
+            # TODO
+            #            if varname(L.$y) == varname(L.$x)
+            #            else
+            list yx = null
+            list yx = L.$y L.$x
+            string buffer = ""
+            #            endif
 
             # New subplot always starts with 'plot' cmd
             outfile --buffer=buffer
+                write_labels (varnames(yx)[1], varnames(yx)[2])
                 write_plot_cmd(factor, n_factor_values)
-                
+
                 if exists(factor)
                     write_plot_data(yx, factor, n_factor_values)
                 else
                     write_plot_data(yx, , n_factor_values)
                 endif
-            end outfile            
+            end outfile
             BUFFER += buffer
 
         endloop
-        
+
     endloop
 
     BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
@@ -78,6 +89,10 @@ function string write_plot_cmd_and_data (const list L,
     return BUFFER
 end function
 
+function void write_labels (const string yname, const string xname)
+    printf "set ylabel '%s'\n", yname
+    printf "set xlabel '%s'\n", xname
+end function
 
 function void write_plot_data (const list yx,
                                const series factor[null],
@@ -163,8 +178,8 @@ function strings get_color_definitions (void)
     /* */
 
     strings color_definitions = defarray("#C41E3A", \
-      "#4682B4", \
-      "#FFBF00", \
+    "#4682B4", \
+    "#FFBF00", \
     "#ff0000", \
     "#0000ff", \
     "#00cc00", \
@@ -174,6 +189,7 @@ function strings get_color_definitions (void)
 
     return color_definitions
 end function
+
 
 function string write_linetype (const list L)
     /* */
