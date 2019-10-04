@@ -82,6 +82,7 @@ function bundle default_options (void)
     matrix self.pointtype = 7
     scalar self.offset_level = 0.02
     scalar self.key = 1				# print distinct values of factor variable
+    string self.key_position = "top left"	# position legend (standatd gnuplot settings)
     scalar self.use_circles = 1
     scalar self.transparency_level = 0
     scalar self.triangle = 1
@@ -309,7 +310,6 @@ end function
 
 
 function string write_options (bundle *self)
-    /* */
 
     scalar off_set = self.offset_level
 
@@ -326,7 +326,7 @@ function string write_options (bundle *self)
         endloop
 
         if self.key
-            printf "set key top left\n"			# TODO: make position optional, e.g. 'bottom below'
+            printf "set key %s\n", self.key_position
         else
             printf "set nokey\n"
         endif
@@ -342,7 +342,7 @@ end function
 
 
 function strings get_color_definitions (void)
-    /* */
+    /* Put your own deinitions here. */
 
     strings color_definitions = defarray("#C41E3A", \
     "#4682B4", \
@@ -359,8 +359,6 @@ end function
 
 
 function string write_linetype (bundle *self)
-    /* */
-
     strings color_definitions = get_color_definitions()
 
     string linetype_out = ""
