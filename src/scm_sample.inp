@@ -1,7 +1,7 @@
 clear
 set verbose off
 
-include /home/at/git/PairPlot/src/scm.inp --force
+include /home/at/git/PairPlot/src/PairPlot.inp --force
 
 open /home/at/git/PairPlot/data/iris.csv --quiet
 
