@@ -1,2 +1,2 @@
-# scatterplot_matrix
+# PairPlot
 Scatterplot matrices with gnuplot using gretl
