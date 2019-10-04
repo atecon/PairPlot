@@ -19,6 +19,7 @@ function scalar PairPlot (const list L,
     scalar self.n_L = nelem(L)
 
     # Settings
+    scalar self.NO_HISTOGRAM = 1					# This yields a (n_L-1) by (n_L-1) pairplot matrix wo histograms on the diagonal!
     string buffer = write_settings(&self)
 
     # Write plot cmd + data
@@ -29,7 +30,7 @@ end function
 
 
 function string write_settings (bundle *self)
-    /* Put all settings into a string buffer. */
+    /* Write various settings to a string buffer. */
     
     string buffer = ""
 
@@ -38,9 +39,9 @@ function string write_settings (bundle *self)
       font '%s,%d' size %d,%d noenhanced;", self.font, self.fontsize,\
       self.aspect_scale*512, self.aspect_scale*384)
     
-    string buffer += write_linetype(self.n_L)
+    string buffer += write_linetype(&self)
     
-    string buffer += sprintf("set multiplot layout %d,%d\n", self.n_L, self.n_L)
+    string buffer += sprintf("set multiplot layout %d,%d\n", self.n_L-self.NO_HISTOGRAM, self.n_L-self.NO_HISTOGRAM)
     
     if self.transparency_level > 0
         if self.use_circles
@@ -59,6 +60,7 @@ function string write_settings (bundle *self)
 
     return buffer
 end function
+
 
 function bundle default_options (void)
     /* Define default parameter values */
@@ -174,6 +176,8 @@ end function
 
 
 /* THIS CODE WORKS BUT I DONT NO HOW TO ADD A HISTOGRAM AT THE DIAGONAL AT THE MOMENT
+--> THIS IS FOR self.NO_HISTOGRAM == 0
+
    function string write_plot_cmd_and_data (const list L,
    bundle *self,
    const series factor[null])
@@ -355,8 +359,8 @@ function string write_options (bundle *self)
     
     outfile --buffer=options_out
         printf "set offsets "
-        loop i=1..self.n_L -q
-            if i < self.n_L
+        loop i=1..(self.n_L-self.NO_HISTOGRAM) -q
+            if i < (self.n_L-self.NO_HISTOGRAM)
                 printf "%.2f, ", off_set
             else
                 printf "%.2f\n", off_set
@@ -396,14 +400,14 @@ function strings get_color_definitions (void)
 end function
 
 
-function string write_linetype (const int n_L "Number of elements in list L")
+function string write_linetype (bundle *self)
     /* */
 
     strings color_definitions = get_color_definitions()
 
     string linetype_out = ""
     outfile --buffer=linetype_out
-        loop i=1..n_L -q
+        loop i=1..(self.n_L-self.NO_HISTOGRAM) -q
             printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[i]
         endloop
     end outfile
