@@ -26,6 +26,13 @@ function scalar PairPlot (const list L,
       self.aspect_scale*512, self.aspect_scale*384)
     string buffer += write_linetype(L)
     string buffer += sprintf("set multiplot layout %d,%d\n", n_L, n_L)
+    if self.transparency_level > 0
+        if self.use_circles
+            printf "\nWarning: Transparency is only supported for points but not circles.\n"
+        else
+            string buffer += sprintf("set style fill transparent solid %.1f noborder\n", self.transparency_level)
+        endif
+    endif
     string buffer += write_options(L, &self)
 
     # Write plot cmd + data
@@ -46,6 +53,8 @@ function bundle default_options (void)
     matrix self.pointtype = 7
     scalar self.offset_level = 0.02
     scalar self.key = 1				# print distinct values of factor variable
+    scalar self.use_circles = 1
+    scalar self.transparency_level = 0
 
     return self
 end function
@@ -164,6 +173,11 @@ function void write_plot_cmd (bundle *self,
         matrix pt = self.pointtype
     endif
 
+    if self.use_circles
+        string plot_type = "circles"
+    else
+        string plot_type = "points"
+    endif
 
     if self.key && exists(factor)
         strings str_values_factor = strvals(factor)
@@ -176,7 +190,7 @@ function void write_plot_cmd (bundle *self,
 
     printf "plot \\\n"
     loop i=1..n_factor_values -q
-        printf "'-' using 1:2 w points pt %d", pt[i]
+        printf "'-' using 1:2 w %s pt %d", plot_type, pt[i]
 
         if exists(factor_has_str_values)
             if factor_has_str_values

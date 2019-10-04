@@ -13,6 +13,8 @@ matrix opts.pointtype = {1,7,8}
 matrix opts.pointsize = 2
 matrix opts.aspect_scale = 1.8
 scalar opts.key = 1				# print values of factor as legend
+scalar opts.use_circles = 1
+scalar opts.transparency_level = 0.5
 
 string filename = "display" #"/home/at/test.png"		# optional: default 'display'
 scalar err = PairPlot(y, variety, filename, &opts)
