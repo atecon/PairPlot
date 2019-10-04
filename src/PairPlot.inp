@@ -31,18 +31,24 @@ end function
 
 function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
-    
+
     string buffer = ""
 
     string buffer += sprintf("set encoding utf8\n")
     string buffer += sprintf("set terminal pngcairo \
-      font '%s,%d' size %d,%d noenhanced;", self.font, self.fontsize,\
+      font '%s,%d' size %d,%d noenhanced;\n", self.font, self.fontsize,\
       self.aspect_scale*512, self.aspect_scale*384)
-    
+
     string buffer += write_linetype(&self)
-    
-    string buffer += sprintf("set multiplot layout %d,%d\n", self.n_L-self.NO_HISTOGRAM, self.n_L-self.NO_HISTOGRAM)
-    
+
+    if self.triangle
+        scalar c = self.n_L
+    else
+        scalar c = self.n_L - 1
+    endif
+    scalar r = self.n_L
+    string buffer += sprintf("set multiplot layout %d,%d\n", r, c)
+
     if self.transparency_level > 0
         if self.use_circles
             printf "\nWarning: Transparency is only supported for points but not circles.\n"
@@ -51,7 +57,7 @@ function string write_settings (bundle *self)
               self.transparency_level)
         endif
     endif
-    
+
     #string buffer += sprintf("set datafile missing 'NA'\n")
     string buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
     string buffer += sprintf("set border 3 front ls 101\n")		# drop right and upper border
@@ -120,10 +126,9 @@ function string write_plot_cmd_and_data (const list L,
         loop foreach x L -q		# Col dimension
             x_counter++
 
-            string buffer = ""
+            if varname(L.$y) != varname(L.$x)
 
-            # New subplot always starts with 'plot' cmd
-            if y_counter != x_counter
+                string buffer = ""
 
                 list yx = null
                 list yx = L.$y L.$x
@@ -140,8 +145,13 @@ function string write_plot_cmd_and_data (const list L,
                             write_plot_data(yx, , n_factor_values)
                         endif
                     end outfile
-
+                    
                 else
+                    
+#                    if x_counter > y_counter
+#                        break
+#                    endif
+
                     if y_counter > x_counter
                         # TODO: Duplicated code -- see above
                         outfile --buffer=buffer
@@ -156,27 +166,37 @@ function string write_plot_cmd_and_data (const list L,
                         end outfile
 
                     else
-                        outfile --buffer=buffer
-                            printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
-                        end outfile
+                        buffer = write_empty_subplot_cmd(buffer)
                     endif
-
-                endif		# end 'triangle' condition
-
+                endif
+                
+                BUFFER += buffer
             endif
-            BUFFER += buffer
-        endloop
 
-    endloop
+        endloop						# end loop over x
+
+    endloop							# end loop over y
 
     BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
 
     return BUFFER
 end function
 
+function string write_empty_subplot_cmd (string buffer)
+/* Helper function which leaves an (almost) empty subplot for
+    triangular matrix plot */
+
+    outfile --buffer=buffer
+        printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
+    end outfile
+
+    return buffer
+end function
+
+
 
 /* THIS CODE WORKS BUT I DONT NO HOW TO ADD A HISTOGRAM AT THE DIAGONAL AT THE MOMENT
---> THIS IS FOR self.NO_HISTOGRAM == 0
+   --> THIS IS FOR self.NO_HISTOGRAM == 0
 
    function string write_plot_cmd_and_data (const list L,
    bundle *self,
@@ -356,7 +376,7 @@ function string write_options (bundle *self)
     scalar off_set = self.offset_level
 
     string options_out = ""
-    
+
     outfile --buffer=options_out
         printf "set offsets "
         loop i=1..(self.n_L-self.NO_HISTOGRAM) -q
