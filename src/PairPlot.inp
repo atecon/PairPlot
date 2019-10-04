@@ -16,16 +16,32 @@ function scalar PairPlot (const list L,
     if !exists(filename)
         string filename = "display"
     endif
-    scalar n_L = nelem(L)
+    scalar self.n_L = nelem(L)
+
+    # Settings
+    string buffer = write_settings(&self)
+
+    # Write plot cmd + data
+    string buffer += write_plot_cmd_and_data(L, &self, factor)
+
+    return send_to_gnuplot(buffer, filename)
+end function
+
+
+function string write_settings (bundle *self)
+    /* Put all settings into a string buffer. */
+    
     string buffer = ""
 
-    # Constructor
     string buffer += sprintf("set encoding utf8\n")
     string buffer += sprintf("set terminal pngcairo \
       font '%s,%d' size %d,%d noenhanced;", self.font, self.fontsize,\
       self.aspect_scale*512, self.aspect_scale*384)
-    string buffer += write_linetype(L)
-    string buffer += sprintf("set multiplot layout %d,%d\n", n_L, n_L)
+    
+    string buffer += write_linetype(self.n_L)
+    
+    string buffer += sprintf("set multiplot layout %d,%d\n", self.n_L, self.n_L)
+    
     if self.transparency_level > 0
         if self.use_circles
             printf "\nWarning: Transparency is only supported for points but not circles.\n"
@@ -34,16 +50,14 @@ function scalar PairPlot (const list L,
               self.transparency_level)
         endif
     endif
+    
     #string buffer += sprintf("set datafile missing 'NA'\n")
     string buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
     string buffer += sprintf("set border 3 front ls 101\n")		# drop right and upper border
     #    string buffer += sprintf("set tics nomirror out scale 0.75\n")		# has no effect
-    string buffer += write_options(L, &self)
+    string buffer += write_options(&self)
 
-    # Write plot cmd + data
-    string buffer += write_plot_cmd_and_data(L, &self, factor)
-
-    return send_to_gnuplot(buffer, filename)
+    return buffer
 end function
 
 function bundle default_options (void)
@@ -80,10 +94,10 @@ function scalar send_to_gnuplot (const string buffer,
     return $error
 end function
 
+
 function string write_plot_cmd_and_data (const list L,
                                          bundle *self,
                                          const series factor[null])
-    /* */
 
     string BUFFER = ""
 
@@ -107,20 +121,13 @@ function string write_plot_cmd_and_data (const list L,
             string buffer = ""
 
             # New subplot always starts with 'plot' cmd
-            if y_counter == x_counter		# case: varname(L.$y) == varname(L.$x)
-
-                # Plot histogram of L.$y or nothing
-                # TODO: For the moment, plot nothing
-                outfile --buffer=buffer
-                    printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
-                end outfile
-
-            else
+            if y_counter != x_counter
 
                 list yx = null
                 list yx = L.$y L.$x
 
                 if self.triangle == 0
+
                     outfile --buffer=buffer
                         write_labels (varnames(yx)[1], varnames(yx)[2])
                         write_plot_cmd(&self, n_factor_values, factor)
@@ -132,9 +139,9 @@ function string write_plot_cmd_and_data (const list L,
                         endif
                     end outfile
 
-
                 else
                     if y_counter > x_counter
+                        # TODO: Duplicated code -- see above
                         outfile --buffer=buffer
                             write_labels (varnames(yx)[1], varnames(yx)[2])
                             write_plot_cmd(&self, n_factor_values, factor)
@@ -161,12 +168,97 @@ function string write_plot_cmd_and_data (const list L,
     endloop
 
     BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
-    #    BUFFER
-    #    stop
 
     return BUFFER
 end function
 
+
+/* THIS CODE WORKS BUT I DONT NO HOW TO ADD A HISTOGRAM AT THE DIAGONAL AT THE MOMENT
+   function string write_plot_cmd_and_data (const list L,
+   bundle *self,
+   const series factor[null])
+
+   string BUFFER = ""
+
+   scalar n_factor_values = 1
+   n_factor_values = (exists(factor)) ? rows(values(factor)) : n_factor_values
+
+   # 1) Loop over all possible nelem(y)*(nelem(y)-1)) combinations
+   # -> Each one starts with a new plot cmd
+   # 2) For each combination, consider the n_factor_values
+
+   scalar y_counter = 0
+
+   loop foreach y L -q			# Row dimension
+   y_counter++
+
+   scalar x_counter = 0
+
+   loop foreach x L -q		# Col dimension
+   x_counter++
+
+   string buffer = ""
+
+   # New subplot always starts with 'plot' cmd
+   if y_counter == x_counter		# case: varname(L.$y) == varname(L.$x)
+
+   # Plot histogram of L.$y or nothing
+   # TODO: For the moment, plot nothing
+   outfile --buffer=buffer
+   printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
+   end outfile
+
+   else
+
+   list yx = null
+   list yx = L.$y L.$x
+
+   if self.triangle == 0
+   outfile --buffer=buffer
+   write_labels (varnames(yx)[1], varnames(yx)[2])
+   write_plot_cmd(&self, n_factor_values, factor)
+
+   if exists(factor)
+   write_plot_data(yx, factor, n_factor_values)
+   else
+   write_plot_data(yx, , n_factor_values)
+   endif
+   end outfile
+
+
+   else
+   if y_counter > x_counter
+   # TODO: Duplicated code -- see above
+   outfile --buffer=buffer
+   write_labels (varnames(yx)[1], varnames(yx)[2])
+   write_plot_cmd(&self, n_factor_values, factor)
+
+   if exists(factor)
+   write_plot_data(yx, factor, n_factor_values)
+   else
+   write_plot_data(yx, , n_factor_values)
+   endif
+   end outfile
+
+   else
+   outfile --buffer=buffer
+   printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
+   end outfile
+   endif
+
+   endif		# end 'triangle' condition
+
+   endif
+   BUFFER += buffer
+   endloop
+
+   endloop
+
+   BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
+
+   return BUFFER
+   end function
+*/
 
 function void write_labels (const string yname, const string xname)
     printf "set ylabel '%s'\n", yname
@@ -254,18 +346,17 @@ function void write_plot_cmd (bundle *self,
 end function
 
 
-function string write_options (const list L, bundle *self)
+function string write_options (bundle *self)
     /* */
 
-    scalar n_L = nelem(L)
     scalar off_set = self.offset_level
 
-
     string options_out = ""
+    
     outfile --buffer=options_out
         printf "set offsets "
-        loop i=1..n_L -q
-            if i < n_L
+        loop i=1..self.n_L -q
+            if i < self.n_L
                 printf "%.2f, ", off_set
             else
                 printf "%.2f\n", off_set
@@ -305,14 +396,14 @@ function strings get_color_definitions (void)
 end function
 
 
-function string write_linetype (const list L)
+function string write_linetype (const int n_L "Number of elements in list L")
     /* */
 
     strings color_definitions = get_color_definitions()
 
     string linetype_out = ""
     outfile --buffer=linetype_out
-        loop i=1..nelem(L) -q
+        loop i=1..n_L -q
             printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[i]
         endloop
     end outfile
