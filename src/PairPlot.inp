@@ -10,7 +10,9 @@ function scalar PairPlot (const list L "List of variables to plot",
         self = opts + default_options()
     endif
 
-    # TODO: Add check that rows(pointtype)=1 or if > 1 equal the number of distinct values of factor!
+    if exists(factor)
+        check_length_pointtype(rows(values(factor)), &self)
+    endif
 
     if !exists(filename)
         string filename = "display"
@@ -28,6 +30,21 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
 
     return send_to_gnuplot(buffer, filename)
+end function
+
+
+function scalar check_length_pointtype (const int n_values_factor, bundle *self)
+    scalar n_pts = rows(vec(self.pointtype))
+    if n_pts == 1
+        return 0
+    else
+        if n_pts < n_values_factor
+            printf "\nError: Your 'factor' series has %d distinct values\n\
+              but you have set a vector 'pointtype with only %d elements.\n\n", n_values_factor, n_pts
+            return 1
+        endif
+    endif
+    return 0
 end function
 
 
