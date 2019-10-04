@@ -3,28 +3,31 @@ set verbose off
 
 include /home/at/git/PairPlot/src/PairPlot.inp --force
 
-open /home/at/git/PairPlot/data/iris.csv --quiet
+scalar SAMPLE = 1
 
-list y = 1..4
+if SAMPLE == 1
+    open /home/at/git/PairPlot/data/iris.csv --quiet
+    series factor = variety
+    
+elif SAMPLE == 2
+    open credscore.gdt --quiet
+    series factor = Selfempl
+endif
 
-# override default value
+list y = 1..4					# list of series to plot
+
+# override default value by optionals
 bundle opts = null
 matrix opts.pointtype = {1,7,8}
 matrix opts.pointsize = 0.8
-matrix opts.aspect_scale = 1.8
+matrix opts.fontsize = 6
+matrix opts.aspect_scale = 1.2
 scalar opts.key = 1				# print values of factor as legend
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-scalar opts.triangle = 0
+#scalar opts.triangle = 1
 
-string filename = "display" #"/home/at/test.png"		# optional: default 'display'
-scalar err = PairPlot(y, variety, filename, &opts)
+string filename = "display" 		# optional: "PATH/test.png"
+scalar err = PairPlot(y, factor, , filename, &opts)
 err
-stop
 
-
-open credscore.gdt -q -p
-list y = 1..4
-
-scalar err = PairPlot(y, Selfempl, filename, &opts)
-err

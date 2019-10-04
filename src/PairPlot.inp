@@ -1,9 +1,8 @@
-
-function scalar PairPlot (const list L,
-                          const series factor[null],
-                          string filename[null],
-                          bundle *opts[null])
-    /* Main function */
+function scalar PairPlot (const list L "List of variables to plot",
+                          const series factor[null] "Discrete series for factorization",
+                          const series size[null] "Make point size a function of size (not supported yet!)",
+                          string filename[null] "Path+filename (png-file only)",
+                          bundle *opts[null] "Set options through bundle")
 
     # Initial settings
     bundle self = default_options()
@@ -19,17 +18,14 @@ function scalar PairPlot (const list L,
     scalar self.n_L = nelem(L)
 
     # Settings
-    scalar self.NO_HISTOGRAM = 1					# This yields a (n_L-1) by (n_L-1) pairplot matrix wo histograms on the diagonal!
     string buffer = write_settings(&self)
 
     # Write plot cmd + data
     if self.triangle
-        stop
-        # string buffer += write_plot_cmd_and_data_tri(L, &self, factor)
-        # TODO
+        string buffer += write_plot_cmd_and_data_tri(L, &self, factor)
     else
         string buffer += write_plot_cmd_and_data(L, &self, factor)
-    endif    
+    endif
 
     return send_to_gnuplot(buffer, filename)
 end function
@@ -138,7 +134,7 @@ function string write_plot_cmd_and_data (const list L,
                         write_plot_data(yx, , n_factor_values)
                     endif
                 end outfile
-                
+
                 BUFFER += buffer
             endif
         endloop
@@ -151,9 +147,9 @@ end function
 
 
 function string write_plot_cmd_and_data_tri (const list L,
-                                                  bundle *self,
-                                                  const series factor[null])
-    /* For  self.triangle == 1 */
+                                             bundle *self,
+                                             const series factor[null])
+    /* For self.triangle=1 case */
 
     string BUFFER = ""
 
@@ -172,6 +168,11 @@ function string write_plot_cmd_and_data_tri (const list L,
         scalar x_counter = 0
 
         loop foreach x L -q		# Col dimension
+
+            if y_counter == 1
+                break
+            endif
+
             x_counter++
 
             if varname(L.$y) != varname(L.$x)
@@ -181,7 +182,7 @@ function string write_plot_cmd_and_data_tri (const list L,
                 list yx = null
                 list yx = L.$y L.$x
 
-                if self.triangle == 0
+                if y_counter > x_counter
                     outfile --buffer=buffer
                         write_labels (varnames(yx)[1], varnames(yx)[2])
                         write_plot_cmd(&self, n_factor_values, factor)
@@ -194,27 +195,7 @@ function string write_plot_cmd_and_data_tri (const list L,
                     end outfile
 
                 else
-
-                    #                    if x_counter > y_counter
-                    #                        break
-                    #                    endif
-
-                    if y_counter > x_counter
-                        # TODO: Duplicated code -- see above
-                        outfile --buffer=buffer
-                            write_labels (varnames(yx)[1], varnames(yx)[2])
-                            write_plot_cmd(&self, n_factor_values, factor)
-
-                            if exists(factor)
-                                write_plot_data(yx, factor, n_factor_values)
-                            else
-                                write_plot_data(yx, , n_factor_values)
-                            endif
-                        end outfile
-
-                    else
-                        buffer = write_empty_subplot_cmd(buffer)
-                    endif
+                    buffer = write_empty_subplot_cmd(buffer)
                 endif
 
                 BUFFER += buffer
@@ -224,10 +205,11 @@ function string write_plot_cmd_and_data_tri (const list L,
 
     endloop							# end loop over y
 
-    BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
+    BUFFER += sprintf("unset multiplot")
 
     return BUFFER
 end function
+
 
 function string write_empty_subplot_cmd (string buffer)
 /* Helper function which leaves an (almost) empty subplot for
@@ -240,96 +222,6 @@ function string write_empty_subplot_cmd (string buffer)
     return buffer
 end function
 
-
-
-/* THIS CODE WORKS BUT I DONT NO HOW TO ADD A HISTOGRAM AT THE DIAGONAL AT THE MOMENT
-   --> THIS IS FOR self.NO_HISTOGRAM == 0
-
-   function string write_plot_cmd_and_data (const list L,
-   bundle *self,
-   const series factor[null])
-
-   string BUFFER = ""
-
-   scalar n_factor_values = 1
-   n_factor_values = (exists(factor)) ? rows(values(factor)) : n_factor_values
-
-   # 1) Loop over all possible nelem(y)*(nelem(y)-1)) combinations
-   # -> Each one starts with a new plot cmd
-   # 2) For each combination, consider the n_factor_values
-
-   scalar y_counter = 0
-
-   loop foreach y L -q			# Row dimension
-   y_counter++
-
-   scalar x_counter = 0
-
-   loop foreach x L -q		# Col dimension
-   x_counter++
-
-   string buffer = ""
-
-   # New subplot always starts with 'plot' cmd
-   if y_counter == x_counter		# case: varname(L.$y) == varname(L.$x)
-
-   # Plot histogram of L.$y or nothing
-   # TODO: For the moment, plot nothing
-   outfile --buffer=buffer
-   printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
-   end outfile
-
-   else
-
-   list yx = null
-   list yx = L.$y L.$x
-
-   if self.triangle == 0
-   outfile --buffer=buffer
-   write_labels (varnames(yx)[1], varnames(yx)[2])
-   write_plot_cmd(&self, n_factor_values, factor)
-
-   if exists(factor)
-   write_plot_data(yx, factor, n_factor_values)
-   else
-   write_plot_data(yx, , n_factor_values)
-   endif
-   end outfile
-
-
-   else
-   if y_counter > x_counter
-   # TODO: Duplicated code -- see above
-   outfile --buffer=buffer
-   write_labels (varnames(yx)[1], varnames(yx)[2])
-   write_plot_cmd(&self, n_factor_values, factor)
-
-   if exists(factor)
-   write_plot_data(yx, factor, n_factor_values)
-   else
-   write_plot_data(yx, , n_factor_values)
-   endif
-   end outfile
-
-   else
-   outfile --buffer=buffer
-   printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
-   end outfile
-   endif
-
-   endif		# end 'triangle' condition
-
-   endif
-   BUFFER += buffer
-   endloop
-
-   endloop
-
-   BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
-
-   return BUFFER
-   end function
-*/
 
 function void write_labels (const string yname, const string xname)
     printf "set ylabel '%s'\n", yname
@@ -365,7 +257,6 @@ function void write_plot_data (const list yx,
         endloop
 
     endloop
-
 end function
 
 
@@ -401,7 +292,7 @@ function void write_plot_cmd (bundle *self,
 
         if exists(factor_has_str_values)
             if factor_has_str_values
-                printf " title 'factor=%s'", str_values_factor[i]
+                printf " title '%s'", str_values_factor[i]
             else
                 printf " title 'factor=%d'", num_values_factor[i]
             endif
@@ -426,8 +317,8 @@ function string write_options (bundle *self)
 
     outfile --buffer=options_out
         printf "set offsets "
-        loop i=1..(self.n_L-self.NO_HISTOGRAM) -q
-            if i < (self.n_L-self.NO_HISTOGRAM)
+        loop i=1..self.n_L -q
+            if i < self.n_L
                 printf "%.2f, ", off_set
             else
                 printf "%.2f\n", off_set
@@ -474,7 +365,7 @@ function string write_linetype (bundle *self)
 
     string linetype_out = ""
     outfile --buffer=linetype_out
-        loop i=1..(self.n_L-self.NO_HISTOGRAM) -q
+        loop i=1..self.n_L -q
             printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[i]
         endloop
     end outfile
