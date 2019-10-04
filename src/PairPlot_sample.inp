@@ -10,15 +10,17 @@ list y = 1..4
 # override default value
 bundle opts = null
 matrix opts.pointtype = {1,7,8}
-matrix opts.pointsize = 2
+matrix opts.pointsize = 0.8
 matrix opts.aspect_scale = 1.8
 scalar opts.key = 1				# print values of factor as legend
-scalar opts.use_circles = 1
+scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
+scalar opts.triangle = 0
 
 string filename = "display" #"/home/at/test.png"		# optional: default 'display'
 scalar err = PairPlot(y, variety, filename, &opts)
 err
+stop
 
 
 open credscore.gdt -q -p

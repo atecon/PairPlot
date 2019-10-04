@@ -30,9 +30,14 @@ function scalar PairPlot (const list L,
         if self.use_circles
             printf "\nWarning: Transparency is only supported for points but not circles.\n"
         else
-            string buffer += sprintf("set style fill transparent solid %.1f noborder\n", self.transparency_level)
+            string buffer += sprintf("set style fill transparent solid %.1f noborder\n", \
+              self.transparency_level)
         endif
     endif
+    #string buffer += sprintf("set datafile missing 'NA'\n")
+    string buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
+    string buffer += sprintf("set border 3 front ls 101\n")		# drop right and upper border
+    #    string buffer += sprintf("set tics nomirror out scale 0.75\n")		# has no effect
     string buffer += write_options(L, &self)
 
     # Write plot cmd + data
@@ -55,6 +60,7 @@ function bundle default_options (void)
     scalar self.key = 1				# print distinct values of factor variable
     scalar self.use_circles = 1
     scalar self.transparency_level = 0
+    scalar self.triangle = 1
 
     return self
 end function
@@ -88,37 +94,75 @@ function string write_plot_cmd_and_data (const list L,
     # -> Each one starts with a new plot cmd
     # 2) For each combination, consider the n_factor_values
 
+    scalar y_counter = 0
 
-    loop foreach y L -q
-        loop foreach x L -q
+    loop foreach y L -q			# Row dimension
+        y_counter++
 
-            # TODO
-            #            if varname(L.$y) == varname(L.$x)
-            #            else
-            list yx = null
-            list yx = L.$y L.$x
+        scalar x_counter = 0
+
+        loop foreach x L -q		# Col dimension
+            x_counter++
+
             string buffer = ""
-            #            endif
 
             # New subplot always starts with 'plot' cmd
-            outfile --buffer=buffer
+            if y_counter == x_counter		# case: varname(L.$y) == varname(L.$x)
 
-                write_labels (varnames(yx)[1], varnames(yx)[2])
-                write_plot_cmd(&self, n_factor_values, factor)
+                # Plot histogram of L.$y or nothing
+                # TODO: For the moment, plot nothing
+                outfile --buffer=buffer
+                    printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
+                end outfile
 
-                if exists(factor)
-                    write_plot_data(yx, factor, n_factor_values)
+            else
+
+                list yx = null
+                list yx = L.$y L.$x
+
+                if self.triangle == 0
+                    outfile --buffer=buffer
+                        write_labels (varnames(yx)[1], varnames(yx)[2])
+                        write_plot_cmd(&self, n_factor_values, factor)
+
+                        if exists(factor)
+                            write_plot_data(yx, factor, n_factor_values)
+                        else
+                            write_plot_data(yx, , n_factor_values)
+                        endif
+                    end outfile
+
+
                 else
-                    write_plot_data(yx, , n_factor_values)
-                endif
-            end outfile
-            BUFFER += buffer
+                    if y_counter > x_counter
+                        outfile --buffer=buffer
+                            write_labels (varnames(yx)[1], varnames(yx)[2])
+                            write_plot_cmd(&self, n_factor_values, factor)
 
+                            if exists(factor)
+                                write_plot_data(yx, factor, n_factor_values)
+                            else
+                                write_plot_data(yx, , n_factor_values)
+                            endif
+                        end outfile
+
+                    else
+                        outfile --buffer=buffer
+                            printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
+                        end outfile
+                    endif
+
+                endif		# end 'triangle' condition
+
+            endif
+            BUFFER += buffer
         endloop
 
     endloop
 
     BUFFER += sprintf("unset multiplot")	# TODO: only if nelem(L)>1?
+    #    BUFFER
+    #    stop
 
     return BUFFER
 end function
