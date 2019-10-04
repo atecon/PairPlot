@@ -1,14 +1,14 @@
 
-function scalar ScatterPlotMatrix (const list L,
-                                   const series factor[null],
-                                   string filename[null],
-                                   bundle *opts[null])
+function scalar PairPlot (const list L,
+                          const series factor[null],
+                          string filename[null],
+                          bundle *opts[null])
     /* Main function */
 
     # Initial settings
     bundle self = default_options()
     if exists(opts)
-        self = opts + default_options()  
+        self = opts + default_options()
     endif
 
     # TODO: Add check that rows(pointtype)=1 or if > 1 equal the number of distinct values of factor!
@@ -36,7 +36,7 @@ end function
 
 function bundle default_options (void)
     /* Define default parameter values */
-    
+
     bundle self = null
 
     scalar self.size_scaling = 1.2	# scaling factor for size
@@ -82,7 +82,7 @@ function string write_plot_cmd_and_data (const list L,
 
     loop foreach y L -q
         loop foreach x L -q
-            
+
             # TODO
             #            if varname(L.$y) == varname(L.$x)
             #            else
@@ -94,7 +94,7 @@ function string write_plot_cmd_and_data (const list L,
             # New subplot always starts with 'plot' cmd
             outfile --buffer=buffer
 
-                write_labels (varnames(yx)[1], varnames(yx)[2])                
+                write_labels (varnames(yx)[1], varnames(yx)[2])
                 write_plot_cmd(&self, n_factor_values, factor)
 
                 if exists(factor)
@@ -163,7 +163,7 @@ function void write_plot_cmd (bundle *self,
     else
         matrix pt = self.pointtype
     endif
-    
+
 
     if self.key && exists(factor)
         strings str_values_factor = strvals(factor)
@@ -173,11 +173,11 @@ function void write_plot_cmd (bundle *self,
             factor_has_str_values = 0
         endif
     endif
-        
+
     printf "plot \\\n"
     loop i=1..n_factor_values -q
         printf "'-' using 1:2 w points pt %d", pt[i]
-        
+
         if exists(factor_has_str_values)
             if factor_has_str_values
                 printf " title 'factor=%s'", str_values_factor[i]
@@ -185,7 +185,7 @@ function void write_plot_cmd (bundle *self,
                 printf " title 'factor=%d'", num_values_factor[i]
             endif
         endif
-        
+
         if i < n_factor_values
             printf ", \\\n"
         else
