@@ -23,7 +23,13 @@ function scalar PairPlot (const list L,
     string buffer = write_settings(&self)
 
     # Write plot cmd + data
-    string buffer += write_plot_cmd_and_data(L, &self, factor)
+    if self.triangle
+        stop
+        # string buffer += write_plot_cmd_and_data_tri(L, &self, factor)
+        # TODO
+    else
+        string buffer += write_plot_cmd_and_data(L, &self, factor)
+    endif    
 
     return send_to_gnuplot(buffer, filename)
 end function
@@ -42,11 +48,11 @@ function string write_settings (bundle *self)
     string buffer += write_linetype(&self)
 
     if self.triangle
-        scalar c = self.n_L
+        scalar r = self.n_L - 1
     else
-        scalar c = self.n_L - 1
+        scalar r = self.n_L
     endif
-    scalar r = self.n_L
+    scalar c = self.n_L - 1
     string buffer += sprintf("set multiplot layout %d,%d\n", r, c)
 
     if self.transparency_level > 0
@@ -106,6 +112,48 @@ end function
 function string write_plot_cmd_and_data (const list L,
                                          bundle *self,
                                          const series factor[null])
+    /* For case self.triangle==0 case */
+
+    string BUFFER = ""
+
+    scalar n_factor_values = 1
+    n_factor_values = (exists(factor)) ? rows(values(factor)) : n_factor_values
+
+    loop foreach y L -q			# Row dimension
+        loop foreach x L -q		# Col dimension
+            if varname(L.$y) != varname(L.$x)
+
+                string buffer = ""
+
+                list yx = null
+                list yx = L.$y L.$x
+
+                outfile --buffer=buffer
+                    write_labels (varnames(yx)[1], varnames(yx)[2])
+                    write_plot_cmd(&self, n_factor_values, factor)
+
+                    if exists(factor)
+                        write_plot_data(yx, factor, n_factor_values)
+                    else
+                        write_plot_data(yx, , n_factor_values)
+                    endif
+                end outfile
+                
+                BUFFER += buffer
+            endif
+        endloop
+    endloop
+
+    BUFFER += sprintf("unset multiplot")
+
+    return BUFFER
+end function
+
+
+function string write_plot_cmd_and_data_tri (const list L,
+                                                  bundle *self,
+                                                  const series factor[null])
+    /* For  self.triangle == 1 */
 
     string BUFFER = ""
 
@@ -134,7 +182,6 @@ function string write_plot_cmd_and_data (const list L,
                 list yx = L.$y L.$x
 
                 if self.triangle == 0
-
                     outfile --buffer=buffer
                         write_labels (varnames(yx)[1], varnames(yx)[2])
                         write_plot_cmd(&self, n_factor_values, factor)
@@ -145,12 +192,12 @@ function string write_plot_cmd_and_data (const list L,
                             write_plot_data(yx, , n_factor_values)
                         endif
                     end outfile
-                    
+
                 else
-                    
-#                    if x_counter > y_counter
-#                        break
-#                    endif
+
+                    #                    if x_counter > y_counter
+                    #                        break
+                    #                    endif
 
                     if y_counter > x_counter
                         # TODO: Duplicated code -- see above
@@ -169,7 +216,7 @@ function string write_plot_cmd_and_data (const list L,
                         buffer = write_empty_subplot_cmd(buffer)
                     endif
                 endif
-                
+
                 BUFFER += buffer
             endif
 
