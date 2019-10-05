@@ -16,6 +16,9 @@ function scalar PairPlot (const list L "List of variables to plot",
             return 1
         endif
         series self.factor = factor
+        scalar self.n_factor_values = rows(values(factor))
+    else
+        scalar self.n_factor_values = 1		# needed for making loops working
     endif
 
     if !exists(filename)
@@ -116,7 +119,7 @@ function bundle default_options (void)
     scalar self.transparency_level = 0
     string self.type = "matrix"
     scalar self.tics = 1				# print no x/y tics
-    scalar self.grid = 0				# add grid (works only if self.tics=1)
+    scalar self.grid = 0	# add grid (works only if self.tics=1) - not supported!
 
     return self
 end function
@@ -138,14 +141,10 @@ end function
 
 
 function string write_plot_cmd_and_data_mat (const list L,
-                                             bundle *self,
-                                             const series factor[null])
+                                             bundle *self)
     /* For case self.type=="matrix" case */
 
     string BUFFER = ""
-
-    scalar n_factor_values = 1
-    n_factor_values = (exists(factor)) ? rows(values(factor)) : n_factor_values
 
     loop foreach y L -q			# Row dimension
         loop foreach x L -q		# Col dimension
@@ -158,13 +157,8 @@ function string write_plot_cmd_and_data_mat (const list L,
 
                 outfile --buffer=buffer
                     write_labels (varnames(yx)[1], varnames(yx)[2])
-                    write_plot_cmd(&self, n_factor_values, factor)
-
-                    if exists(factor)
-                        write_plot_data(yx, factor, n_factor_values)
-                    else
-                        write_plot_data(yx, , n_factor_values)
-                    endif
+                    write_plot_cmd(&self)
+                    write_plot_data(yx, &self)
                 end outfile
 
                 BUFFER += buffer
@@ -184,14 +178,10 @@ end function
 
 
 function string write_plot_cmd_and_data_tri (const list L,
-                                             bundle *self,
-                                             const series factor[null])
+                                             bundle *self)
     /* For self.type=="triangle" case */
 
     string BUFFER = ""
-
-    scalar n_factor_values = 1
-    n_factor_values = (exists(factor)) ? rows(values(factor)) : n_factor_values
 
     # 1) Loop over all possible nelem(y)*(nelem(y)-1)) combinations
     # -> Each one starts with a new plot cmd
@@ -222,13 +212,8 @@ function string write_plot_cmd_and_data_tri (const list L,
                 if y_counter > x_counter
                     outfile --buffer=buffer
                         write_labels (varnames(yx)[1], varnames(yx)[2])
-                        write_plot_cmd(&self, n_factor_values, factor)
-
-                        if exists(factor)
-                            write_plot_data(yx, factor, n_factor_values)
-                        else
-                            write_plot_data(yx, , n_factor_values)
-                        endif
+                        write_plot_cmd(&self)
+                        write_plot_data(yx, &self)
                     end outfile
 
                 else
@@ -257,9 +242,15 @@ function string write_empty_subplot_cmd (string buffer, bundle *self)
         printf "set border 0\n"
         printf "unset xlabel\n"
         printf "unset ylabel\n"
+        printf "unset xtics\n"
+        printf "unset ytics\n"
         printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
         if self.key
             printf "set key on\n"
+        endif
+        if self.tics
+            printf "set xtics\n"
+            printf "set ytics\n"
         endif
         printf "%s\n", self.border_cmd
     end outfile
@@ -275,18 +266,17 @@ end function
 
 
 function void write_plot_data (const list yx,
-                               const series factor[null],
-                               const int n_factor_values)
+                               bundle *self)
     /* Write data for a single subplot. */
 
-    if n_factor_values > 1
-        factor_values = values(factor)
+    if inbundle(self, "factor")
+        matrix factor_values = values(self.factor)
     endif
+    
+    loop i=1..self.n_factor_values -q
 
-    loop i=1..n_factor_values -q
-
-        if n_factor_values > 1
-            smpl factor == factor_values[i] --restrict --replace
+        if self.n_factor_values > 1
+            smpl self.factor == factor_values[i] --restrict --replace
         endif
 
         smpl --no-missing yx
@@ -305,13 +295,11 @@ function void write_plot_data (const list yx,
 end function
 
 
-function void write_plot_cmd (bundle *self,
-                              const int n_factor_values,
-                              const series factor[null])
+function void write_plot_cmd (bundle *self)
     /* */
 
     if rows(vec(self.pointtype)) == 1
-        matrix pt = self.pointtype * ones(n_factor_values,1)
+        matrix pt = self.pointtype * ones(self.n_factor_values, 1)
     else
         matrix pt = self.pointtype
     endif
@@ -322,17 +310,19 @@ function void write_plot_cmd (bundle *self,
         string plot_type = "points"
     endif
 
-    if self.key && exists(factor)
+    if self.key && inbundle(self, "factor")
+        series factor = self.factor
+        
         strings str_values_factor = strvals(factor)
         scalar factor_has_str_values = 1
         if nelem(str_values_factor) == 0 # factor includes only numeric values
             matrix num_values_factor = values(factor)
-            factor_has_str_values = 0
+            scalar factor_has_str_values = 0
         endif
     endif
 
     printf "plot \\\n"
-    loop i=1..n_factor_values -q
+    loop i=1..self.n_factor_values -q
         printf "'-' using 1:2 w %s pt %d", plot_type, pt[i]
 
         if exists(factor_has_str_values)
@@ -343,7 +333,7 @@ function void write_plot_cmd (bundle *self,
             endif
         endif
 
-        if i < n_factor_values
+        if i < self.n_factor_values
             printf ", \\\n"
         else
             printf "\n"
