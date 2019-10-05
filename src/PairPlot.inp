@@ -5,9 +5,9 @@ function scalar PairPlot (const list L "List of variables to plot",
       bundle *opts[null] "Set options through bundle")
 
     # Initial settings
-    bundle self = default_options()
+    bundle self
     if exists(opts)
-        self = opts + default_options()
+        self = opts + default_options()        
     endif
 
     if exists(factor)
@@ -18,6 +18,7 @@ function scalar PairPlot (const list L "List of variables to plot",
         series self.factor = factor
         scalar self.n_factor_values = rows(values(factor))
     else
+        self.key = 0						# dont print key/ legend
         scalar self.n_factor_values = 1		# needed for making loops working
     endif
 
@@ -238,14 +239,16 @@ function string write_empty_subplot_cmd (string buffer, bundle *self)
     triangular matrix plot */
 
     outfile --buffer=buffer
-        printf "set key off\n"
+        if self.key
+            printf "set key off\n"
+        endif
         printf "set border 0\n"
         printf "unset xlabel\n"
         printf "unset ylabel\n"
         printf "unset xtics\n"
         printf "unset ytics\n"
         printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
-        if self.key
+        if self.key && inbundle(self, "factor")
             printf "set key on\n"
         endif
         if self.tics
