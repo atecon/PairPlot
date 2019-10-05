@@ -20,15 +20,21 @@ list y = 1..4					# list of series to plot
 bundle opts = null
 matrix opts.pointtype = {1,7,8}
 matrix opts.pointsize = 0.8
-matrix opts.fontsize = 6
-matrix opts.aspect_scale = 1.2
+matrix opts.fontsize = 8
+matrix opts.aspect_scale = 1.5
 scalar opts.key = 1				# print values of factor as legend
-scalar opts.use_circles = 0
+scalar opts.tics = 1
+scalar opts.grid = 0			# only works with xtics=1
+scalar opts.use_circles = 1
 scalar opts.transparency_level = 0.5
-#string opts.type = "triangle"
+#string opts.type = "triangle"			# "matrix" (default), "triangle", "row", "row_transponed"
 
 string filename = "display" 		# optional: "PATH/test.png"
 scalar err = PairPlot(y, factor, , filename, &opts)
 err
 
-scatters
+stop
+
+string filename = "display" 		# optional: "PATH/test.png"
+scalar err = PairPlot(y, , , filename, &opts)
+err
