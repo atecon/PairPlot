@@ -9,3 +9,4 @@ data-requirement = no-data-ok
 public = PairPlot
 help = PairPlot_help.txt
 sample-script = PairPlot_sample.inp
+data-files = iris.gdt

@@ -1,12 +1,12 @@
 clear
 set verbose off
 
-include /home/at/git/PairPlot/src/PairPlot.inp --force
+include PairPlot.gfn --force
 
-scalar SAMPLE = 1
+scalar SAMPLE = 1					# Select a dataset
 
 if SAMPLE == 1
-    open /home/at/git/PairPlot/data/iris.csv --quiet
+    open iris.gdt --frompkg=PairPlot --quiet
     series factor = variety
     
 elif SAMPLE == 2
