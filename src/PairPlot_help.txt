@@ -6,198 +6,90 @@ Please report bugs or comments on the gretl mailing list or write to t.artur@pos
 
 Subplot grid for plotting pairwise relationships in a dataset.
 
-This package maps each variable in a list onto a column and row in a grid of multiple axes. 
+This package maps each variable in a list onto a column and row in a grid of multiple axes.
 
-It can also represent an additional level of conditionalization with the 'factor' parameter (a series), which plots different subets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
-
-
+It can also represent an additional level of conditionalization with the 'factor' parameter (a series), which plots different subsets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
 
 
-For a more detailed manual, see <https://github.com/atecon/CategoryEncoders/blob/master/README.md>.
+For a more detailed manual, see <https://github.com/atecon/PairPlot/blob/master/README.md>.
 
 
-----------------
-Public Functions
-----------------
-
-binary_encode
-=============
-Binarize data (set feature values to 0 or 1) according to a threshold. Values greater than the threshold map to 1, while values less than or equal to the threshold map to 0. With the default threshold of 0, only positive values map to 1.
-
-Parameters:
------------
-X:
-list, List of series to which to apply the function
-
-threshold:
-scalar, Feature values below or equal to this are replaced by 0, above it by 1. (0.0 by default)
-
-suffix:
-string, Add a suffix to the returned series' name default value "_bin")
-
-verbose:
-bool, Print details or not (per default no printout)
-
-Returns:
---------
-List of named series with binary values. The i-th series name takes the i-th input series' name plus the suffix "_bin" if not differently set.
-
-
-ohe_encode
+PairPlot()
 ==========
-Encode categorical discrete integer features of a single series as a one-hot (binary) list of series. The encoder derives the categories based on the unique values of the input series.
 
 Parameters:
 -----------
-X:
-series, Series with discrete values to which to apply the function
+L:
+list, List of series to consider.
 
-drop:
-int, Decide whether to drop a resulting series. Per default no resulting series is droppped. For drop=1, the highest value of X is omitted from the encoding. For drop=2 the lowest value of X is omitted from the encoding
+factor:
+series, Optional discrete variable in to map plot aspects to different colors and/or points/ circles. Default: null.
 
-verbose:
-bool, Print details or not (per default no printout)
+size:
+series, Placeholder for future feature. Default: null.
+
+filename:
+string, Path plus filename plus file extension "png" (currently the only output format supported). Default: 'display' which draws the resulting plot directly at the screen.
+
+opts:
+bundle, Optional bundle for passing additional parameters. See below for explanation. Default: null
+
 
 Returns:
 --------
-List of named series with binary values. The i-th series is named 'Dx_i' where 'x' refers to the name of input series X and 'i' to the i-th distinct value of X.
+An integer of value '0' if no error occurs, otherwise 1.
 
 
-means_encode
-============
-Compute category-wise, as identified by the discrete series G, mean values for each variable in list X.
+Options passed to the PairPlot() function by means of the 'opts' bundle
+=======================================================================
+The user can control the following aspects by adding the respective parameter to the 'opts' bundle.
 
-Parameters:
------------
-X:
-list, List of series to which to apply the function
+type, str: 
+Select the type of plot. The following types are supported:
+(i) "matrix": Scatterplot matrix which draws a scatter plot between all combinations of variables included in list L.
+(ii) "triangle": Lower tringular version of the scatterplot "matrix" type.
+(iii) "row": Plot the first series element in list L in a single row against all remaining list members.
+(iv) "row_transponed": Works like type "row" but subplots are arranged in a single column instead.
+Default: "matrix".
 
-G:
-series, Discrete series refering to unique categories
+use_circles, bool:
+Draw circles instead of points if set to 1. Default: 0.
 
-suffix:
-string, Add a suffix to the returned series' name (default value "_mean")
+pointsize, scalar:
+Control the size of points but not circles. Default: 0.5.
 
-verbose:
-bool, Print details or not (per default no printout)
+pointtype, matrix:
+Control the type of points. Can be either a scalar entry such that points associated to different levels of 'factor' are of the same type. One may also provide a vector of integers for each distinct value of the 'factor' series. Default: 7.
 
-Returns:
---------
-List of named series with category-wise mean values. The i-th series name takes the i-th input series' name plus the suffix "_mean" if not differently set.
+key, bool:
+If the 'factor' series is provided, a legend shows the color and point pattern for each distinct value of the 'factor' variable. Default: 1.
 
+key_position, str:
+Controls the position of the legend in each subplot (use standard gnuplot options). Default: "top left".
 
-median_encode
-=============
-Compute category-wise, as identified by the discrete series G, median values for each variable in list X.
+transparency_level, scalar:
+Controls the transparency level of points and circles (between 0 and 1). Default: 0.5.
 
-Parameters:
------------
-X:
-list, List of series to which to apply the function
+tics, bool:
+Print x-tics and y-tics. Default: 1.
 
-G:
-series, Discrete series refering to unique categories
+aspect_scale:
+Positive scaling factor for controlling the size of the plot. Default: 1.
 
-suffix:
-string, Add a suffix to the returned series' name (default value "_mean")
+fontsize, int:
+Control the fontsize. Default: 8.
 
-verbose:
-bool, Print details or not (per default no printout)
+font, str:
+Control the type of font. Default: "League Spartan".
 
-Returns:
---------
-List of named series with category-wise median values. The i-th series name takes the i-th input series' name plus the suffix "_median" if not differently set..
-
-
-pca_encode
-==========
-Compute category-wise, as identified by the discrete series G, principle components using all information in list X.
-
-Parameters:
------------
-X:
-list, List of series to which to apply the function
-
-G:
-series, Discrete series identifying unique categories
-
-num_components:
-int, Retrieve only the first n principle components (per default retrieve all)
-
-mean_encode:
-bool, Apply means-encoding on all X elemenets before computing the principle components of these n-encoded series.
-
-suffix:
-string, Add a suffix to the returned series' name (default value "_pca")
-
-verbose:
-bool, Print details or not (per default no printout)
-
-Returns:
---------
-List of named series with group-wise principle component values. The i-th series name takes the i-th input series' name plus the suffix "_pca" if not differently set.
-
-
-low_rank_encode
-===============
-Compute category-wise, as identified by the discrete series G, left-singlular value matrix component by means of Singular Value Decomposition using all information in list X.
-
-Parameters:
------------
-X:
-list, List of k series to which to apply the function
-
-G:
-series, Discrete series identifying unique groups
-
-num_components:
-int, Retrieve only the first n columns of the left-singular value matrix (per	default retrieve the first k columns)
-
-mean_encode:
-bool, Apply means-encoding on all X elemenets before computing the low-rank components of these mean-encoded series.
-
-suffix:
-string, Add a suffix to the returned series' name (default value "_svd")
-
-verbose:
-bool, Print details or not (per default no printout)
-
-Returns:
---------
-List of named series with group-wise rank component values. The i-th series name takes the i-th input series' name plus the suffix "_svd" if not differently set.
-
-
-mnl_encode
-============
-Compute category-wise, as identified by the discrete series G, left-singlular value matrix component by means of Singular Value Decomposition using all information in list X.
-
-Parameters:
------------
-X:
-list, List of k series to which to apply the function
-
-G:
-series, Discrete series identifying unique groups
-
-num_components:
-int, Retrieve only the first n columns of the left-singular value matrix (per	default retrieve the first k columns)
-
-mean_encode:
-bool, Apply means-encoding on all X elemenets before computing the low-rank components of these mean-encoded series.
-
-suffix:
-string, Add a suffix to the returned series' name (default value "_mnl")
-
-verbose:
-bool, Print details or not (per default no printout)
-
-Returns:
---------
-List of named series with category-wise rank component values. The i-th series name takes the i-th input series' name plus the suffix "_mnl" if not differently set.
+offset_level, scalar:
+Provides a mechanism to put a boundary around the data inside of an autoscaled graph. For details see:
+<http://gnuplot.sourceforge.net/docs_4.2/node209.html>
+Default: 0.02.
 
 
 
 Changelog:
 ----------
-Version 0.2 (Sept. 2019):
+Version 0.5 (Oct. 2019):
 - Initial version

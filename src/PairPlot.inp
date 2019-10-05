@@ -7,27 +7,24 @@ function scalar PairPlot (const list L "List of variables to plot",
     # Initial settings
     bundle self
     if exists(opts)
-        self = opts + default_options()        
+        self = opts + default_options()
     endif
 
+    scalar self.n_L = nelem(L)
+    
     if exists(factor)
-        scalar isok = is_ok_length_pointtype_vector(rows(values(factor)), &self)
-        if !isok
-            return 1
-        endif
         series self.factor = factor
-        scalar self.n_factor_values = rows(values(factor))
-    else
-        self.key = 0						# dont print key/ legend
-        scalar self.n_factor_values = 1		# needed for making loops working
+    endif
+    if settings_related_to_factor(&self)	# puts 'factor' into self
+        return 1
     endif
 
     if !exists(filename)
         string filename = "display"
     endif
-    scalar self.n_L = nelem(L)
 
-    # Settings
+    
+    # Write plot related settings
     string buffer = write_settings(&self)
 
     # Write plot cmd + data
@@ -38,6 +35,23 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
 
     return send_to_gnuplot(buffer, filename)
+end function
+
+
+function scalar settings_related_to_factor (bundle *self)
+
+    if inbundle(self, "factor")
+        scalar self.n_factor_values = rows(values(self.factor))    
+        scalar isok = is_ok_length_pointtype_vector(self.n_factor_values, &self)
+        if !isok
+            return 1
+        endif
+    else
+        self.key = 0						# dont print key/ legend in this case
+        scalar self.n_factor_values = 1		# needed for making loops working
+    endif
+
+    return 0
 end function
 
 
@@ -104,7 +118,7 @@ end function
 
 
 function bundle default_options (void)
-    /* Define default parameter values */
+    /* Default parameter values */
 
     bundle self = null
 
@@ -116,8 +130,8 @@ function bundle default_options (void)
     scalar self.offset_level = 0.02
     scalar self.key = 1						# print distinct values of factor variable
     string self.key_position = "top left"	# position legend (standatd gnuplot settings)
-    scalar self.use_circles = 1
-    scalar self.transparency_level = 0
+    scalar self.use_circles = 0
+    scalar self.transparency_level = 0.5
     string self.type = "matrix"
     scalar self.tics = 1				# print no x/y tics
     scalar self.grid = 0	# add grid (works only if self.tics=1) - not supported!
@@ -184,8 +198,8 @@ function string write_plot_cmd_and_data_tri (const list L,
 
     string BUFFER = ""
 
-    # 1) Loop over all possible nelem(y)*(nelem(y)-1)) combinations
-    # -> Each one starts with a new plot cmd
+    # 1) Loop over all possible combinations
+    # -> Each one starts with a new 'plot' cmd
     # 2) For each combination, consider the n_factor_values
 
     scalar y_counter = 0
@@ -235,8 +249,7 @@ end function
 
 
 function string write_empty_subplot_cmd (string buffer, bundle *self)
-/* Helper function which leaves an (almost) empty subplot for
-    triangular matrix plot */
+/* Helper function which leaves an empty subplot for triangular matrix plot */
 
     outfile --buffer=buffer
         if self.key
@@ -268,14 +281,13 @@ function void write_labels (const string yname, const string xname)
 end function
 
 
-function void write_plot_data (const list yx,
-                               bundle *self)
+function void write_plot_data (const list yx, bundle *self)
     /* Write data for a single subplot. */
 
     if inbundle(self, "factor")
         matrix factor_values = values(self.factor)
     endif
-    
+
     loop i=1..self.n_factor_values -q
 
         if self.n_factor_values > 1
@@ -285,7 +297,7 @@ function void write_plot_data (const list yx,
         smpl --no-missing yx
         matrix m_yx = {yx}
 
-        loop j=1..$nobs -q		# TODO: Use 'print' instead of the loop?
+        loop j=1..$nobs -q		# TODO: Use 'print' statement instead of the loop -- faster for 'big data'?
             printf "%.3f %.3f", m_yx[j,1], m_yx[j,2]
             if j < $nobs
                 printf "\n"
@@ -299,7 +311,6 @@ end function
 
 
 function void write_plot_cmd (bundle *self)
-    /* */
 
     if rows(vec(self.pointtype)) == 1
         matrix pt = self.pointtype * ones(self.n_factor_values, 1)
@@ -315,7 +326,7 @@ function void write_plot_cmd (bundle *self)
 
     if self.key && inbundle(self, "factor")
         series factor = self.factor
-        
+
         strings str_values_factor = strvals(factor)
         scalar factor_has_str_values = 1
         if nelem(str_values_factor) == 0 # factor includes only numeric values
