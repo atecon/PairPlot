@@ -1,0 +1,11 @@
+author = Artur Tarassow
+email = atecon@posteo.de
+version = 0.5
+date = 2019-10-05
+description = Scatterplot matrix
+tags = C88
+min-version = 2018a
+data-requirement = no-data-ok
+public = PairPlot
+help = PairPlot_help.txt
+sample-script = PairPlot_sample.inp

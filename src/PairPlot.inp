@@ -389,7 +389,7 @@ end function
 
 
 function strings get_color_definitions (void)
-    /* Put your own deinitions here. */
+    /* Put your own definitions here. */
 
     strings color_definitions = defarray("#C41E3A", \
     "#4682B4", \
