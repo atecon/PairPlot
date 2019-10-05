@@ -26,7 +26,7 @@ scalar opts.key = 1				# print values of factor as legend
 scalar opts.tics = 1
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-string opts.type = "triangle"			# "matrix" (default), "triangle", "row", "row_transponed"
+#string opts.type = "triangle"			# "matrix" (default), "triangle", "row", "row_transponed"
 
 string filename = "display" 		# optional: "PATH/test.png"
 scalar err = PairPlot(y, factor, , filename, &opts)

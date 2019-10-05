@@ -154,10 +154,10 @@ function string write_plot_cmd_and_data_mat (const list L,
                 string buffer = ""
 
                 list yx = null
-                list yx = L.$y L.$x
+                list yx = L.$x L.$y
 
                 outfile --buffer=buffer
-                    write_labels (varnames(yx)[1], varnames(yx)[2])
+                    write_labels(varnames(yx)[2], varnames(yx)[1])
                     write_plot_cmd(&self)
                     write_plot_data(yx, &self)
                 end outfile
@@ -208,11 +208,11 @@ function string write_plot_cmd_and_data_tri (const list L,
                 string buffer = ""
 
                 list yx = null
-                list yx = L.$y L.$x
+                list yx = L.$x L.$y
 
                 if y_counter > x_counter
                     outfile --buffer=buffer
-                        write_labels (varnames(yx)[1], varnames(yx)[2])
+                        write_labels(varnames(yx)[2], varnames(yx)[1])
                         write_plot_cmd(&self)
                         write_plot_data(yx, &self)
                     end outfile
