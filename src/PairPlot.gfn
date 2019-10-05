@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gretl-functions>
+<gretl-function-package name="PairPlot" no-data-ok="true" minver="2018a" lives-in-subdir="true">
+<author email="atecon@posteo.de">Artur Tarassow</author>
+<version>0.5</version>
+<date>2019-10-05</date>
+<description>Scatterplot matrix</description>
+<tags>C88</tags>
+<help>
+*** PairPlot ***
+
+written by Artur Tarassow
+
+Please report bugs or comments on the gretl mailing list or write to t.artur@posteo.de.
+
+Subplot grid for plotting pairwise relationships in a dataset.
+
+This package maps each variable in a list onto a column and row in a grid of multiple axes.
+
+It can also represent an additional level of conditionalization with the 'factor' parameter (a series), which plots different subsets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
+
+
+For a more detailed manual, see &lt;https://github.com/atecon/PairPlot/blob/master/README.md&gt;.
+
+
+PairPlot()
+==========
+
+Parameters:
+-----------
+L:
+list, List of series to consider.
+
+factor:
+series, Optional discrete variable in to map plot aspects to different colors and/or points/ circles. Default: null.
+
+size:
+series, Placeholder for future feature. Default: null.
+
+filename:
+string, Path plus filename plus file extension &quot;png&quot; (currently the only output format supported). Default: 'display' which draws the resulting plot directly at the screen.
+
+opts:
+bundle, Optional bundle for passing additional parameters. See below for explanation. Default: null
+
+
+Returns:
+--------
+An integer of value '0' if no error occurs, otherwise 1.
+
+
+Options passed to the PairPlot() function by means of the 'opts' bundle
+=======================================================================
+The user can control the following aspects by adding the respective parameter to the 'opts' bundle.
+
+type, str: 
+Select the type of plot. The following types are supported:
+(i) &quot;matrix&quot;: Scatterplot matrix which draws a scatter plot between all combinations of variables included in list L.
+(ii) &quot;triangle&quot;: Lower tringular version of the scatterplot &quot;matrix&quot; type.
+(iii) &quot;row&quot;: Plot the first series element in list L in a single row against all remaining list members.
+(iv) &quot;row_transponed&quot;: Works like type &quot;row&quot; but subplots are arranged in a single column instead.
+Default: &quot;matrix&quot;.
+
+use_circles, bool:
+Draw circles instead of points if set to 1. Default: 0.
+
+pointsize, scalar:
+Control the size of points but not circles. Default: 0.5.
+
+pointtype, matrix:
+Control the type of points. Can be either a scalar entry such that points associated to different levels of 'factor' are of the same type. One may also provide a vector of integers for each distinct value of the 'factor' series. Default: 7.
+
+key, bool:
+If the 'factor' series is provided, a legend shows the color and point pattern for each distinct value of the 'factor' variable. Default: 1.
+
+key_position, str:
+Controls the position of the legend in each subplot (use standard gnuplot options). Default: &quot;top left&quot;.
+
+transparency_level, scalar:
+Controls the transparency level of points and circles (between 0 and 1). Default: 0.5.
+
+tics, bool:
+Print x-tics and y-tics. Default: 1.
+
+aspect_scale:
+Positive scaling factor for controlling the size of the plot. Default: 1.
+
+fontsize, int:
+Control the fontsize. Default: 8.
+
+font, str:
+Control the type of font. Default: &quot;League Spartan&quot;.
+
+offset_level, scalar:
+Provides a mechanism to put a boundary around the data inside of an autoscaled graph. For details see:
+&lt;http://gnuplot.sourceforge.net/docs_4.2/node209.html&gt;
+Default: 0.02.
+
+
+
+Changelog:
+----------
+Version 0.5 (Oct. 2019):
+- Initial version
+</help>
+<data-files count="1">
+iris.gdt </data-files>
+<gretl-function name="PairPlot" type="scalar">
+ <params count="5">
+  <param name="L" type="list" const="true">
+<description>List of variables to plot</description>
+  </param>
+  <param name="factor" type="series" optional="true" const="true">
+<description>Discrete series for factorization</description>
+  </param>
+  <param name="size" type="series" optional="true" const="true">
+<description>Make point size a function of size (not supported yet!)</description>
+  </param>
+  <param name="filename" type="string" optional="true">
+<description>Path+filename (png-file only)</description>
+  </param>
+  <param name="opts" type="bundleref" optional="true">
+<description>Set options through bundle</description>
+  </param>
+ </params>
+<code># Initial settings
+bundle self
+if exists(opts)
+  self = opts + default_options()
+endif
+scalar self.n_L = nelem(L)
+if exists(factor)
+  series self.factor = factor
+endif
+if settings_related_to_factor(&amp;self)	# puts 'factor' into self
+  return 1
+endif
+if !exists(filename)
+  string filename = &quot;display&quot;
+endif
+# Write plot related settings
+string buffer = write_settings(&amp;self)
+# Write plot cmd + data
+if self.type == &quot;triangle&quot;
+  string buffer += write_plot_cmd_and_data_tri(L, &amp;self)	# triangle
+elif self.type == &quot;matrix&quot; || self.type == &quot;row&quot; || self.type == &quot;row_transponed&quot;
+  string buffer += write_plot_cmd_and_data_mat(L, &amp;self)		# all combinations
+endif
+return send_to_gnuplot(buffer, filename)
+</code>
+</gretl-function>
+<gretl-function name="settings_related_to_factor" type="scalar" private="1">
+ <params count="1">
+  <param name="self" type="bundleref"/>
+ </params>
+<code>if inbundle(self, &quot;factor&quot;)
+  scalar self.n_factor_values = rows(values(self.factor))
+  scalar isok = is_ok_length_pointtype_vector(self.n_factor_values, &amp;self)
+  if !isok
+    return 1
+  endif
+else
+  self.key = 0						# dont print key/ legend in this case
+  scalar self.n_factor_values = 1		# needed for making loops working
+endif
+return 0
+</code>
+</gretl-function>
+<gretl-function name="is_ok_length_pointtype_vector" type="scalar" private="1">
+ <params count="2">
+  <param name="n_values_factor" type="int" const="true"/>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>scalar n_pts = rows(vec(self.pointtype))
+if n_pts == 1
+  return 1
+else
+  if n_pts &lt; n_values_factor
+    printf &quot;\nError: Your 'factor' series has %d distinct values\n               but you have set a vector 'pointtype with only %d elements.\n\n&quot;, n_values_factor, n_pts
+    return 0
+  endif
+endif
+return 1
+</code>
+</gretl-function>
+<gretl-function name="write_settings" type="string" private="1">
+ <params count="1">
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Write various settings to a string buffer. */
+string buffer = &quot;&quot;
+string buffer += sprintf(&quot;set encoding utf8\n&quot;)
+string buffer += sprintf(&quot;set terminal pngcairo        font '%s,%d' size %d,%d noenhanced;\n&quot;, self.font, self.fontsize, self.aspect_scale*512, self.aspect_scale*384)
+string buffer += write_linetype(&amp;self)
+if self.type == &quot;triangle&quot; || self.type == &quot;row_transponed&quot;
+  scalar r = self.n_L - 1
+elif self.type == &quot;matrix&quot;
+  scalar r = self.n_L
+elif self.type == &quot;row&quot;
+  scalar r = 1
+endif
+if self.type != &quot;row_transponed&quot;
+  scalar c = self.n_L - 1
+else
+  scalar c = 1
+endif
+string buffer += sprintf(&quot;set multiplot layout %d,%d\n&quot;, r, c)
+if self.transparency_level &gt; 0
+  if self.use_circles
+    printf &quot;\nWarning: Transparency is only supported for points but not circles.\n&quot;
+  else
+    string buffer += sprintf(&quot;set style fill transparent solid %.1f noborder\n&quot;, self.transparency_level)
+  endif
+endif
+string buffer += sprintf(&quot;set datafile missing 'NaN'\n&quot;)
+string buffer += sprintf(&quot;set style line 101 lc rgb '#808080' lt 1 lw 1\n&quot;)
+string self.border_cmd = sprintf(&quot;set border 3 front ls 101\n&quot;)		# drop right and upper border
+string buffer += self.border_cmd
+#    string buffer += sprintf(&quot;set tics nomirror out scale 0.75\n&quot;)		# has no effect
+string buffer += write_options(&amp;self)
+return buffer
+</code>
+</gretl-function>
+<gretl-function name="default_options" type="bundle" private="1">
+<code>/* Default parameter values */
+bundle self = null
+scalar self.aspect_scale = 1.2			# scaling factor for size
+scalar self.fontsize = 8
+string self.font = &quot;League Spartan&quot;
+scalar self.pointsize = 0.5
+matrix self.pointtype = 7
+scalar self.offset_level = 0.02
+scalar self.key = 1						# print distinct values of factor variable
+string self.key_position = &quot;top left&quot;	# position legend (standatd gnuplot settings)
+scalar self.use_circles = 0
+scalar self.transparency_level = 0.5
+string self.type = &quot;matrix&quot;
+scalar self.tics = 1				# print no x/y tics
+scalar self.grid = 0	# add grid (works only if self.tics=1) - not supported!
+return self
+</code>
+</gretl-function>
+<gretl-function name="send_to_gnuplot" type="scalar" private="1">
+ <params count="2">
+  <param name="buffer" type="string" const="true"/>
+  <param name="filename" type="string" const="true"/>
+ </params>
+<code>/* Write buffer to temp file and send to gnuplot */
+string mytemp
+outfile --tempfile=mytemp --quiet
+  print buffer
+end outfile
+catch gnuplot --input=@mytemp --output=@filename
+return $error
+</code>
+</gretl-function>
+<gretl-function name="write_plot_cmd_and_data_mat" type="string" private="1">
+ <params count="2">
+  <param name="L" type="list" const="true"/>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* For case self.type==&quot;matrix&quot; case */
+string BUFFER = &quot;&quot;
+loop foreach y L -q			# Row dimension
+  loop foreach x L -q		# Col dimension
+    if varname(L.$y) != varname(L.$x)
+      string buffer = &quot;&quot;
+      list yx = null
+      list yx = L.$x L.$y
+      outfile --buffer=buffer
+        write_labels(varnames(yx)[2], varnames(yx)[1])
+        write_plot_cmd(&amp;self)
+        write_plot_data(yx, &amp;self)
+      end outfile
+      BUFFER += buffer
+    endif
+  endloop
+  if self.type == &quot;row&quot; || self.type == &quot;row_transponed&quot;
+    break
+  endif
+endloop
+BUFFER += sprintf(&quot;unset multiplot&quot;)
+return BUFFER
+</code>
+</gretl-function>
+<gretl-function name="write_plot_cmd_and_data_tri" type="string" private="1">
+ <params count="2">
+  <param name="L" type="list" const="true"/>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* For self.type==&quot;triangle&quot; case */
+string BUFFER = &quot;&quot;
+# 1) Loop over all possible combinations
+# -&gt; Each one starts with a new 'plot' cmd
+# 2) For each combination, consider the n_factor_values
+scalar y_counter = 0
+loop foreach y L -q			# Row dimension
+  y_counter++
+  scalar x_counter = 0
+  loop foreach x L -q		# Col dimension
+    if y_counter == 1
+      break
+    endif
+    x_counter++
+    if varname(L.$y) != varname(L.$x)
+      string buffer = &quot;&quot;
+      list yx = null
+      list yx = L.$x L.$y
+      if y_counter &gt; x_counter
+        outfile --buffer=buffer
+          write_labels(varnames(yx)[2], varnames(yx)[1])
+          write_plot_cmd(&amp;self)
+          write_plot_data(yx, &amp;self)
+        end outfile
+      else
+        buffer = write_empty_subplot_cmd(buffer, &amp;self)
+      endif
+      BUFFER += buffer
+    endif
+  endloop						# endloop over x
+endloop							# endloop over y
+BUFFER += sprintf(&quot;unset multiplot&quot;)
+return BUFFER
+</code>
+</gretl-function>
+<gretl-function name="write_empty_subplot_cmd" type="string" private="1">
+ <params count="2">
+  <param name="buffer" type="string"/>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Helper function which leaves an empty subplot for triangular matrix plot */
+outfile --buffer=buffer
+  if self.key
+    printf &quot;set key off\n&quot;
+  endif
+  printf &quot;set border 0\n&quot;
+  printf &quot;unset xlabel\n&quot;
+  printf &quot;unset ylabel\n&quot;
+  printf &quot;unset xtics\n&quot;
+  printf &quot;unset ytics\n&quot;
+  printf &quot;plot '-' with points ps 0\n0 \ne\n&quot;	# Trick for not plotting any point
+  if self.key &amp;&amp; inbundle(self, &quot;factor&quot;)
+    printf &quot;set key on\n&quot;
+  endif
+  if self.tics
+    printf &quot;set xtics\n&quot;
+    printf &quot;set ytics\n&quot;
+  endif
+  printf &quot;%s\n&quot;, self.border_cmd
+end outfile
+return buffer
+</code>
+</gretl-function>
+<gretl-function name="write_labels" type="void" private="1">
+ <params count="2">
+  <param name="yname" type="string" const="true"/>
+  <param name="xname" type="string" const="true"/>
+ </params>
+<code>printf &quot;set ylabel '%s'\n&quot;, yname
+printf &quot;set xlabel '%s'\n&quot;, xname
+</code>
+</gretl-function>
+<gretl-function name="write_plot_data" type="void" private="1">
+ <params count="2">
+  <param name="yx" type="list" const="true"/>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Write data for a single subplot. */
+if inbundle(self, &quot;factor&quot;)
+  matrix factor_values = values(self.factor)
+endif
+loop i=1..self.n_factor_values -q
+  if self.n_factor_values &gt; 1
+    smpl self.factor == factor_values[i] --restrict --replace
+  endif
+  smpl --no-missing yx
+  matrix m_yx = {yx}
+  loop j=1..$nobs -q		# TODO: Use 'print' statement instead of the loop -- faster for 'big data'?
+    printf &quot;%.3f %.3f&quot;, m_yx[j,1], m_yx[j,2]
+    if j &lt; $nobs
+      printf &quot;\n&quot;
+    else
+      printf &quot;\ne\n&quot;
+    endif
+  endloop
+endloop
+</code>
+</gretl-function>
+<gretl-function name="write_plot_cmd" type="void" private="1">
+ <params count="1">
+  <param name="self" type="bundleref"/>
+ </params>
+<code>if rows(vec(self.pointtype)) == 1
+  matrix pt = self.pointtype * ones(self.n_factor_values, 1)
+else
+  matrix pt = self.pointtype
+endif
+if self.use_circles
+  string plot_type = &quot;circles&quot;
+else
+  string plot_type = &quot;points&quot;
+endif
+if self.key &amp;&amp; inbundle(self, &quot;factor&quot;)
+  series factor = self.factor
+  strings str_values_factor = strvals(factor)
+  scalar factor_has_str_values = 1
+  if nelem(str_values_factor) == 0 # factor includes only numeric values
+    matrix num_values_factor = values(factor)
+    scalar factor_has_str_values = 0
+  endif
+endif
+printf &quot;plot \\\n&quot;
+loop i=1..self.n_factor_values -q
+  printf &quot;'-' using 1:2 w %s pt %d&quot;, plot_type, pt[i]
+  if exists(factor_has_str_values)
+    if factor_has_str_values
+      printf &quot; title '%s'&quot;, str_values_factor[i]
+    else
+      printf &quot; title 'F=%d'&quot;, num_values_factor[i]
+    endif
+  endif
+  if i &lt; self.n_factor_values
+    printf &quot;, \\\n&quot;
+  else
+    printf &quot;\n&quot;
+  endif
+endloop
+</code>
+</gretl-function>
+<gretl-function name="write_options" type="string" private="1">
+ <params count="1">
+  <param name="self" type="bundleref"/>
+ </params>
+<code>scalar off_set = self.offset_level
+string options_out = &quot;&quot;
+outfile --buffer=options_out
+  printf &quot;set offsets &quot;
+  loop i=1..self.n_L -q
+    if i &lt; self.n_L
+      printf &quot;%.2f, &quot;, off_set
+    else
+      printf &quot;%.2f\n&quot;, off_set
+    endif
+  endloop
+  if self.key
+    printf &quot;set key %s\n&quot;, self.key_position
+  else
+    printf &quot;set nokey\n&quot;
+  endif
+  if self.tics
+    printf &quot;set xtics\n&quot;
+    printf &quot;set ytics\n&quot;
+  else
+    printf &quot;set noxtics\n&quot;
+    printf &quot;set noytics\n&quot;
+  endif
+  if self.grid
+    printf &quot;set style line 12 lc rgb '#808080' lt 0 lw 1\n&quot;
+    printf &quot;set grid ls 12\n&quot;
+  endif
+  printf &quot;set pointsize %.2f\n&quot;, self.pointsize
+end outfile
+return options_out
+</code>
+</gretl-function>
+<gretl-function name="get_color_definitions" type="strings" private="1">
+<code>/* Put your own definitions here. */
+strings color_definitions = defarray(&quot;#C41E3A&quot;, &quot;#4682B4&quot;, &quot;#FFBF00&quot;, &quot;#ff0000&quot;, &quot;#0000ff&quot;, &quot;#00cc00&quot;, &quot;#bf25b2&quot;, &quot;#8faab3&quot;, &quot;#ffa500&quot;)
+return color_definitions
+</code>
+</gretl-function>
+<gretl-function name="write_linetype" type="string" private="1">
+ <params count="1">
+  <param name="self" type="bundleref"/>
+ </params>
+<code>strings color_definitions = get_color_definitions()
+string linetype_out = &quot;&quot;
+outfile --buffer=linetype_out
+  loop i=1..self.n_L -q
+    printf &quot;set linetype %d lc rgb '%s'\n&quot;, $i, color_definitions[i]
+  endloop
+end outfile
+return linetype_out
+</code>
+</gretl-function>
+<sample-script>
+clear
+set verbose off
+
+include PairPlot.gfn --force
+
+scalar SAMPLE = 1					# Select a dataset
+
+if SAMPLE == 1
+    open iris.gdt --frompkg=PairPlot --quiet
+    series factor = variety
+    
+elif SAMPLE == 2
+    open credscore.gdt --quiet
+    series factor = Selfempl
+endif
+
+# list of series to plot
+list y = 1..4
+
+# override default value by optionals
+bundle opts = null
+matrix opts.pointtype = {14,7,8}
+matrix opts.pointsize = 1.2
+matrix opts.fontsize = 8
+matrix opts.aspect_scale = 1.5
+#scalar opts.key = 0						# print values of factor as legend
+#scalar opts.tics = 0
+scalar opts.use_circles = 0
+scalar opts.transparency_level = 0.5
+#string opts.type = &quot;triangle&quot;			# &quot;matrix&quot; (default), &quot;triangle&quot;, &quot;row&quot;, &quot;row_transponed&quot;
+
+string filename = &quot;display&quot; 			# optional: &quot;PATH/test.png&quot;
+
+scalar err = PairPlot(y, factor, , filename, &amp;opts)	# with 'factor' series
+err
+
+#scalar err = PairPlot(y, , , filename, &amp;opts)			# without 'factor' series
+#err
+</sample-script>
+</gretl-function-package>
+</gretl-functions>
