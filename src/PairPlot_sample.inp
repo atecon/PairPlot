@@ -25,9 +25,10 @@ matrix opts.aspect_scale = 1.2
 scalar opts.key = 1				# print values of factor as legend
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-#scalar opts.triangle = 0
+#string opts.type = "triangle"
 
 string filename = "display" 		# optional: "PATH/test.png"
 scalar err = PairPlot(y, factor, , filename, &opts)
 err
 
+scatters

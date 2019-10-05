@@ -23,10 +23,10 @@ function scalar PairPlot (const list L "List of variables to plot",
     string buffer = write_settings(&self)
 
     # Write plot cmd + data
-    if self.triangle
-        string buffer += write_plot_cmd_and_data_tri(L, &self, factor)
-    else
-        string buffer += write_plot_cmd_and_data(L, &self, factor)
+    if self.type == "triangle"
+        string buffer += write_plot_cmd_and_data_tri(L, &self, factor)	# triangle
+    elif self.type == "matrix"
+        string buffer += write_plot_cmd_and_data_mat(L, &self, factor)		# all combinations
     endif
 
     return send_to_gnuplot(buffer, filename)
@@ -60,9 +60,9 @@ function string write_settings (bundle *self)
 
     string buffer += write_linetype(&self)
 
-    if self.triangle
+    if self.type == "triangle"
         scalar r = self.n_L - 1
-    else
+    elif self.type == "matrix"
         scalar r = self.n_L
     endif
     scalar c = self.n_L - 1
@@ -102,7 +102,7 @@ function bundle default_options (void)
     string self.key_position = "top left"	# position legend (standatd gnuplot settings)
     scalar self.use_circles = 1
     scalar self.transparency_level = 0
-    scalar self.triangle = 1
+    string self.type = "matrix"
 
     return self
 end function
@@ -123,10 +123,10 @@ function scalar send_to_gnuplot (const string buffer,
 end function
 
 
-function string write_plot_cmd_and_data (const list L,
+function string write_plot_cmd_and_data_mat (const list L,
                                          bundle *self,
                                          const series factor[null])
-    /* For case self.triangle==0 case */
+    /* For case self.type=="matrix" case */
 
     string BUFFER = ""
 
@@ -167,7 +167,7 @@ end function
 function string write_plot_cmd_and_data_tri (const list L,
                                              bundle *self,
                                              const series factor[null])
-    /* For self.triangle=1 case */
+    /* For self.type=="triangle" case */
 
     string BUFFER = ""
 
