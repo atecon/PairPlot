@@ -267,7 +267,7 @@ return buffer
 <gretl-function name="default_options" type="bundle" private="1">
 <code>/* Default parameter values */
 bundle self = null
-scalar self.aspect_scale = 1.2			# scaling factor for size
+scalar self.aspect_scale = 1.5			# scaling factor for size
 scalar self.fontsize = 8
 string self.font = &quot;League Spartan&quot;
 scalar self.pointsize = 0.5

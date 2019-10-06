@@ -4,6 +4,11 @@ function scalar PairPlot (const list L "List of variables to plot",
       string filename[null] "Path+filename",
       bundle *opts[null] "Set options through bundle")
 
+    if nelem(L) == 1
+        printf "\nError: List of variables to plot mus comprise at least 2 series.\n"
+        return 1
+    endif
+
     # Initial settings
     bundle self
     if exists(opts)
@@ -166,7 +171,7 @@ function bundle default_options (void)
 
     bundle self = null
 
-    scalar self.aspect_scale = 1.2			# scaling factor for size
+    scalar self.aspect_scale = 1.5			# scaling factor for size
     scalar self.fontsize = 8
     string self.font = "League Spartan"
     scalar self.pointsize = 0.5
