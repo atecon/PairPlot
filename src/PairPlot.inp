@@ -39,6 +39,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     return send_to_gnuplot(buffer, filename)
 end function
 
+
 function string get_filetype_from_filename (const string filename)
     /* Process passed filename and grab file extension. */
 
@@ -83,15 +84,37 @@ function scalar is_ok_length_pointtype_vector (const int n_values_factor, bundle
 end function
 
 
+function string construct_terminal_cmd (bundle *self)
+    /* Construct the terminal for output. */
+    
+    string set_cmd = "set terminal "
+    
+    if self.file_type == "png"
+        set_cmd += "pngcairo"
+    elif self.file_type == "pdf"
+        set_cmd += "pdfcairo"
+    elif self.file_type == "eps"
+        set_cmd += "epscairo"
+    elif self.file_type == "svg"
+        set_cmd += "svg"
+    endif
+      
+    set_cmd += sprintf(" font '%s,%d' size %d,%d noenhanced;\n", \
+      self.font, self.fontsize, self.aspect_scale*512, self.aspect_scale*384)
+      
+    return set_cmd
+end function
+
+
 function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
     string buffer = ""
 
     string buffer += sprintf("set encoding utf8\n")
-    string buffer += sprintf("set terminal pngcairo \
-      font '%s,%d' size %d,%d noenhanced;\n", self.font, self.fontsize,\
-      self.aspect_scale*512, self.aspect_scale*384)
+    string buffer += construct_terminal_cmd(&self)
+    buffer
+    stop
 
     string buffer += write_linetype(&self)
 
