@@ -127,6 +127,8 @@ iris.gdt </data-files>
 bundle self
 if exists(opts)
   self = opts + default_options()
+else
+  self = default_options()
 endif
 scalar self.n_L = nelem(L)
 if exists(factor)
