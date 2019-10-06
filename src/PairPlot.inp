@@ -1,8 +1,8 @@
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
                           const series size[null] "Make point size a function of size (not supported yet!)",
-      string filename[null] "Path+filename (png-file only)",
-      bundle *opts[null] "Set options through bundle")
+                          string filename[null] "Path+filename",
+                          bundle *opts[null] "Set options through bundle")
 
     # Initial settings
     bundle self
@@ -21,6 +21,8 @@ function scalar PairPlot (const list L "List of variables to plot",
 
     if !exists(filename)
         string filename = "display"
+    else
+        string self.file_type = get_filetype_from_filename(filename)
     endif
 
     
@@ -36,6 +38,17 @@ function scalar PairPlot (const list L "List of variables to plot",
 
     return send_to_gnuplot(buffer, filename)
 end function
+
+function string get_filetype_from_filename (const string filename)
+    /* Process passed filename and grab file extension. */
+
+    scalar length = strlen(filename)
+    string grab_dot_and_type = strstr(substr(filename, length-4, length), ".")    
+    string file_type = substr(grab_dot_and_type, 2, strlen(grab_dot_and_type))
+    
+    return file_type
+end function
+
 
 
 function scalar settings_related_to_factor (bundle *self)
