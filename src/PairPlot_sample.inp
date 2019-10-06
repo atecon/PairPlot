@@ -20,18 +20,17 @@ list y = 1..4
 # override default value by optionals
 bundle opts = null
 matrix opts.pointtype = {14,7,8}
-matrix opts.pointsize = 1.2
+matrix opts.pointsize = 1
 matrix opts.fontsize = 8
-matrix opts.aspect_scale = 1.5
+matrix opts.aspect_scale = 1
 #scalar opts.key = 0						# print values of factor as legend
 #scalar opts.tics = 0
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-#string opts.type = "triangle"			# "matrix" (default), "triangle", "row", "row_transponed"
+string opts.type = "triangle"			# "matrix" (default), "triangle", "row", "row_transponed"
 
-string filename = "display" 			# optional: "PATH/test.png"
-
-scalar err = PairPlot(y, factor, , filename, &opts)	# with 'factor' series
+#string filename = "display" 			# optional: "PATH/test.[filetype]" (pdf, png, eps or svg)
+scalar err = PairPlot(y, factor, , , &opts)		# with 'factor' series
 err
 
 #scalar err = PairPlot(y, , , filename, &opts)			# without 'factor' series

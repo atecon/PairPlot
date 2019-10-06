@@ -117,7 +117,7 @@ iris.gdt </data-files>
 <description>Make point size a function of size (not supported yet!)</description>
   </param>
   <param name="filename" type="string" optional="true">
-<description>Path+filename (png-file only)</description>
+<description>Path+filename</description>
   </param>
   <param name="opts" type="bundleref" optional="true">
 <description>Set options through bundle</description>
@@ -138,6 +138,11 @@ endif
 if !exists(filename)
   string filename = &quot;display&quot;
 endif
+if filename != &quot;display&quot;
+  string self.file_type = get_filetype_from_filename(filename)
+else
+  string self.file_type = &quot;png&quot;
+endif
 # Write plot related settings
 string buffer = write_settings(&amp;self)
 # Write plot cmd + data
@@ -147,6 +152,17 @@ elif self.type == &quot;matrix&quot; || self.type == &quot;row&quot; || self.typ
   string buffer += write_plot_cmd_and_data_mat(L, &amp;self)		# all combinations
 endif
 return send_to_gnuplot(buffer, filename)
+</code>
+</gretl-function>
+<gretl-function name="get_filetype_from_filename" type="string" private="1">
+ <params count="1">
+  <param name="filename" type="string" const="true"/>
+ </params>
+<code>/* Process passed filename and grab file extension. */
+scalar length = strlen(filename)
+string grab_dot_and_type = strstr(substr(filename, length-4, length), &quot;.&quot;)
+string file_type = substr(grab_dot_and_type, 2, strlen(grab_dot_and_type))
+return file_type
 </code>
 </gretl-function>
 <gretl-function name="settings_related_to_factor" type="scalar" private="1">
@@ -183,6 +199,31 @@ endif
 return 1
 </code>
 </gretl-function>
+<gretl-function name="construct_terminal_cmd" type="string" private="1">
+ <params count="1">
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Construct the terminal for output. */
+string set_cmd = &quot;set terminal &quot;
+if self.file_type == &quot;png&quot;
+  set_cmd += &quot;pngcairo&quot;
+elif self.file_type == &quot;pdf&quot;
+  set_cmd += &quot;pdfcairo&quot;
+elif self.file_type == &quot;eps&quot;
+  set_cmd += &quot;postscript eps&quot;
+elif self.file_type == &quot;svg&quot;
+  set_cmd += &quot;svg&quot;
+endif
+set_cmd += sprintf(&quot; font '%s,%d' &quot;, self.font, self.fontsize)
+if self.file_type != &quot;svg&quot;
+  set_cmd += &quot;color&quot;
+endif
+set_cmd += &quot;;&quot;
+# Set size ratio
+set_cmd += sprintf(&quot;set size %.1f, %.1f\n&quot;, self.aspect_scale, self.aspect_scale)
+return set_cmd
+</code>
+</gretl-function>
 <gretl-function name="write_settings" type="string" private="1">
  <params count="1">
   <param name="self" type="bundleref"/>
@@ -190,7 +231,7 @@ return 1
 <code>/* Write various settings to a string buffer. */
 string buffer = &quot;&quot;
 string buffer += sprintf(&quot;set encoding utf8\n&quot;)
-string buffer += sprintf(&quot;set terminal pngcairo        font '%s,%d' size %d,%d noenhanced;\n&quot;, self.font, self.fontsize, self.aspect_scale*512, self.aspect_scale*384)
+string buffer += construct_terminal_cmd(&amp;self)
 string buffer += write_linetype(&amp;self)
 if self.type == &quot;triangle&quot; || self.type == &quot;row_transponed&quot;
   scalar r = self.n_L - 1
@@ -506,18 +547,17 @@ list y = 1..4
 # override default value by optionals
 bundle opts = null
 matrix opts.pointtype = {14,7,8}
-matrix opts.pointsize = 1.2
+matrix opts.pointsize = 1
 matrix opts.fontsize = 8
-matrix opts.aspect_scale = 1.5
+matrix opts.aspect_scale = 1
 #scalar opts.key = 0						# print values of factor as legend
 #scalar opts.tics = 0
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-#string opts.type = &quot;triangle&quot;			# &quot;matrix&quot; (default), &quot;triangle&quot;, &quot;row&quot;, &quot;row_transponed&quot;
+string opts.type = &quot;triangle&quot;			# &quot;matrix&quot; (default), &quot;triangle&quot;, &quot;row&quot;, &quot;row_transponed&quot;
 
-string filename = &quot;display&quot; 			# optional: &quot;PATH/test.png&quot;
-
-scalar err = PairPlot(y, factor, , filename, &amp;opts)	# with 'factor' series
+#string filename = &quot;display&quot; 			# optional: &quot;PATH/test.[filetype]&quot; (pdf, png, eps or svg)
+scalar err = PairPlot(y, factor, , , &amp;opts)		# with 'factor' series
 err
 
 #scalar err = PairPlot(y, , , filename, &amp;opts)			# without 'factor' series

@@ -29,7 +29,7 @@ size:
 series, Placeholder for future feature. Default: null.
 
 filename:
-string, Path plus filename plus file extension "png" (currently the only output format supported). Default: 'display' which draws the resulting plot directly at the screen.
+string, Path plus filename plus file extension. Currently the following file-types are supported: png, pdf, eps and svg (monochrome only). Default: 'display' which draws the resulting plot directly at the screen.
 
 opts:
 bundle, Optional bundle for passing additional parameters. See below for explanation. Default: null

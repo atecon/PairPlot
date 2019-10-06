@@ -1,8 +1,8 @@
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
                           const series size[null] "Make point size a function of size (not supported yet!)",
-                          string filename[null] "Path+filename",
-                          bundle *opts[null] "Set options through bundle")
+      string filename[null] "Path+filename",
+      bundle *opts[null] "Set options through bundle")
 
     # Initial settings
     bundle self
@@ -11,7 +11,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
 
     scalar self.n_L = nelem(L)
-    
+
     if exists(factor)
         series self.factor = factor
     endif
@@ -21,11 +21,13 @@ function scalar PairPlot (const list L "List of variables to plot",
 
     if !exists(filename)
         string filename = "display"
-    else
+    endif
+    if filename != "display"
         string self.file_type = get_filetype_from_filename(filename)
+    else
+        string self.file_type = "png"
     endif
 
-    
     # Write plot related settings
     string buffer = write_settings(&self)
 
@@ -44,9 +46,9 @@ function string get_filetype_from_filename (const string filename)
     /* Process passed filename and grab file extension. */
 
     scalar length = strlen(filename)
-    string grab_dot_and_type = strstr(substr(filename, length-4, length), ".")    
+    string grab_dot_and_type = strstr(substr(filename, length-4, length), ".")
     string file_type = substr(grab_dot_and_type, 2, strlen(grab_dot_and_type))
-    
+
     return file_type
 end function
 
@@ -55,7 +57,7 @@ end function
 function scalar settings_related_to_factor (bundle *self)
 
     if inbundle(self, "factor")
-        scalar self.n_factor_values = rows(values(self.factor))    
+        scalar self.n_factor_values = rows(values(self.factor))
         scalar isok = is_ok_length_pointtype_vector(self.n_factor_values, &self)
         if !isok
             return 1
@@ -86,22 +88,28 @@ end function
 
 function string construct_terminal_cmd (bundle *self)
     /* Construct the terminal for output. */
-    
+
     string set_cmd = "set terminal "
-    
+
     if self.file_type == "png"
         set_cmd += "pngcairo"
     elif self.file_type == "pdf"
         set_cmd += "pdfcairo"
     elif self.file_type == "eps"
-        set_cmd += "epscairo"
+        set_cmd += "postscript eps"
     elif self.file_type == "svg"
         set_cmd += "svg"
     endif
-      
-    set_cmd += sprintf(" font '%s,%d' size %d,%d noenhanced;\n", \
-      self.font, self.fontsize, self.aspect_scale*512, self.aspect_scale*384)
-      
+
+    set_cmd += sprintf(" font '%s,%d' ", self.font, self.fontsize)
+    if self.file_type != "svg"
+        set_cmd += "color"
+    endif
+    set_cmd += ";"
+    
+    # Set size ratio
+    set_cmd += sprintf("set size %.1f, %.1f\n", self.aspect_scale, self.aspect_scale)
+    
     return set_cmd
 end function
 
@@ -113,8 +121,6 @@ function string write_settings (bundle *self)
 
     string buffer += sprintf("set encoding utf8\n")
     string buffer += construct_terminal_cmd(&self)
-    buffer
-    stop
 
     string buffer += write_linetype(&self)
 
@@ -285,7 +291,7 @@ end function
 
 
 function string write_empty_subplot_cmd (string buffer, bundle *self)
-/* Helper function which leaves an empty subplot for triangular matrix plot */
+    /* Helper function which leaves an empty subplot for triangular matrix plot */
 
     outfile --buffer=buffer
         if self.key
