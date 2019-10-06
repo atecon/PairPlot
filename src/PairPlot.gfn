@@ -123,7 +123,11 @@ iris.gdt </data-files>
 <description>Set options through bundle</description>
   </param>
  </params>
-<code># Initial settings
+<code>if nelem(L) == 1
+  printf &quot;\nError: List of variables to plot mus comprise at least 2 series.\n&quot;
+  return 1
+endif
+# Initial settings
 bundle self
 if exists(opts)
   self = opts + default_options()
