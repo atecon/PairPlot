@@ -1,7 +1,7 @@
 author = Artur Tarassow
 email = atecon@posteo.de
 version = 0.5
-date = 2019-10-05
+date = 2019-10-06
 description = Scatterplot matrix
 tags = C88
 min-version = 2018a
