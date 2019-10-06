@@ -8,6 +8,8 @@ function scalar PairPlot (const list L "List of variables to plot",
     bundle self
     if exists(opts)
         self = opts + default_options()
+    else
+        self = default_options()
     endif
 
     scalar self.n_L = nelem(L)
@@ -106,10 +108,10 @@ function string construct_terminal_cmd (bundle *self)
         set_cmd += "color"
     endif
     set_cmd += ";"
-    
+
     # Set size ratio
     set_cmd += sprintf("set size %.1f, %.1f\n", self.aspect_scale, self.aspect_scale)
-    
+
     return set_cmd
 end function
 
