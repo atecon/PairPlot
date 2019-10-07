@@ -7,7 +7,7 @@
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
-<menu-attachment>MAINWIN/View	#/GraphVars/MultiPlots</menu-attachment>
+<menu-attachment>MAINWIN/View/GraphVars</menu-attachment>
 <help>
 *** PairPlot ***
 
