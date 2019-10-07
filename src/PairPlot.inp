@@ -181,7 +181,7 @@ function bundle default_options (void)
     string self.key_position = "top left"	# position legend (standatd gnuplot settings)
     scalar self.use_circles = 0
     scalar self.transparency_level = 0.5
-    string self.type = "matrix"
+    string self.type = "triangle"
     scalar self.tics = 1				# print no x/y tics
     scalar self.grid = 0	# add grid (works only if self.tics=1) - not supported!
 
