@@ -49,10 +49,22 @@ function scalar PairPlot (const list L "List of variables to plot",
 end function
 
 function void GUI_PairPlot (const list L "List of variables to plot",
-                            const series factor[null] "Discrete series for factorization")
+                            const series factor[null] "Discrete series for factorization",
+                            int type[1:4:1] "Plot type" {"triangle", "matrix", "row", "column"})
     /* Helper function for GUI access. */
-
-    scalar err = PairPlot(L, factor)
+    bundle opts = null
+    
+    if type == 1
+        string opts.type = "triangle"
+    elif type == 2
+        string opts.type = "matrix"
+    elif type == 3
+        string opts.type = "row"
+    elif type == 4
+        string opts.type = "column"
+    endif
+    
+    scalar err = PairPlot(L, factor, , opts)
 end function
 
 

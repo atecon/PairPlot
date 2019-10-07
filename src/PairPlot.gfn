@@ -3,7 +3,7 @@
 <gretl-function-package name="PairPlot" no-data-ok="true" minver="2018a" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.5</version>
-<date>2019-10-06</date>
+<date>2019-10-07</date>
 <description>Scatterplot matrix</description>
 <tags>C88</tags>
 <help>
@@ -59,7 +59,7 @@ Select the type of plot. The following types are supported:
 (ii) &quot;triangle&quot;: Lower tringular version of the scatterplot &quot;matrix&quot; type.
 (iii) &quot;row&quot;: Plot the first series element in list L in a single row against all remaining list members.
 (iv) &quot;row_transponed&quot;: Works like type &quot;row&quot; but subplots are arranged in a single column instead.
-Default: &quot;matrix&quot;.
+Default: &quot;triangle&quot;.
 
 use_circles, bool:
 Draw circles instead of points if set to 1. Default: 0.
@@ -158,6 +158,19 @@ elif self.type == &quot;matrix&quot; || self.type == &quot;row&quot; || self.typ
   string buffer += write_plot_cmd_and_data_mat(L, &amp;self)		# all combinations
 endif
 return send_to_gnuplot(buffer, filename)
+</code>
+</gretl-function>
+<gretl-function name="GUI_PairPlot" type="void" private="1">
+ <params count="2">
+  <param name="L" type="list" const="true">
+<description>List of variables to plot</description>
+  </param>
+  <param name="factor" type="series" optional="true" const="true">
+<description>Discrete series for factorization</description>
+  </param>
+ </params>
+<code>/* Helper function for GUI access. */
+scalar err = PairPlot(L, factor)
 </code>
 </gretl-function>
 <gretl-function name="get_filetype_from_filename" type="string" private="1">
@@ -563,7 +576,7 @@ scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
 # Optional: override default value by optionals
 bundle opts = null
 matrix opts.pointtype = {14,7,8}
-matrix opts.pointsize = 1
+scalar opts.pointsize = 1
 matrix opts.fontsize = 8
 matrix opts.aspect_scale = 1
 #scalar opts.key = 0						# print values of factor as legend
