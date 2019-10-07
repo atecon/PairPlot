@@ -50,7 +50,7 @@ Select the type of plot. The following types are supported:
 (ii) "triangle": Lower tringular version of the scatterplot "matrix" type.
 (iii) "row": Plot the first series element in list L in a single row against all remaining list members.
 (iv) "row_transponed": Works like type "row" but subplots are arranged in a single column instead.
-Default: "matrix".
+Default: "triangle".
 
 use_circles, bool:
 Draw circles instead of points if set to 1. Default: 0.
