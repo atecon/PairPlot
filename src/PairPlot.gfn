@@ -119,7 +119,7 @@ iris.gdt </data-files>
   <param name="filename" type="string" optional="true">
 <description>Path+filename</description>
   </param>
-  <param name="opts" type="bundleref" optional="true">
+  <param name="opts" type="bundle" optional="true">
 <description>Set options through bundle</description>
   </param>
  </params>
@@ -154,7 +154,7 @@ string buffer = write_settings(&amp;self)
 # Write plot cmd + data
 if self.type == &quot;triangle&quot;
   string buffer += write_plot_cmd_and_data_tri(L, &amp;self)	# triangle
-elif self.type == &quot;matrix&quot; || self.type == &quot;row&quot; || self.type == &quot;row_transponed&quot;
+elif self.type == &quot;matrix&quot; || self.type == &quot;row&quot; || self.type == &quot;column&quot;
   string buffer += write_plot_cmd_and_data_mat(L, &amp;self)		# all combinations
 endif
 return send_to_gnuplot(buffer, filename)
@@ -239,14 +239,14 @@ string buffer = &quot;&quot;
 string buffer += sprintf(&quot;set encoding utf8\n&quot;)
 string buffer += construct_terminal_cmd(&amp;self)
 string buffer += write_linetype(&amp;self)
-if self.type == &quot;triangle&quot; || self.type == &quot;row_transponed&quot;
+if self.type == &quot;triangle&quot; || self.type == &quot;column&quot;
   scalar r = self.n_L - 1
 elif self.type == &quot;matrix&quot;
   scalar r = self.n_L
 elif self.type == &quot;row&quot;
   scalar r = 1
 endif
-if self.type != &quot;row_transponed&quot;
+if self.type != &quot;column&quot;
   scalar c = self.n_L - 1
 else
   scalar c = 1
@@ -281,7 +281,7 @@ scalar self.key = 1						# print distinct values of factor variable
 string self.key_position = &quot;top left&quot;	# position legend (standatd gnuplot settings)
 scalar self.use_circles = 0
 scalar self.transparency_level = 0.5
-string self.type = &quot;matrix&quot;
+string self.type = &quot;triangle&quot;
 scalar self.tics = 1				# print no x/y tics
 scalar self.grid = 0	# add grid (works only if self.tics=1) - not supported!
 return self
@@ -322,7 +322,7 @@ loop foreach y L -q			# Row dimension
       BUFFER += buffer
     endif
   endloop
-  if self.type == &quot;row&quot; || self.type == &quot;row_transponed&quot;
+  if self.type == &quot;row&quot; || self.type == &quot;column&quot;
     break
   endif
 endloop
@@ -536,21 +536,31 @@ set verbose off
 
 include PairPlot.gfn --force
 
-scalar SAMPLE = 1					# Select a dataset
+scalar SAMPLE = 3					# Select a dataset
 
 if SAMPLE == 1
     open iris.gdt --frompkg=PairPlot --quiet
     series factor = variety
-    
+    list y = 1..4    				# list of series to plot
 elif SAMPLE == 2
     open credscore.gdt --quiet
     series factor = Selfempl
+    list y = 1..4
+elif SAMPLE == 3
+    open abdata --quiet
+    series factor = IND
+    list y = n k ys
 endif
 
-# list of series to plot
-list y = 1..4
 
-# override default value by optionals
+# Default plot without factorization
+PairPlot(y)
+
+# Default plot without factorization
+scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
+
+
+# Optional: override default value by optionals
 bundle opts = null
 matrix opts.pointtype = {14,7,8}
 matrix opts.pointsize = 1
@@ -560,14 +570,10 @@ matrix opts.aspect_scale = 1
 #scalar opts.tics = 0
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-string opts.type = &quot;triangle&quot;			# &quot;matrix&quot; (default), &quot;triangle&quot;, &quot;row&quot;, &quot;row_transponed&quot;
+string opts.type = &quot;matrix&quot;			# &quot;matrix&quot; (default), &quot;triangle&quot;, &quot;row&quot;, &quot;column&quot;
 
 #string filename = &quot;display&quot; 			# optional: &quot;PATH/test.[filetype]&quot; (pdf, png, eps or svg)
-scalar err = PairPlot(y, factor, , , &amp;opts)		# with 'factor' series
-err
-
-#scalar err = PairPlot(y, , , filename, &amp;opts)			# without 'factor' series
-#err
+scalar err = PairPlot(y, factor, , , opts)		# with 'factor' series
 </sample-script>
 </gretl-function-package>
 </gretl-functions>

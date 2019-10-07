@@ -3,21 +3,31 @@ set verbose off
 
 include PairPlot.gfn --force
 
-scalar SAMPLE = 1					# Select a dataset
+scalar SAMPLE = 3					# Select a dataset
 
 if SAMPLE == 1
     open iris.gdt --frompkg=PairPlot --quiet
     series factor = variety
-    
+    list y = 1..4    				# list of series to plot
 elif SAMPLE == 2
     open credscore.gdt --quiet
     series factor = Selfempl
+    list y = 1..4
+elif SAMPLE == 3
+    open abdata --quiet
+    series factor = IND
+    list y = n k ys
 endif
 
-# list of series to plot
-list y = 1..4
 
-# override default value by optionals
+# Default plot without factorization
+PairPlot(y)
+
+# Default plot without factorization
+scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
+
+
+# Optional: override default value by optionals
 bundle opts = null
 matrix opts.pointtype = {14,7,8}
 matrix opts.pointsize = 1
@@ -30,8 +40,4 @@ scalar opts.transparency_level = 0.5
 string opts.type = "matrix"			# "matrix" (default), "triangle", "row", "column"
 
 #string filename = "display" 			# optional: "PATH/test.[filetype]" (pdf, png, eps or svg)
-scalar err = PairPlot(y, factor, , , &opts)		# with 'factor' series
-err
-
-#scalar err = PairPlot(y, , , filename, &opts)			# without 'factor' series
-#err
+scalar err = PairPlot(y, factor, , , opts)		# with 'factor' series
