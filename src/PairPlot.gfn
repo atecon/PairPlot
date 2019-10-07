@@ -25,6 +25,12 @@ It can also represent an additional level of conditionalization with the 'factor
 For a more detailed manual, see &lt;https://github.com/atecon/PairPlot/blob/master/README.md&gt;.
 
 
+Usage via the GUI
+=================
+The function PairPlot() can be accessed through the GUI. The menu entry is &quot;View-&gt;Graph specified vars-&gt;Pair Plot&quot;.
+However, via scripting the user can control many more details.
+
+
 PairPlot()
 ==========
 
