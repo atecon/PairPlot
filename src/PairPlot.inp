@@ -1,8 +1,8 @@
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
                           const series size[null] "Make point size a function of size (not supported yet!)",
-      string filename[null] "Path+filename",
-      bundle *opts[null] "Set options through bundle")
+                          string filename[null] "Path+filename",
+                          bundle opts[null] "Set options through bundle")
 
     if nelem(L) == 1
         printf "\nError: List of variables to plot mus comprise at least 2 series.\n"
@@ -41,7 +41,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     # Write plot cmd + data
     if self.type == "triangle"
         string buffer += write_plot_cmd_and_data_tri(L, &self)	# triangle
-    elif self.type == "matrix" || self.type == "row" || self.type == "row_transponed"
+    elif self.type == "matrix" || self.type == "row" || self.type == "column"
         string buffer += write_plot_cmd_and_data_mat(L, &self)		# all combinations
     endif
 
@@ -131,14 +131,14 @@ function string write_settings (bundle *self)
 
     string buffer += write_linetype(&self)
 
-    if self.type == "triangle" || self.type == "row_transponed"
+    if self.type == "triangle" || self.type == "column"
         scalar r = self.n_L - 1
     elif self.type == "matrix"
         scalar r = self.n_L
     elif self.type == "row"
         scalar r = 1
     endif
-    if self.type != "row_transponed"
+    if self.type != "column"
         scalar c = self.n_L - 1
     else
         scalar c = 1
@@ -229,7 +229,7 @@ function string write_plot_cmd_and_data_mat (const list L,
             endif
         endloop
 
-        if self.type == "row" || self.type == "row_transponed"
+        if self.type == "row" || self.type == "column"
             break
         endif
 
