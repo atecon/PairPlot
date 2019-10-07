@@ -4,10 +4,10 @@
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.5</version>
 <date>2019-10-07</date>
-<description>Scatterplot matrix</description>
+<description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
-<menu-attachment>MAINWIN/View/GraphVars/MultiPlots</menu-attachment>
+<menu-attachment>MAINWIN/View	#/GraphVars/MultiPlots</menu-attachment>
 <help>
 *** PairPlot ***
 
@@ -604,7 +604,7 @@ matrix opts.aspect_scale = 1
 #scalar opts.tics = 0
 scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
-string opts.type = &quot;matrix&quot;			# &quot;matrix&quot; (default), &quot;triangle&quot;, &quot;row&quot;, &quot;column&quot;
+string opts.type = &quot;matrix&quot;			# &quot;matrix&quot;, &quot;triangle&quot; (default), &quot;row&quot;, &quot;column&quot;
 
 #string filename = &quot;display&quot; 			# optional: &quot;PATH/test.[filetype]&quot; (pdf, png, eps or svg)
 scalar err = PairPlot(y, factor, , , opts)		# with 'factor' series
