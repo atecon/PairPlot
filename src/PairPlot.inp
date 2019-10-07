@@ -48,6 +48,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     return send_to_gnuplot(buffer, filename)
 end function
 
+
 function void GUI_PairPlot (const list L "List of variables to plot",
                             const series factor[null] "Discrete series for factorization",
                             int type[1:4:1] "Plot type" {"triangle", "matrix", "row", "column"})
@@ -63,8 +64,11 @@ function void GUI_PairPlot (const list L "List of variables to plot",
     elif type == 4
         string opts.type = "column"
     endif
-    
-    scalar err = PairPlot(L, factor, , opts)
+    if exists(factor)
+        scalar err = PairPlot(L, factor, , , opts)
+    else
+        scalar err = PairPlot(L, , , , opts)
+    endif
 end function
 
 

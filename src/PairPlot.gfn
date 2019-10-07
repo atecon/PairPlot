@@ -6,6 +6,8 @@
 <date>2019-10-07</date>
 <description>Scatterplot matrix</description>
 <tags>C88</tags>
+<label>Pair Plot</label>
+<menu-attachment>MAINWIN/View/GraphVars/MultiPlots</menu-attachment>
 <help>
 *** PairPlot ***
 
@@ -160,17 +162,36 @@ endif
 return send_to_gnuplot(buffer, filename)
 </code>
 </gretl-function>
-<gretl-function name="GUI_PairPlot" type="void" private="1">
- <params count="2">
+<gretl-function name="GUI_PairPlot" type="void" no-print="1" pkg-role="gui-main">
+ <params count="3">
   <param name="L" type="list" const="true">
 <description>List of variables to plot</description>
   </param>
   <param name="factor" type="series" optional="true" const="true">
 <description>Discrete series for factorization</description>
   </param>
+  <param name="type" type="int" min="1" max="4" default="1">
+<description>Plot type</description>
+<labels count="4">
+"triangle" "matrix" "row" "column" </labels>
+  </param>
  </params>
 <code>/* Helper function for GUI access. */
-scalar err = PairPlot(L, factor)
+bundle opts = null
+if type == 1
+  string opts.type = &quot;triangle&quot;
+elif type == 2
+  string opts.type = &quot;matrix&quot;
+elif type == 3
+  string opts.type = &quot;row&quot;
+elif type == 4
+  string opts.type = &quot;column&quot;
+endif
+if exists(factor)
+  scalar err = PairPlot(L, factor, , , opts)
+else
+  scalar err = PairPlot(L, , , , opts)
+endif
 </code>
 </gretl-function>
 <gretl-function name="get_filetype_from_filename" type="string" private="1">
