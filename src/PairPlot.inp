@@ -48,6 +48,14 @@ function scalar PairPlot (const list L "List of variables to plot",
     return send_to_gnuplot(buffer, filename)
 end function
 
+function void GUI_PairPlot (const list L "List of variables to plot",
+                            const series factor[null] "Discrete series for factorization")
+    /* Helper function for GUI access. */
+
+    scalar err = PairPlot(L, factor)
+end function
+
+
 
 function string get_filetype_from_filename (const string filename)
     /* Process passed filename and grab file extension. */
