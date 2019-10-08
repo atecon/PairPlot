@@ -23,6 +23,7 @@ PairPlot(y)
 ```
 
 The produced graph looks as follows:
+
 ![](figs/simple.png)
 
 
@@ -34,6 +35,7 @@ The user can also specify the same plot with factorization where the 'factor' se
 PairPlot(y, variety)
 ```
 The resulting plot is:
+
 ![](figs/with_factor.png)
 
 The package supports fine fine-tuning. Take the following example where the 'triangle' plot is replaced by a 'matrix' plot and various settings:
@@ -55,6 +57,7 @@ string opts.type = "matrix"			# "matrix", "triangle" (default), "row", "column"
 scalar err = PairPlot(y, variety, , , opts)
 ``` 
 The resulting plot is:
+
 ![](figs/complex.png)
 ***
 
