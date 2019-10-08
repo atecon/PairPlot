@@ -16,21 +16,29 @@ include "PairPlot.gfn"
 
 open iris.gdt --frompkg=PairPlot --quiet
 
-series factor = variety
 list y = 1..4    				# list of series to plot
 
 # Default plot without factorization
-scalar err = PairPlot(y)
+PairPlot(y)
 ```
 
 The produced graph looks as follows:
-![](../figs/simple.png)
+![](figs/simple.png)
 
+
+The user can also specify the same plot with factorization where the 'factor' series comprises discrete categorical values:
 
 ```gretl
 
 # Default plot without factorization
-scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
+PairPlot(y, variety)
+```
+The resulting plot is:
+![](figs/with_factor.png)
+
+The package supports fine fine-tuning. Take the following example where the 'triangle' plot is replaced by a 'matrix' plot and various settings:
+
+```gretl
 
 # Optional: override default value by optionals
 bundle opts = null
@@ -44,11 +52,11 @@ scalar opts.use_circles = 0
 scalar opts.transparency_level = 0.5
 string opts.type = "matrix"			# "matrix", "triangle" (default), "row", "column"
 
-#string filename = "display" 			# optional: "PATH/test.[filetype]" (pdf, png, eps or svg)
-scalar err = PairPlot(y, factor, , , opts)		# with 'factor' series
-```
-
-
+scalar err = PairPlot(y, variety, , , opts)
+``` 
+The resulting plot is:
+![](figs/complex.png)
+***
 
 # Usage via the GUI
 The function PairPlot() can be accessed through the GUI. The menu entry is "View->Graph specified vars->Pair Plot".
