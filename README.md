@@ -21,6 +21,13 @@ list y = 1..4    				# list of series to plot
 
 # Default plot without factorization
 scalar err = PairPlot(y)
+```
+
+The produced graph looks as follows:
+![](../figs/simple.png)
+
+
+```gretl
 
 # Default plot without factorization
 scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
@@ -40,8 +47,6 @@ string opts.type = "matrix"			# "matrix", "triangle" (default), "row", "column"
 #string filename = "display" 			# optional: "PATH/test.[filetype]" (pdf, png, eps or svg)
 scalar err = PairPlot(y, factor, , , opts)		# with 'factor' series
 ```
-
-The produced graph looks as follows:
 
 
 
