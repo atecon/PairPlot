@@ -3,6 +3,47 @@
 This package implements a subplot grid for plotting pairwise relationships (with factorization) in a dataset. It works similar to Seaborn's (for Python) PairPlot class.
 
 Each variable in a list is mapped onto a column and row in a grid of multiple axes. It can also represent an additional level of conditionalization with the 'factor' parameter (a series), which plots different subsets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
+***
+
+# Installation and usage
+To install this package, run the following commands in gretl:
+```gretl
+pkg install PairPlot
+```
+Sample script:
+```gretl
+include "PairPlot.gfn"
+
+open iris.gdt --frompkg=PairPlot --quiet
+
+series factor = variety
+list y = 1..4    				# list of series to plot
+
+# Default plot without factorization
+scalar err = PairPlot(y)
+
+# Default plot without factorization
+scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
+
+# Optional: override default value by optionals
+bundle opts = null
+matrix opts.pointtype = {14,7,8}
+scalar opts.pointsize = 1
+matrix opts.fontsize = 8
+matrix opts.aspect_scale = 1
+#scalar opts.key = 0						# print values of factor as legend
+#scalar opts.tics = 0
+scalar opts.use_circles = 0
+scalar opts.transparency_level = 0.5
+string opts.type = "matrix"			# "matrix", "triangle" (default), "row", "column"
+
+#string filename = "display" 			# optional: "PATH/test.[filetype]" (pdf, png, eps or svg)
+scalar err = PairPlot(y, factor, , , opts)		# with 'factor' series
+```
+
+The produced graph looks as follows:
+
+
 
 # Usage via the GUI
 The function PairPlot() can be accessed through the GUI. The menu entry is "View->Graph specified vars->Pair Plot".
