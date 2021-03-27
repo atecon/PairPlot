@@ -44,8 +44,9 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
     self.n_L = nelem(L)
 
-    # TODO: Set some globals
-    string self.plot_type = (self.use_circles == TRUE) ? "circles" : "points"
+    # Set some global(s)
+    string self.plot_type = (self.use_circles == TRUE) ? "circles" : \
+                                                         "points"
 
     if exists(factor)
         add_information_of_factor(factor, &self)
@@ -68,17 +69,24 @@ function scalar PairPlot (const list L "List of variables to plot",
 end function
 
 
+function string type_to_function_map (const string type)
+    /* Mape type to function name. */
+
+    map =_(\
+            triangle = "write_plot_cmd_and_data_tri",\
+            matrix = "write_plot_cmd_and_data_mat",\
+            row = "write_plot_cmd_and_data_mat",\
+            column = "write_plot_cmd_and_data_mat"\
+          )
+
+    return map["@type"]
+end function
+
 function string compile_gnuplot_cmd_data_buffer (const list L,
                                                  const bundle self)
     /*  Compile gnuplot commands and data buffer for plotting. */
 
-    if self.type == "triangle"
-        fname = "write_plot_cmd_and_data_tri"
-    elif self.type == "matrix" || self.type == "row" || self.type == "column"
-        fname = "write_plot_cmd_and_data_mat"
-    endif
-
-    return feval(fname, L, &self)
+    return feval(type_to_function_map(self.type), L, &self)
 end function
 
 
@@ -133,23 +141,6 @@ function scalar isok_length_pointtype_vector (const bundle self)
     endif
 
     return TRUE
-end function
-
-
-function scalar is_ok_length_pointtype_vector (const int n_factors,
-                                               bundle *self)
-    scalar n_pts = rows(vec(self.pointtype))
-
-    if n_pts == 1
-        return 1
-    else
-        if n_pts < n_factors
-            printf "\nError: Your 'factor' series has %d distinct values\n\
-              but you have set a vector 'pointtype' with only %d elements.\n\n", n_factors, n_pts
-            return 0
-        endif
-    endif
-    return 1
 end function
 
 
@@ -237,25 +228,24 @@ function string write_settings (bundle *self)
     # drop right and upper border
     self.border_cmd = sprintf("set border 3 front ls 101\n")
     buffer += self.border_cmd
-    #    buffer += sprintf("set tics nomirror out scale 0.75\n")		# has no effect
-    buffer += write_options(&self)
+    buffer += write_options(self)
 
     return buffer
 end function
 
 
 function bundle default_options (void)
-    /* Default parameter values */
+    /* Default parameter values. */
 
     bundle self = null
 
-    scalar self.aspect_scale = 1.5			# scaling factor for size
+    scalar self.aspect_scale = 1.5	# scaling factor for size
     scalar self.fontsize = 8
     string self.font = "League Spartan"
     scalar self.pointsize = 0.5
-    matrix self.pointtype = mshape(10, 10, 1)
+    matrix self.pointtype = mshape(7, 20, 1)
     scalar self.offset_level = 0.02
-    scalar self.key = 1					# print distinct values of factor variable
+    scalar self.with_key = 1					# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
     scalar self.use_circles = TRUE
     scalar self.transparency_level = 0.5
@@ -291,17 +281,18 @@ function string write_plot_cmd_and_data_mat (const list L,
 
     string BUFFER = ""
 
-    loop foreach y L -q			# Row dimension
-        loop foreach x L -q		# Col dimension
+    loop foreach y L -q         # Row dimension
+
+        loop foreach x L -q     # Col dimension
             if varname(L.$y) != varname(L.$x)
 
                 string buffer = ""
-
                 list yx = null
                 list yx = L.$x L.$y
+                strings vnames = varnames(yx)
 
                 outfile --buffer=buffer
-                    write_labels(varnames(yx)[2], varnames(yx)[1])
+                    write_labels(vnames[2], vnames[1])
                     write_plot_cmd(self)
                     write_plot_data(yx, self)
                 end outfile
@@ -313,7 +304,6 @@ function string write_plot_cmd_and_data_mat (const list L,
         if self.type == "row" || self.type == "column"
             break
         endif
-
     endloop
 
     BUFFER += sprintf("unset multiplot")
@@ -359,7 +349,7 @@ function string write_plot_cmd_and_data_tri (const list L,
                         write_plot_data(yx, self)
                     end outfile
                 else
-                    buffer = write_empty_subplot_cmd(buffer, self)
+                    buffer = write_empty_subplot_cmd(self)
                 endif
 
                 BUFFER += buffer
@@ -373,11 +363,13 @@ function string write_plot_cmd_and_data_tri (const list L,
 end function
 
 
-function string write_empty_subplot_cmd (string buffer, const bundle self)
+function string write_empty_subplot_cmd (const bundle self)
     /* Helper function which leaves an empty subplot for triangular matrix plot */
 
+    string buffer
+
     outfile --buffer=buffer
-        if self.key
+        if self.with_key
             printf "set key off\n"
         endif
         printf "set border 0\n"
@@ -386,9 +378,11 @@ function string write_empty_subplot_cmd (string buffer, const bundle self)
         printf "unset xtics\n"
         printf "unset ytics\n"
         printf "plot '-' with points ps 0\n0 \ne\n"	# Trick for not plotting any point
-        if self.key && inbundle(self, "factor")
+
+        if self.with_key && inbundle(self, "factor")
             printf "set key on\n"
         endif
+
         if self.tics
             printf "set xtics\n"
             printf "set ytics\n"
@@ -413,8 +407,8 @@ function void write_plot_data (const list yx, const bundle self)
 
     loop i=1..self.n_factors -q
         if self.n_factors > 1
-            smpl self.factor_series == self.factor_values[i] \
-                --restrict --replace
+            smpl self.factor_series == self.factor_values[i] --restrict \
+                                                             --replace
         endif
 
         smpl --no-missing yx
@@ -455,10 +449,10 @@ function void write_plot_cmd (const bundle self)
 end function
 
 
-function string write_options (bundle *self)
+function string write_options (const bundle self)
     /* Write gnuplot options to buffer and return as string. */
 
-    string buffer = ""
+    string buffer
 
     outfile --buffer=buffer
         printf "set offsets "
@@ -470,7 +464,7 @@ function string write_options (bundle *self)
             endif
         endloop
 
-        if self.key
+        if self.with_key
             printf "set key %s\n", self.key_position
         else
             printf "set nokey\n"

@@ -9,6 +9,44 @@ include "./src/PairPlot.inp" --force
 #include string_utils.gfn
 
 
+
+bundles Params = null
+Params = Params + _(type = "triangle", expected = "write_plot_cmd_and_data_tri")
+Params = Params + _(type = "matrix", expected = "write_plot_cmd_and_data_mat")
+Params = Params + _(type = "row", expected = "write_plot_cmd_and_data_mat")
+Params = Params + _(type = "column", expected = "write_plot_cmd_and_data_mat")
+function void test_type_to_function_map (const bundles P)
+    print "Start testing type_to_function_map()."
+
+    loop foreach i P
+        # Given + When
+        actual = type_to_function_map(P[i].type)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_type_to_function_map(Params)
+
+
+bundles Params = null
+Params = Params + _(pointtype = {1, 2}', n_factors = 1, expected = TRUE)
+Params = Params + _(pointtype = {1, 2}', n_factors = 2, expected = TRUE)
+Params = Params + _(pointtype = {1, 2}', n_factors = 3, expected = FALSE)
+function void test_isok_length_pointtype_vec (const bundles P)
+    print "Start testing isok_length_pointtype_vector()."
+
+    loop foreach i P
+        # Given + When
+        actual = isok_length_pointtype_vector(P[i])
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_isok_length_pointtype_vec(Params)
+
+
 bundles Params = null
 Params = Params + _(pointtype = {1, 2}', n_factors = 1, expected = TRUE)
 Params = Params + _(pointtype = {1, 2}', n_factors = 2, expected = TRUE)
