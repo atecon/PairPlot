@@ -1,7 +1,9 @@
 clear
 set verbose off
 
-include PairPlot.gfn --force
+#include PairPlot.gfn --force
+set workdir "/home/at/git/PairPlot"
+include "./src/PairPlot.inp" --force
 
 scalar SAMPLE = 3					# Select a dataset
 
@@ -29,7 +31,7 @@ scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
 
 # Optional: override default value by optionals
 bundle opts = null
-matrix opts.pointtype = {14,7,8}
+matrix opts.pointtype = {14, 7, 8, 4, 5, 6, 7, 7, 7}
 scalar opts.pointsize = 1
 matrix opts.fontsize = 8
 matrix opts.aspect_scale = 1

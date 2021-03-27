@@ -1,51 +1,84 @@
+function scalar has_min_two_series (const list L)
+    /*  */
+
+    if nelem(L) < 2
+        printf "\nError: List of variables must be comprise at least two series.\n"
+        return FALSE
+    endif
+
+    return TRUE
+end function
+
+
+function void add_information_of_factor (const series factor, bundle *self)
+    /*  Gather information of factor series. */
+
+    series self.factor_series = factor
+
+    matrix self.factor_values = values(factor)
+    scalar self.n_factors = nelem(self.factor_values)
+
+    bundle b = getinfo(factor)
+    if b.has_string_table
+        strings self.factor_str_values = strvals(factor)
+    endif
+end function
+
+
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
-                          const series size[null] "Make point size a function of size (not supported yet!)",
-                          string filename[null] "Path+filename",
+                          const series size[null] "Make point size a function of size, not supported yet",
+                          const string filename[null] "Path+filename",
                           bundle opts[null] "Set options through bundle")
+    /* Main public function.
+    return: TRUE on error, otherwise FALSE. */
 
-    if nelem(L) == 1
-        printf "\nError: List of variables to plot mus comprise at least 2 series.\n"
-        return 1
-    endif
-
-    # Initial settings
     bundle self
     if exists(opts)
-        self = opts + default_options()
-    else
-        self = default_options()
+        self = opts
     endif
+    self = self + default_options()
 
-    scalar self.n_L = nelem(L)
+    if !has_min_two_series(L)
+        return TRUE
+    endif
+    self.n_L = nelem(L)
+
+    # TODO: Set some globals
+    string self.plot_type = (self.use_circles == TRUE) ? "circles" : "points"
 
     if exists(factor)
-        series self.factor = factor
-    endif
-    if settings_related_to_factor(&self)	# puts 'factor' into self
-        return 1
-    endif
-
-    if !exists(filename)
-        string filename = "display"
-    endif
-    if filename != "display"
-        string self.file_type = get_filetype_from_filename(filename)
+        add_information_of_factor(factor, &self)
     else
-        string self.file_type = "png"
+        scalar self.n_factors = 1
+        matrix self.factor_values = {1}
+    endif
+    code = isok_length_pointtype_vector(self)
+    if !code
+        return TRUE
     endif
 
-    # Write plot related settings
+    self.filename = exists(filename) ? filename : self.filename
+    add_filetype(&self)
+
     string buffer = write_settings(&self)
+    string buffer += compile_gnuplot_cmd_data_buffer(L, self)
 
-    # Write plot cmd + data
+    return send_to_gnuplot(buffer, self.filename)
+end function
+
+
+function string compile_gnuplot_cmd_data_buffer (const list L,
+                                                 const bundle self)
+    /*  Compile gnuplot commands and data buffer for plotting. */
+
     if self.type == "triangle"
-        string buffer += write_plot_cmd_and_data_tri(L, &self)	# triangle
+        fname = "write_plot_cmd_and_data_tri"
     elif self.type == "matrix" || self.type == "row" || self.type == "column"
-        string buffer += write_plot_cmd_and_data_mat(L, &self)		# all combinations
+        fname = "write_plot_cmd_and_data_mat"
     endif
 
-    return send_to_gnuplot(buffer, filename)
+    return feval(fname, L, &self)
 end function
 
 
@@ -54,7 +87,7 @@ function void GUI_PairPlot (const list L "List of variables to plot",
                             int type[1:4:1] "Plot type" {"triangle", "matrix", "row", "column"})
     /* Helper function for GUI access. */
     bundle opts = null
-    
+
     if type == 1
         string opts.type = "triangle"
     elif type == 2
@@ -72,44 +105,47 @@ function void GUI_PairPlot (const list L "List of variables to plot",
 end function
 
 
+function void add_filetype (bundle *self)
+    /* Process filename and grab file extension. */
 
-function string get_filetype_from_filename (const string filename)
-    /* Process passed filename and grab file extension. */
+    errorif(nelem(self.filename) == 0, "Invalid file name.")
 
-    scalar length = strlen(filename)
-    string grab_dot_and_type = strstr(substr(filename, length-4, length), ".")
-    string file_type = substr(grab_dot_and_type, 2, strlen(grab_dot_and_type))
-
-    return file_type
+    if self.filename == "display"
+        self.filetype = "png"
+    else
+        scalar length = strlen(self.filename)
+        string tmp = strstr(substr(self.filename, (length - 4), length),\
+                            ".")
+        string self.filetype = strsub(tmp, ".", "")
+    endif
 end function
 
 
+function scalar isok_length_pointtype_vector (const bundle self)
+    /* Make sure length of 'pointtype' vector is at least as long the number of distinct factor values.
+    return: TRUE of length of 'pointtype' vector is at least as long the number of distinct factor values; otherwise FALSE*/
 
-function scalar settings_related_to_factor (bundle *self)
-
-    if inbundle(self, "factor")
-        scalar self.n_factor_values = rows(values(self.factor))
-        scalar isok = is_ok_length_pointtype_vector(self.n_factor_values, &self)
-        if !isok
-            return 1
-        endif
-    else
-        self.key = 0						# dont print key/ legend in this case
-        scalar self.n_factor_values = 1		# needed for making loops working
+    if inbundle(self, "n_factors") && nelem(self.pointtype) < self.n_factors
+        printf "\nError: 'factor' series has %d distinct values but you\n\
+        have set a vector 'pointtype' with only %d elements. Abort.\n\n",\
+            self.n_factors, nelem(self.pointtype)
+        return FALSE
     endif
 
-    return 0
+    return TRUE
 end function
 
 
-function scalar is_ok_length_pointtype_vector (const int n_values_factor, bundle *self)
+function scalar is_ok_length_pointtype_vector (const int n_factors,
+                                               bundle *self)
     scalar n_pts = rows(vec(self.pointtype))
+
     if n_pts == 1
         return 1
     else
-        if n_pts < n_values_factor
+        if n_pts < n_factors
             printf "\nError: Your 'factor' series has %d distinct values\n\
-              but you have set a vector 'pointtype with only %d elements.\n\n", n_values_factor, n_pts
+              but you have set a vector 'pointtype' with only %d elements.\n\n", n_factors, n_pts
             return 0
         endif
     endif
@@ -117,23 +153,28 @@ function scalar is_ok_length_pointtype_vector (const int n_values_factor, bundle
 end function
 
 
-function string construct_terminal_cmd (bundle *self)
+function string filetype_to_terminal_map (const string filetype)
+    /* Return gnuplot terminal name depending on filetype. */
+
+    map =_(\
+            png = "pngcairo",\
+            pdf = "pdfcairo",\
+            eps = "postscript eps",\
+            svg ="svg"\
+          )
+
+    return map["@filetype"]
+end function
+
+
+function string construct_terminal_cmd (const bundle self)
     /* Construct the terminal for output. */
 
     string set_cmd = "set terminal "
-
-    if self.file_type == "png"
-        set_cmd += "pngcairo"
-    elif self.file_type == "pdf"
-        set_cmd += "pdfcairo"
-    elif self.file_type == "eps"
-        set_cmd += "postscript eps"
-    elif self.file_type == "svg"
-        set_cmd += "svg"
-    endif
-
+    set_cmd += filetype_to_terminal_map(self.filetype)
     set_cmd += sprintf(" font '%s,%d' ", self.font, self.fontsize)
-    if self.file_type != "svg"
+
+    if self.filetype != "svg"
         set_cmd += "color"
     endif
     set_cmd += ";"
@@ -145,46 +186,59 @@ function string construct_terminal_cmd (bundle *self)
 end function
 
 
+function scalar plottype_to_rows_map (const bundle self)
+    /* Determine number of rows of multiplot depending on plot type. */
+
+    map =_(\
+            triangle = self.n_L - 1,\
+            column = self.n_L - 1,\
+            matrix = self.n_L,\
+            row = 1\
+          )
+
+    return map[self.type]
+end function
+
+
+function scalar plottype_to_cols_map (const bundle self)
+    /* Determine number of columns of multiplot depending on plot type. */
+
+    if self.type != "column"
+        return self.n_L - 1
+    else
+        return 1
+    endif
+end function
+
+
 function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
     string buffer = ""
 
-    string buffer += sprintf("set encoding utf8\n")
-    string buffer += construct_terminal_cmd(&self)
+    buffer += sprintf("set encoding utf8\n")
+    buffer += construct_terminal_cmd(self)
+    buffer += write_linetype(self)
 
-    string buffer += write_linetype(&self)
+    buffer += sprintf("set multiplot layout %d,%d\n",\
+                plottype_to_rows_map(self), plottype_to_cols_map(self))
 
-    if self.type == "triangle" || self.type == "column"
-        scalar r = self.n_L - 1
-    elif self.type == "matrix"
-        scalar r = self.n_L
-    elif self.type == "row"
-        scalar r = 1
-    endif
-    if self.type != "column"
-        scalar c = self.n_L - 1
-    else
-        scalar c = 1
-    endif
-
-    string buffer += sprintf("set multiplot layout %d,%d\n", r, c)
-
-    if self.transparency_level > 0
+    if self.transparency_level
         if self.use_circles
             printf "\nWarning: Transparency is only supported for points but not circles.\n"
         else
-            string buffer += sprintf("set style fill transparent solid %.1f noborder\n", \
+            buffer += sprintf("set style fill transparent solid %.1f noborder\n", \
               self.transparency_level)
         endif
     endif
 
-    string buffer += sprintf("set datafile missing 'NaN'\n")
-    string buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
-    string self.border_cmd = sprintf("set border 3 front ls 101\n")		# drop right and upper border
-    string buffer += self.border_cmd
-    #    string buffer += sprintf("set tics nomirror out scale 0.75\n")		# has no effect
-    string buffer += write_options(&self)
+    buffer += sprintf("set datafile missing '%s'\n", self.gnuplot_missing_value)
+    buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
+    # drop right and upper border
+    self.border_cmd = sprintf("set border 3 front ls 101\n")
+    buffer += self.border_cmd
+    #    buffer += sprintf("set tics nomirror out scale 0.75\n")		# has no effect
+    buffer += write_options(&self)
 
     return buffer
 end function
@@ -199,15 +253,18 @@ function bundle default_options (void)
     scalar self.fontsize = 8
     string self.font = "League Spartan"
     scalar self.pointsize = 0.5
-    matrix self.pointtype = 7
+    matrix self.pointtype = mshape(10, 10, 1)
     scalar self.offset_level = 0.02
-    scalar self.key = 1						# print distinct values of factor variable
-    string self.key_position = "top left"	# position legend (standatd gnuplot settings)
-    scalar self.use_circles = 0
+    scalar self.key = 1					# print distinct values of factor variable
+    string self.key_position = "top left"	# position of legend
+    scalar self.use_circles = TRUE
     scalar self.transparency_level = 0.5
     string self.type = "triangle"
-    scalar self.tics = 1				# print no x/y tics
-    scalar self.grid = 0	# add grid (works only if self.tics=1) - not supported!
+    scalar self.tics = TRUE		 # print no x/y tics
+    scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
+
+    string self.gnuplot_missing_value = "NaN"
+    string self.filename = "display"
 
     return self
 end function
@@ -245,8 +302,8 @@ function string write_plot_cmd_and_data_mat (const list L,
 
                 outfile --buffer=buffer
                     write_labels(varnames(yx)[2], varnames(yx)[1])
-                    write_plot_cmd(&self)
-                    write_plot_data(yx, &self)
+                    write_plot_cmd(self)
+                    write_plot_data(yx, self)
                 end outfile
 
                 BUFFER += buffer
@@ -273,7 +330,7 @@ function string write_plot_cmd_and_data_tri (const list L,
 
     # 1) Loop over all possible combinations
     # -> Each one starts with a new 'plot' cmd
-    # 2) For each combination, consider the n_factor_values
+    # 2) For each combination, consider the n_factors
 
     scalar y_counter = 0
 
@@ -282,8 +339,7 @@ function string write_plot_cmd_and_data_tri (const list L,
 
         scalar x_counter = 0
 
-        loop foreach x L -q		# Col dimension
-
+        loop foreach x L -q		# Column dimension
             if y_counter == 1
                 break
             endif
@@ -291,28 +347,24 @@ function string write_plot_cmd_and_data_tri (const list L,
             x_counter++
 
             if varname(L.$y) != varname(L.$x)
-
                 string buffer = ""
-
                 list yx = null
                 list yx = L.$x L.$y
+                strings vnames = varnames(yx)
 
                 if y_counter > x_counter
                     outfile --buffer=buffer
-                        write_labels(varnames(yx)[2], varnames(yx)[1])
-                        write_plot_cmd(&self)
-                        write_plot_data(yx, &self)
+                        write_labels(vnames[2], vnames[1])
+                        write_plot_cmd(self)
+                        write_plot_data(yx, self)
                     end outfile
-
                 else
-                    buffer = write_empty_subplot_cmd(buffer, &self)
+                    buffer = write_empty_subplot_cmd(buffer, self)
                 endif
 
                 BUFFER += buffer
             endif
-
         endloop						# end loop over x
-
     endloop							# end loop over y
 
     BUFFER += sprintf("unset multiplot")
@@ -321,7 +373,7 @@ function string write_plot_cmd_and_data_tri (const list L,
 end function
 
 
-function string write_empty_subplot_cmd (string buffer, bundle *self)
+function string write_empty_subplot_cmd (string buffer, const bundle self)
     /* Helper function which leaves an empty subplot for triangular matrix plot */
 
     outfile --buffer=buffer
@@ -354,95 +406,67 @@ function void write_labels (const string yname, const string xname)
 end function
 
 
-function void write_plot_data (const list yx, bundle *self)
+function void write_plot_data (const list yx, const bundle self)
     /* Write data for a single subplot. */
 
-    if inbundle(self, "factor")
-        matrix factor_values = values(self.factor)
-    endif
+    set force_decpoint on
 
-    loop i=1..self.n_factor_values -q
-
-        if self.n_factor_values > 1
-            smpl self.factor == factor_values[i] --restrict --replace
+    loop i=1..self.n_factors -q
+        if self.n_factors > 1
+            smpl self.factor_series == self.factor_values[i] \
+                --restrict --replace
         endif
 
         smpl --no-missing yx
         matrix m_yx = {yx}
 
-        loop j=1..$nobs -q		# TODO: Use 'print' statement instead of the loop -- faster for 'big data'?
-            printf "%.3f %.3f", m_yx[j,1], m_yx[j,2]
-            if j < $nobs
-                printf "\n"
-            else
-                printf "\ne\n"
-            endif
-        endloop
-
+        printf "%16.3f", m_yx
+        printf "\ne\n"
     endloop
+
+    set force_decpoint off
 end function
 
 
-function void write_plot_cmd (bundle *self)
-
-    if rows(vec(self.pointtype)) == 1
-        matrix pt = self.pointtype * ones(self.n_factor_values, 1)
-    else
-        matrix pt = self.pointtype
-    endif
-
-    if self.use_circles
-        string plot_type = "circles"
-    else
-        string plot_type = "points"
-    endif
-
-    if self.key && inbundle(self, "factor")
-        series factor = self.factor
-
-        strings str_values_factor = strvals(factor)
-        scalar factor_has_str_values = 1
-        if nelem(str_values_factor) == 0 # factor includes only numeric values
-            matrix num_values_factor = values(factor)
-            scalar factor_has_str_values = 0
-        endif
-    endif
+function void write_plot_cmd (const bundle self)
+    /* Compile gnuplot initial commands. */
 
     printf "plot \\\n"
-    loop i=1..self.n_factor_values -q
-        printf "'-' using 1:2 w %s pt %d", plot_type, pt[i]
 
-        if exists(factor_has_str_values)
-            if factor_has_str_values
-                printf " title '%s'", str_values_factor[i]
+    loop i=1..self.n_factors -q
+        printf "'-' using 1:2 w %s pt %d", self.plot_type, self.pointtype[i]
+
+        if inbundle(self, "factor_str_values")
+            printf " title '%s'", self.factor_str_values[i]
+        else
+            if self.n_factors == 1
+                print " title ''"
             else
-                printf " title 'F=%d'", num_values_factor[i]
+                printf " title 'F=%d'", self.factor_values[i]
             endif
         endif
 
-        if i < self.n_factor_values
+        if i < self.n_factors
             printf ", \\\n"
         else
             printf "\n"
         endif
     endloop
-
 end function
 
 
 function string write_options (bundle *self)
+    /* Write gnuplot options to buffer and return as string. */
 
-    scalar off_set = self.offset_level
+    string buffer = ""
 
-    string options_out = ""
-
-    outfile --buffer=options_out
+    outfile --buffer=buffer
         printf "set offsets "
         loop i=1..self.n_L -q
             if i < self.n_L
-                printf "%.2f, ", off_set
+                printf "%.2f, ", self.offset_level
             else
-                printf "%.2f\n", off_set
+                printf "%.2f\n", self.offset_level
             endif
         endloop
 
@@ -465,31 +489,32 @@ function string write_options (bundle *self)
         endif
 
         printf "set pointsize %.2f\n", self.pointsize
-
     end outfile
 
-    return options_out
+    return buffer
 end function
 
 
 function strings get_color_definitions (void)
     /* Put your own definitions here. */
 
-    strings color_definitions = defarray("#C41E3A", \
-    "#4682B4", \
-    "#FFBF00", \
-    "#ff0000", \
-    "#0000ff", \
-    "#00cc00", \
-    "#bf25b2", \
-    "#8faab3", \
-    "#ffa500")
-
-    return color_definitions
+    return defarray(\
+                    "#C41E3A", \
+                    "#4682B4", \
+                    "#FFBF00", \
+                    "#ff0000", \
+                    "#0000ff", \
+                    "#00cc00", \
+                    "#bf25b2", \
+                    "#8faab3", \
+                    "#ffa500"\
+                    )
 end function
 
 
-function string write_linetype (bundle *self)
+function string write_linetype (const bundle self)
+    /* Print linetype commands. */
+
     strings color_definitions = get_color_definitions()
 
     string linetype_out = ""
