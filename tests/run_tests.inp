@@ -1,0 +1,108 @@
+set verbose off
+clear
+
+#include assertion.gfn
+set assert stop
+
+include "./src/PairPlot.inp" --force
+#include ridge.gfn
+#include string_utils.gfn
+
+
+bundles Params = null
+Params = Params + _(pointtype = {1, 2}', n_factors = 1, expected = TRUE)
+Params = Params + _(pointtype = {1, 2}', n_factors = 2, expected = TRUE)
+Params = Params + _(pointtype = {1, 2}', n_factors = 3, expected = FALSE)
+function void test_isok_length_pointtype_vec (const bundles P)
+    print "Start testing isok_length_pointtype_vector()."
+
+    loop foreach i P
+        # Given + When
+        actual = isok_length_pointtype_vector(P[i])
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_isok_length_pointtype_vec(Params)
+
+
+bundles Params = null
+Params = Params + _(filename = "foo.svg", expected = "svg")
+function void test_add_filetype (const bundles P)
+    print "Start testing add_filetype()"
+
+    loop foreach i P
+        # Given
+        bundle B = null
+        B = _(filename = P[i].filename)
+
+        # When
+        add_filetype(&B)
+        print B
+
+        # Then
+        assert(B.filetype == P[i].expected)
+    endloop
+end function
+test_add_filetype(Params)
+
+
+bundles Params = null
+Params = Params + _(filetype = "svg", expected = "svg")
+Params = Params + _(filetype = "png", expected = "pngcairo")
+function void test_filetype_to_terminal_map (const bundles P)
+    print "Start testing filetype_to_terminal_map()"
+
+    loop foreach i P
+        # Given + When
+        actual = filetype_to_terminal_map(P[i].filetype)
+
+        # Then
+        actual
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_filetype_to_terminal_map(Params)
+
+
+bundles Params = null
+Params = Params + _(type = "triangle", n_L = 2, expected = 1)
+Params = Params + _(type = "column", n_L = 3, expected = 2)
+Params = Params + _(type = "matrix", n_L = 3, expected = 3)
+Params = Params + _(type = "row", n_L = 3, expected = 1)
+Params = Params + _(type = "row", n_L = 2, expected = 1)
+function void test_plottype_to_rows_map (const bundles P)
+    print "Start testing plottype_to_rows_map()"
+
+    loop foreach i P
+        # Given + When
+        actual = plottype_to_rows_map(P[i])
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_plottype_to_rows_map(Params)
+
+
+bundles Params = null
+Params = Params + _(type = "triangle", n_L = 2, expected = 1)
+Params = Params + _(type = "column", n_L = 3, expected = 1)
+Params = Params + _(type = "matrix", n_L = 3, expected = 2)
+Params = Params + _(type = "row", n_L = 3, expected = 2)
+function void test_plottype_to_cols_map (const bundles P)
+    print "Start testing plottype_to_cols_map()"
+
+    loop foreach i P
+        # Given + When
+        actual = plottype_to_cols_map(P[i])
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_plottype_to_cols_map(Params)
+
+print "Succesfully finished all tests."
+quit
