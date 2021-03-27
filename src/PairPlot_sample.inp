@@ -11,22 +11,18 @@ if SAMPLE == 1
     open iris.gdt --frompkg=PairPlot --quiet
     series factor = variety
     list y = 1..4    				# list of series to plot
+    PairPlot(y)
 elif SAMPLE == 2
     open credscore.gdt --quiet
-    series factor = Selfempl
+    bundle opts = _(factor = Selfempl)
     list y = 1..4
+    PairPlot(y, null, opts)
 elif SAMPLE == 3
     open abdata --quiet
-    series factor = IND
     list y = n k ys
+    bundle opts = _(factor = IND)
+    PairPlot(y, null, opts)
 endif
-
-
-# Default plot without factorization
-PairPlot(y)
-
-# Default plot without factorization
-scalar err = PairPlot(y, factor)		# 'err' holds a returned integer value
 
 
 # Optional: override default value by optionals
