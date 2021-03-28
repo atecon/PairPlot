@@ -27,8 +27,6 @@ end function
 
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
-                          const series size[null] "Make point size a function of size, not supported yet",
-                          const string filename[null] "Path+filename",
                           bundle opts[null] "Set options through bundle")
     /* Main public function.
     return: TRUE on error, otherwise FALSE. */
@@ -39,6 +37,11 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
     self = self + default_options()
 
+    # Some checks
+    if nelem(self.filename) == 0
+        printf "\nError: Invalid file name.\n"
+        return TRUE
+    endif
     if !has_min_two_series(L)
         return TRUE
     endif
@@ -106,24 +109,23 @@ function void GUI_PairPlot (const list L "List of variables to plot",
         string opts.type = "column"
     endif
     if exists(factor)
-        scalar err = PairPlot(L, factor, , , opts)
+        scalar err = PairPlot(L, factor,  opts)
     else
-        scalar err = PairPlot(L, , , , opts)
+        scalar err = PairPlot(L, null, opts)
     endif
 end function
 
 
 function void add_filetype (bundle *self)
-    /* Process filename and grab file extension. */
-
-    errorif(nelem(self.filename) == 0, "Invalid file name.")
+    /* Determine type for plot file. */
 
     if self.filename == "display"
         self.filetype = "png"
     else
         scalar length = strlen(self.filename)
-        string tmp = strstr(substr(self.filename, (length - 4), length),\
-                            ".")
+        string tmp = strstr(\
+                        substr(self.filename, (length - 4), length),\
+                        ".")
         string self.filetype = strsub(tmp, ".", "")
     endif
 end function

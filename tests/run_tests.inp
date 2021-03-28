@@ -77,7 +77,6 @@ function void test_add_filetype (const bundles P)
 
         # When
         add_filetype(&B)
-        print B
 
         # Then
         assert(B.filetype == P[i].expected)
