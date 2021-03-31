@@ -106,7 +106,7 @@ Version 0.5 (Oct. 2019):
 iris.gdt </data-files>
 <gretl-function name="PairPlot" type="scalar">
  <params count="3">
-  <param name="L" type="list">
+  <param name="L" type="list" const="true">
 <description>List of variables to plot</description>
   </param>
   <param name="factor" type="series" optional="true" const="true">
@@ -153,7 +153,7 @@ return send_to_gnuplot(buffer, self.filename)
 </gretl-function>
 <gretl-function name="GUI_PairPlot" type="void" no-print="1" pkg-role="gui-main">
  <params count="3">
-  <param name="L" type="list">
+  <param name="L" type="list" const="true">
 <description>List of variables to plot</description>
   </param>
   <param name="factor" type="series" optional="true" const="true">
@@ -185,7 +185,7 @@ endif
 </gretl-function>
 <gretl-function name="has_min_two_series" type="scalar" private="1">
  <params count="1">
-  <param name="L" type="list"/>
+  <param name="L" type="list" const="true"/>
  </params>
 <code>/*  */
 if nelem(L) &lt; 2
@@ -221,7 +221,7 @@ return map[&quot;@type&quot;]
 </gretl-function>
 <gretl-function name="compile_gnuplot_cmd_data_buffer" type="string" private="1">
  <params count="2">
-  <param name="L" type="list"/>
+  <param name="L" type="list" const="true"/>
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/*  Compile gnuplot commands and data buffer for plotting. */
@@ -269,6 +269,7 @@ return map[&quot;@filetype&quot;]
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Construct the terminal for output. */
+set force_decpoint on
 string set_cmd = &quot;set terminal &quot;
 set_cmd += filetype_to_terminal_map(self.filetype)
 set_cmd += sprintf(&quot; font '%s,%d' &quot;, self.font, self.fontsize)
@@ -278,6 +279,7 @@ endif
 set_cmd += &quot;;&quot;
 # Set size ratio
 set_cmd += sprintf(&quot;set size %.1f, %.1f\n&quot;, self.aspect_scale, self.aspect_scale)
+set force_decpoint off
 return set_cmd
 </code>
 </gretl-function>
@@ -307,7 +309,7 @@ endif
   <param name="self" type="bundleref"/>
  </params>
 <code>/* Write various settings to a string buffer. */
-string buffer = &quot;&quot;
+string buffer
 buffer += sprintf(&quot;set encoding utf8\n&quot;)
 buffer += construct_terminal_cmd(self)
 buffer += write_linetype(self)
@@ -316,7 +318,9 @@ if self.transparency_level
   if self.use_circles
     printf &quot;\nWarning: Transparency is only supported for points but not circles.\n&quot;
   else
+    set force_decpoint on
     buffer += sprintf(&quot;set style fill transparent solid %.1f noborder\n&quot;, self.transparency_level)
+    set force_decpoint off
   endif
 endif
 buffer += sprintf(&quot;set datafile missing '%s'\n&quot;, self.gnuplot_missing_value)
@@ -365,7 +369,7 @@ return $error
 </gretl-function>
 <gretl-function name="write_plot_cmd_and_data_mat" type="string" private="1">
  <params count="2">
-  <param name="L" type="list"/>
+  <param name="L" type="list" const="true"/>
   <param name="self" type="bundleref"/>
  </params>
 <code>/* For case self.type==&quot;matrix&quot; case */
@@ -397,7 +401,7 @@ return BUFFER
 </gretl-function>
 <gretl-function name="write_plot_cmd_and_data_tri" type="string" private="1">
  <params count="2">
-  <param name="L" type="list"/>
+  <param name="L" type="list" const="true"/>
   <param name="self" type="bundleref"/>
  </params>
 <code>/* For self.type==&quot;triangle&quot; case */
@@ -477,7 +481,7 @@ printf &quot;set xlabel '%s'\n&quot;, xname
 </gretl-function>
 <gretl-function name="write_plot_data" type="void" private="1">
  <params count="2">
-  <param name="yx" type="list"/>
+  <param name="yx" type="list" const="true"/>
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Write data for a single subplot. */
@@ -522,6 +526,7 @@ endloop
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Write gnuplot options to buffer and return as string. */
+set force_decpoint on
 string buffer
 outfile --buffer=buffer
   printf &quot;set offsets &quot;
@@ -550,6 +555,7 @@ outfile --buffer=buffer
   endif
   printf &quot;set pointsize %.2f\n&quot;, self.pointsize
 end outfile
+set force_decpoint off
 return buffer
 </code>
 </gretl-function>
@@ -598,6 +604,7 @@ elif SAMPLE == 3
     PairPlot(y, factor) 	# with factor series
 endif
 
+
 # Optional: override default value by your own parameters
 # See help text for all available options
 bundle opts = null
@@ -609,8 +616,10 @@ matrix opts.aspect_scale = 1
 scalar opts.use_circles = FALSE
 scalar opts.transparency_level = 0.5
 string opts.type = &quot;matrix&quot;	# &quot;matrix&quot;, &quot;triangle&quot;, &quot;row&quot;, &quot;column&quot;
-string opts.filename = &quot;foo.png&quot;
+#string opts.filename = &quot;foo.png&quot;
 
+
+# A plot should pop-up now
 scalar err = PairPlot(y, factor, opts)		# with 'factor' series
 printf &quot;\nInfo: Error code returned = %d\n&quot;, err
 </sample-script>
