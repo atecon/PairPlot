@@ -283,6 +283,8 @@ function string write_plot_cmd_and_data_mat (const list L,
 
     string BUFFER = ""
 
+    set force_decpoint on
+
     loop foreach y L -q         # Row dimension
 
         loop foreach x L -q     # Col dimension
@@ -308,6 +310,8 @@ function string write_plot_cmd_and_data_mat (const list L,
         endif
     endloop
 
+    set force_decpoint off
+
     BUFFER += sprintf("unset multiplot")
 
     return BUFFER
@@ -319,6 +323,7 @@ function string write_plot_cmd_and_data_tri (const list L,
     /* For self.type=="triangle" case */
 
     string BUFFER = ""
+    set force_decpoint on
 
     # 1) Loop over all possible combinations
     # -> Each one starts with a new 'plot' cmd
@@ -358,6 +363,7 @@ function string write_plot_cmd_and_data_tri (const list L,
             endif
         endloop						# end loop over x
     endloop							# end loop over y
+    set force_decpoint off
 
     BUFFER += sprintf("unset multiplot")
 
@@ -405,8 +411,6 @@ end function
 function void write_plot_data (const list yx, const bundle self)
     /* Write data for a single subplot. */
 
-    set force_decpoint on
-
     loop i=1..self.n_factors -q
         if self.n_factors > 1
             smpl self.factor_series == self.factor_values[i] --restrict \
@@ -419,8 +423,6 @@ function void write_plot_data (const list yx, const bundle self)
         printf "%16.3f", m_yx
         printf "\ne\n"
     endloop
-
-    set force_decpoint off
 end function
 
 

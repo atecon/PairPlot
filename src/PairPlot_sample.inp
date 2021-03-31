@@ -1,7 +1,7 @@
 clear
 set verbose off
 
-include PairPlot.gfn --force
+include PairPlot.gfn
 
 scalar SAMPLE = 1			# Select a dataset
 
@@ -33,7 +33,7 @@ matrix opts.aspect_scale = 1
 scalar opts.use_circles = FALSE
 scalar opts.transparency_level = 0.5
 string opts.type = "matrix"	# "matrix", "triangle", "row", "column"
-# string opts.filename = "foo.pdf"
+string opts.filename = "foo.png"
 
 scalar err = PairPlot(y, factor, opts)		# with 'factor' series
 printf "\nInfo: Error code returned = %d\n", err

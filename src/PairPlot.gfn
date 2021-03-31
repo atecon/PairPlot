@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gretl-functions>
-<gretl-function-package name="PairPlot" no-data-ok="true" minver="2020b" lives-in-subdir="true">
+<gretl-function-package name="PairPlot" no-data-ok="true" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.6</version>
-<date>2021-03-28</date>
+<date>2021-03-31</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -94,7 +94,7 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 Changelog:
 ----------
 Version 0.6 (March 2021):
-   - New API for PairPlot
+  - New API for PairPlot() -- backward-incompatible
 	- update help text
 	- enforce decimal point when print numerical data to gnuplot file
 	- substantial internal refactoring and clean up
@@ -106,7 +106,7 @@ Version 0.5 (Oct. 2019):
 iris.gdt </data-files>
 <gretl-function name="PairPlot" type="scalar">
  <params count="3">
-  <param name="L" type="list" const="true">
+  <param name="L" type="list">
 <description>List of variables to plot</description>
   </param>
   <param name="factor" type="series" optional="true" const="true">
@@ -153,7 +153,7 @@ return send_to_gnuplot(buffer, self.filename)
 </gretl-function>
 <gretl-function name="GUI_PairPlot" type="void" no-print="1" pkg-role="gui-main">
  <params count="3">
-  <param name="L" type="list" const="true">
+  <param name="L" type="list">
 <description>List of variables to plot</description>
   </param>
   <param name="factor" type="series" optional="true" const="true">
@@ -185,7 +185,7 @@ endif
 </gretl-function>
 <gretl-function name="has_min_two_series" type="scalar" private="1">
  <params count="1">
-  <param name="L" type="list" const="true"/>
+  <param name="L" type="list"/>
  </params>
 <code>/*  */
 if nelem(L) &lt; 2
@@ -221,7 +221,7 @@ return map[&quot;@type&quot;]
 </gretl-function>
 <gretl-function name="compile_gnuplot_cmd_data_buffer" type="string" private="1">
  <params count="2">
-  <param name="L" type="list" const="true"/>
+  <param name="L" type="list"/>
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/*  Compile gnuplot commands and data buffer for plotting. */
@@ -365,11 +365,12 @@ return $error
 </gretl-function>
 <gretl-function name="write_plot_cmd_and_data_mat" type="string" private="1">
  <params count="2">
-  <param name="L" type="list" const="true"/>
+  <param name="L" type="list"/>
   <param name="self" type="bundleref"/>
  </params>
 <code>/* For case self.type==&quot;matrix&quot; case */
 string BUFFER = &quot;&quot;
+set force_decpoint on
 loop foreach y L -q         # Row dimension
   loop foreach x L -q     # Col dimension
     if varname(L.$y) != varname(L.$x)
@@ -389,17 +390,19 @@ loop foreach y L -q         # Row dimension
     break
   endif
 endloop
+set force_decpoint off
 BUFFER += sprintf(&quot;unset multiplot&quot;)
 return BUFFER
 </code>
 </gretl-function>
 <gretl-function name="write_plot_cmd_and_data_tri" type="string" private="1">
  <params count="2">
-  <param name="L" type="list" const="true"/>
+  <param name="L" type="list"/>
   <param name="self" type="bundleref"/>
  </params>
 <code>/* For self.type==&quot;triangle&quot; case */
 string BUFFER = &quot;&quot;
+set force_decpoint on
 # 1) Loop over all possible combinations
 # -&gt; Each one starts with a new 'plot' cmd
 # 2) For each combination, consider the n_factors
@@ -430,6 +433,7 @@ loop foreach y L -q			# Row dimension
     endif
   endloop						# endloop over x
 endloop							# endloop over y
+set force_decpoint off
 BUFFER += sprintf(&quot;unset multiplot&quot;)
 return BUFFER
 </code>
@@ -473,11 +477,10 @@ printf &quot;set xlabel '%s'\n&quot;, xname
 </gretl-function>
 <gretl-function name="write_plot_data" type="void" private="1">
  <params count="2">
-  <param name="yx" type="list" const="true"/>
+  <param name="yx" type="list"/>
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Write data for a single subplot. */
-set force_decpoint on
 loop i=1..self.n_factors -q
   if self.n_factors &gt; 1
     smpl self.factor_series == self.factor_values[i] --restrict --replace
@@ -487,7 +490,6 @@ loop i=1..self.n_factors -q
   printf &quot;%16.3f&quot;, m_yx
   printf &quot;\ne\n&quot;
 endloop
-set force_decpoint off
 </code>
 </gretl-function>
 <gretl-function name="write_plot_cmd" type="void" private="1">
@@ -575,7 +577,7 @@ return linetype_out
 clear
 set verbose off
 
-include PairPlot.gfn --force
+include PairPlot.gfn
 
 scalar SAMPLE = 1			# Select a dataset
 
@@ -607,7 +609,7 @@ matrix opts.aspect_scale = 1
 scalar opts.use_circles = FALSE
 scalar opts.transparency_level = 0.5
 string opts.type = &quot;matrix&quot;	# &quot;matrix&quot;, &quot;triangle&quot;, &quot;row&quot;, &quot;column&quot;
-# string opts.filename = &quot;foo.pdf&quot;
+string opts.filename = &quot;foo.png&quot;
 
 scalar err = PairPlot(y, factor, opts)		# with 'factor' series
 printf &quot;\nInfo: Error code returned = %d\n&quot;, err
