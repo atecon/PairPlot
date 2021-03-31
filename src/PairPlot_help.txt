@@ -88,5 +88,6 @@ Version 0.6 (March 2021):
 	- enforce decimal point when print numerical data to gnuplot file
 	- substantial internal refactoring and clean up
 	- gain of speed
+  - new minimum gretl version is 2020e
 Version 0.5 (Oct. 2019):
 	- Initial version
