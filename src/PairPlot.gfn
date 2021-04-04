@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gretl-functions>
-<gretl-function-package name="PairPlot" no-data-ok="true" minver="2020b" lives-in-subdir="true">
+<gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.6</version>
-<date>2021-03-28</date>
+<date>2021-03-31</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -94,11 +94,12 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 Changelog:
 ----------
 Version 0.6 (March 2021):
-   - New API for PairPlot
+  - New API for PairPlot() -- backward-incompatible
 	- update help text
 	- enforce decimal point when print numerical data to gnuplot file
 	- substantial internal refactoring and clean up
 	- gain of speed
+  - new minimum gretl version is 2020e
 Version 0.5 (Oct. 2019):
 	- Initial version
 </help>
@@ -269,6 +270,7 @@ return map[&quot;@filetype&quot;]
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Construct the terminal for output. */
+set force_decpoint on
 string set_cmd = &quot;set terminal &quot;
 set_cmd += filetype_to_terminal_map(self.filetype)
 set_cmd += sprintf(&quot; font '%s,%d' &quot;, self.font, self.fontsize)
@@ -278,6 +280,7 @@ endif
 set_cmd += &quot;;&quot;
 # Set size ratio
 set_cmd += sprintf(&quot;set size %.1f, %.1f\n&quot;, self.aspect_scale, self.aspect_scale)
+set force_decpoint off
 return set_cmd
 </code>
 </gretl-function>
@@ -307,7 +310,7 @@ endif
   <param name="self" type="bundleref"/>
  </params>
 <code>/* Write various settings to a string buffer. */
-string buffer = &quot;&quot;
+string buffer
 buffer += sprintf(&quot;set encoding utf8\n&quot;)
 buffer += construct_terminal_cmd(self)
 buffer += write_linetype(self)
@@ -316,7 +319,9 @@ if self.transparency_level
   if self.use_circles
     printf &quot;\nWarning: Transparency is only supported for points but not circles.\n&quot;
   else
+    set force_decpoint on
     buffer += sprintf(&quot;set style fill transparent solid %.1f noborder\n&quot;, self.transparency_level)
+    set force_decpoint off
   endif
 endif
 buffer += sprintf(&quot;set datafile missing '%s'\n&quot;, self.gnuplot_missing_value)
@@ -370,6 +375,7 @@ return $error
  </params>
 <code>/* For case self.type==&quot;matrix&quot; case */
 string BUFFER = &quot;&quot;
+set force_decpoint on
 loop foreach y L -q         # Row dimension
   loop foreach x L -q     # Col dimension
     if varname(L.$y) != varname(L.$x)
@@ -389,6 +395,7 @@ loop foreach y L -q         # Row dimension
     break
   endif
 endloop
+set force_decpoint off
 BUFFER += sprintf(&quot;unset multiplot&quot;)
 return BUFFER
 </code>
@@ -400,6 +407,7 @@ return BUFFER
  </params>
 <code>/* For self.type==&quot;triangle&quot; case */
 string BUFFER = &quot;&quot;
+set force_decpoint on
 # 1) Loop over all possible combinations
 # -&gt; Each one starts with a new 'plot' cmd
 # 2) For each combination, consider the n_factors
@@ -430,6 +438,7 @@ loop foreach y L -q			# Row dimension
     endif
   endloop						# endloop over x
 endloop							# endloop over y
+set force_decpoint off
 BUFFER += sprintf(&quot;unset multiplot&quot;)
 return BUFFER
 </code>
@@ -477,7 +486,6 @@ printf &quot;set xlabel '%s'\n&quot;, xname
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Write data for a single subplot. */
-set force_decpoint on
 loop i=1..self.n_factors -q
   if self.n_factors &gt; 1
     smpl self.factor_series == self.factor_values[i] --restrict --replace
@@ -487,7 +495,6 @@ loop i=1..self.n_factors -q
   printf &quot;%16.3f&quot;, m_yx
   printf &quot;\ne\n&quot;
 endloop
-set force_decpoint off
 </code>
 </gretl-function>
 <gretl-function name="write_plot_cmd" type="void" private="1">
@@ -520,6 +527,7 @@ endloop
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* Write gnuplot options to buffer and return as string. */
+set force_decpoint on
 string buffer
 outfile --buffer=buffer
   printf &quot;set offsets &quot;
@@ -548,6 +556,7 @@ outfile --buffer=buffer
   endif
   printf &quot;set pointsize %.2f\n&quot;, self.pointsize
 end outfile
+set force_decpoint off
 return buffer
 </code>
 </gretl-function>
@@ -575,7 +584,7 @@ return linetype_out
 clear
 set verbose off
 
-include PairPlot.gfn --force
+include PairPlot.gfn
 
 scalar SAMPLE = 1			# Select a dataset
 
@@ -596,6 +605,7 @@ elif SAMPLE == 3
     PairPlot(y, factor) 	# with factor series
 endif
 
+
 # Optional: override default value by your own parameters
 # See help text for all available options
 bundle opts = null
@@ -607,8 +617,10 @@ matrix opts.aspect_scale = 1
 scalar opts.use_circles = FALSE
 scalar opts.transparency_level = 0.5
 string opts.type = &quot;matrix&quot;	# &quot;matrix&quot;, &quot;triangle&quot;, &quot;row&quot;, &quot;column&quot;
-# string opts.filename = &quot;foo.pdf&quot;
+#string opts.filename = &quot;foo.png&quot;
 
+
+# A plot should pop-up now
 scalar err = PairPlot(y, factor, opts)		# with 'factor' series
 printf &quot;\nInfo: Error code returned = %d\n&quot;, err
 </sample-script>

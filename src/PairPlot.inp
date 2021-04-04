@@ -163,6 +163,8 @@ end function
 function string construct_terminal_cmd (const bundle self)
     /* Construct the terminal for output. */
 
+    set force_decpoint on
+
     string set_cmd = "set terminal "
     set_cmd += filetype_to_terminal_map(self.filetype)
     set_cmd += sprintf(" font '%s,%d' ", self.font, self.fontsize)
@@ -174,6 +176,8 @@ function string construct_terminal_cmd (const bundle self)
 
     # Set size ratio
     set_cmd += sprintf("set size %.1f, %.1f\n", self.aspect_scale, self.aspect_scale)
+
+    set force_decpoint off
 
     return set_cmd
 end function
@@ -207,7 +211,7 @@ end function
 function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
-    string buffer = ""
+    string buffer
 
     buffer += sprintf("set encoding utf8\n")
     buffer += construct_terminal_cmd(self)
@@ -216,13 +220,17 @@ function string write_settings (bundle *self)
     buffer += sprintf("set multiplot layout %d,%d\n",\
                 plottype_to_rows_map(self), plottype_to_cols_map(self))
 
+
     if self.transparency_level
         if self.use_circles
             printf "\nWarning: Transparency is only supported for points but not circles.\n"
         else
+            set force_decpoint on
             buffer += sprintf("set style fill transparent solid %.1f noborder\n", \
               self.transparency_level)
+            set force_decpoint off
         endif
+
     endif
 
     buffer += sprintf("set datafile missing '%s'\n", self.gnuplot_missing_value)
@@ -283,6 +291,8 @@ function string write_plot_cmd_and_data_mat (const list L,
 
     string BUFFER = ""
 
+    set force_decpoint on
+
     loop foreach y L -q         # Row dimension
 
         loop foreach x L -q     # Col dimension
@@ -308,6 +318,8 @@ function string write_plot_cmd_and_data_mat (const list L,
         endif
     endloop
 
+    set force_decpoint off
+
     BUFFER += sprintf("unset multiplot")
 
     return BUFFER
@@ -319,6 +331,7 @@ function string write_plot_cmd_and_data_tri (const list L,
     /* For self.type=="triangle" case */
 
     string BUFFER = ""
+    set force_decpoint on
 
     # 1) Loop over all possible combinations
     # -> Each one starts with a new 'plot' cmd
@@ -358,6 +371,7 @@ function string write_plot_cmd_and_data_tri (const list L,
             endif
         endloop						# end loop over x
     endloop							# end loop over y
+    set force_decpoint off
 
     BUFFER += sprintf("unset multiplot")
 
@@ -405,8 +419,6 @@ end function
 function void write_plot_data (const list yx, const bundle self)
     /* Write data for a single subplot. */
 
-    set force_decpoint on
-
     loop i=1..self.n_factors -q
         if self.n_factors > 1
             smpl self.factor_series == self.factor_values[i] --restrict \
@@ -419,8 +431,6 @@ function void write_plot_data (const list yx, const bundle self)
         printf "%16.3f", m_yx
         printf "\ne\n"
     endloop
-
-    set force_decpoint off
 end function
 
 
@@ -454,6 +464,8 @@ end function
 function string write_options (const bundle self)
     /* Write gnuplot options to buffer and return as string. */
 
+    set force_decpoint on
+
     string buffer
 
     outfile --buffer=buffer
@@ -486,6 +498,8 @@ function string write_options (const bundle self)
 
         printf "set pointsize %.2f\n", self.pointsize
     end outfile
+
+    set force_decpoint off
 
     return buffer
 end function

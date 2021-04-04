@@ -1,7 +1,7 @@
 clear
 set verbose off
 
-include PairPlot.gfn --force
+include PairPlot.gfn
 
 scalar SAMPLE = 1			# Select a dataset
 
@@ -22,6 +22,7 @@ elif SAMPLE == 3
     PairPlot(y, factor) 	# with factor series
 endif
 
+
 # Optional: override default value by your own parameters
 # See help text for all available options
 bundle opts = null
@@ -33,7 +34,9 @@ matrix opts.aspect_scale = 1
 scalar opts.use_circles = FALSE
 scalar opts.transparency_level = 0.5
 string opts.type = "matrix"	# "matrix", "triangle", "row", "column"
-# string opts.filename = "foo.pdf"
+#string opts.filename = "foo.png"
 
+
+# A plot should pop-up now
 scalar err = PairPlot(y, factor, opts)		# with 'factor' series
 printf "\nInfo: Error code returned = %d\n", err
