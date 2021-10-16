@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.6</version>
-<date>2021-03-31</date>
+<version>0.7</version>
+<date>2021-10-16</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -55,7 +55,8 @@ filename   -- string, Path plus filename plus file type. Currently the following
 size       -- series, Placeholder for future feature (optional, default: null).
 type       -- string, Select the type of plot. The following types are
               supported:
-               (i) &quot;matrix&quot;: Scatterplot matrix which draws a scatter plot between all combinations of variables included in list L.
+               (i) &quot;matrix&quot;: Scatterplot matrix which draws a scatter plot between all
+               combinations of variables included in list L.
                (ii) &quot;triangle&quot;: Lower triangular version of the scatterplot
                &quot;matrix&quot; type.
                (iii) &quot;row&quot;: Plot the first series element in list L in a single
@@ -93,15 +94,18 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
+Version 0.7 (October 2021):
+  - Enforce full sample instead of using '--replace' option
+  - Changed ordering of the colours when plotting distinct factors
 Version 0.6 (March 2021):
   - New API for PairPlot() -- backward-incompatible
-	- update help text
-	- enforce decimal point when print numerical data to gnuplot file
-	- substantial internal refactoring and clean up
-	- gain of speed
+  - update help text
+  - enforce decimal point when print numerical data to gnuplot file
+  - substantial internal refactoring and clean up
+  - gain of speed
   - new minimum gretl version is 2020e
 Version 0.5 (Oct. 2019):
-	- Initial version
+  - Initial version
 </help>
 <data-files count="1">
 iris.gdt </data-files>
@@ -487,8 +491,9 @@ printf &quot;set xlabel '%s'\n&quot;, xname
  </params>
 <code>/* Write data for a single subplot. */
 loop i=1..self.n_factors -q
+  smpl full
   if self.n_factors &gt; 1
-    smpl self.factor_series == self.factor_values[i] --restrict --replace
+    smpl self.factor_series == self.factor_values[i] --restrict
   endif
   smpl --no-missing yx
   matrix m_yx = {yx}
@@ -532,10 +537,11 @@ string buffer
 outfile --buffer=buffer
   printf &quot;set offsets &quot;
   loop i=1..self.n_L -q
+    printf &quot;%.2f&quot;, self.offset_level
     if i &lt; self.n_L
-      printf &quot;%.2f, &quot;, self.offset_level
+      printf &quot;, &quot;
     else
-      printf &quot;%.2f\n&quot;, self.offset_level
+      printf &quot;\n&quot;
     endif
   endloop
   if self.with_key
@@ -562,7 +568,7 @@ return buffer
 </gretl-function>
 <gretl-function name="get_color_definitions" type="strings" private="1">
 <code>/* Put your own definitions here. */
-return defarray( &quot;#C41E3A&quot;, &quot;#4682B4&quot;, &quot;#FFBF00&quot;, &quot;#ff0000&quot;, &quot;#0000ff&quot;, &quot;#00cc00&quot;, &quot;#bf25b2&quot;, &quot;#8faab3&quot;, &quot;#ffa500&quot; )
+return defarray( &quot;#C41E3A&quot;, &quot;#4682B4&quot;, &quot;#FFBF00&quot;, &quot;#ff0000&quot;, &quot;#00cc00&quot;, &quot;#8faab3&quot;, &quot;#0000ff&quot;, &quot;#bf25b2&quot;, &quot;#ffa500&quot; )
 </code>
 </gretl-function>
 <gretl-function name="write_linetype" type="string" private="1">

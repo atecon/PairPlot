@@ -44,7 +44,8 @@ filename   -- string, Path plus filename plus file type. Currently the following
 size       -- series, Placeholder for future feature (optional, default: null).
 type       -- string, Select the type of plot. The following types are
               supported:
-               (i) "matrix": Scatterplot matrix which draws a scatter plot between all combinations of variables included in list L.
+               (i) "matrix": Scatterplot matrix which draws a scatter plot between all
+               combinations of variables included in list L.
                (ii) "triangle": Lower triangular version of the scatterplot
                "matrix" type.
                (iii) "row": Plot the first series element in list L in a single
@@ -82,12 +83,15 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
+Version 0.7 (October 2021):
+  - Enforce full sample instead of using '--replace' option
+  - Changed ordering of the colours when plotting distinct factors
 Version 0.6 (March 2021):
   - New API for PairPlot() -- backward-incompatible
-	- update help text
-	- enforce decimal point when print numerical data to gnuplot file
-	- substantial internal refactoring and clean up
-	- gain of speed
+  - update help text
+  - enforce decimal point when print numerical data to gnuplot file
+  - substantial internal refactoring and clean up
+  - gain of speed
   - new minimum gretl version is 2020e
 Version 0.5 (Oct. 2019):
-	- Initial version
+  - Initial version

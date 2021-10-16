@@ -420,9 +420,9 @@ function void write_plot_data (const list yx, const bundle self)
     /* Write data for a single subplot. */
 
     loop i=1..self.n_factors -q
+        smpl full
         if self.n_factors > 1
-            smpl self.factor_series == self.factor_values[i] --restrict \
-                                                             --replace
+            smpl self.factor_series == self.factor_values[i] --restrict
         endif
 
         smpl --no-missing yx
@@ -471,10 +471,11 @@ function string write_options (const bundle self)
     outfile --buffer=buffer
         printf "set offsets "
         loop i=1..self.n_L -q
+            printf "%.2f", self.offset_level
             if i < self.n_L
-                printf "%.2f, ", self.offset_level
+                printf ", "
             else
-                printf "%.2f\n", self.offset_level
+                printf "\n"
             endif
         endloop
 
@@ -513,10 +514,10 @@ function strings get_color_definitions (void)
                     "#4682B4", \
                     "#FFBF00", \
                     "#ff0000", \
-                    "#0000ff", \
                     "#00cc00", \
-                    "#bf25b2", \
                     "#8faab3", \
+                    "#0000ff", \
+                    "#bf25b2", \
                     "#ffa500"\
                     )
 end function
