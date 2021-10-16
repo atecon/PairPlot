@@ -86,6 +86,7 @@ Changelog:
 Version 0.7 (October 2021):
   - Enforce full sample instead of using '--replace' option
   - Changed ordering of the colours when plotting distinct factors
+  - Change the colour palette to "dark2"
 Version 0.6 (March 2021):
   - New API for PairPlot() -- backward-incompatible
   - update help text

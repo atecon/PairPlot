@@ -97,6 +97,7 @@ Changelog:
 Version 0.7 (October 2021):
   - Enforce full sample instead of using '--replace' option
   - Changed ordering of the colours when plotting distinct factors
+  - Change the colour palette to &quot;dark2&quot;
 Version 0.6 (March 2021):
   - New API for PairPlot() -- backward-incompatible
   - update help text
@@ -568,7 +569,11 @@ return buffer
 </gretl-function>
 <gretl-function name="get_color_definitions" type="strings" private="1">
 <code>/* Put your own definitions here. */
+/*
 return defarray( &quot;#C41E3A&quot;, &quot;#4682B4&quot;, &quot;#FFBF00&quot;, &quot;#ff0000&quot;, &quot;#00cc00&quot;, &quot;#8faab3&quot;, &quot;#0000ff&quot;, &quot;#bf25b2&quot;, &quot;#ffa500&quot; )
+*/
+# &quot;dark2&quot; palette
+return defarray( &quot;#1B9E77&quot;, &quot;#D95F02&quot;, &quot;#7570B3&quot;, &quot;#E7298A&quot;, &quot;#66A61E&quot;, &quot;#E6AB02&quot;, &quot;#A6761D&quot;, &quot;#666666&quot; )
 </code>
 </gretl-function>
 <gretl-function name="write_linetype" type="string" private="1">

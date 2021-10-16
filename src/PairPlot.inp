@@ -509,6 +509,7 @@ end function
 function strings get_color_definitions (void)
     /* Put your own definitions here. */
 
+    /*
     return defarray(\
                     "#C41E3A", \
                     "#4682B4", \
@@ -519,6 +520,19 @@ function strings get_color_definitions (void)
                     "#0000ff", \
                     "#bf25b2", \
                     "#ffa500"\
+                    )
+    */
+
+    # "dark2" palette
+    return defarray(\
+                    "#1B9E77",\
+                    "#D95F02",\
+                    "#7570B3",\
+                    "#E7298A",\
+                    "#66A61E",\
+                    "#E6AB02",\
+                    "#A6761D",\
+                    "#666666"\
                     )
 end function
 
