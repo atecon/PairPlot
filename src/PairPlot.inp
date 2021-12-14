@@ -550,10 +550,12 @@ function string write_linetype (const bundle self)
     strings color_definitions = get_color_definitions()
 
     string linetype_out = ""
+    scalar counter = 1
     outfile --buffer=linetype_out
         loop i=1..self.n_L -q
-            printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[i]
+            printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[counter]
         endloop
+        counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
     end outfile
 
     return linetype_out

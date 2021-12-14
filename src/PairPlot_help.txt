@@ -85,6 +85,7 @@ Changelog:
 ----------
 Version 0.8 (December 2021):
   - Bugfix of gnuplot's "offset" option: More than at maximum 4 parameters were passed in case of more than 4 features to plot.
+  - Bugfix: Works now with more than 8 features.
 Version 0.7 (October 2021):
   - Enforce full sample instead of using '--replace' option
   - Changed ordering of the colours when plotting distinct factors

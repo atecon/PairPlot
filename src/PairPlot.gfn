@@ -96,6 +96,7 @@ Changelog:
 ----------
 Version 0.8 (December 2021):
   - Bugfix of gnuplot's &quot;offset&quot; option: More than at maximum 4 parameters were passed in case of more than 4 features to plot.
+  - Bugfix: Works now with more than 8 features.
 Version 0.7 (October 2021):
   - Enforce full sample instead of using '--replace' option
   - Changed ordering of the colours when plotting distinct factors
@@ -591,10 +592,12 @@ return defarray( &quot;#1B9E77&quot;, &quot;#D95F02&quot;, &quot;#7570B3&quot;, 
 <code>/* Print linetype commands. */
 strings color_definitions = get_color_definitions()
 string linetype_out = &quot;&quot;
+scalar counter = 1
 outfile --buffer=linetype_out
   loop i=1..self.n_L -q
-    printf &quot;set linetype %d lc rgb '%s'\n&quot;, $i, color_definitions[i]
+    printf &quot;set linetype %d lc rgb '%s'\n&quot;, $i, color_definitions[counter]
   endloop
+  counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
 end outfile
 return linetype_out
 </code>
@@ -605,17 +608,15 @@ set verbose off
 
 include PairPlot.gfn
 
-scalar SAMPLE = 1			# Select a dataset
+scalar SAMPLE = 1		# Select an example
 
 if SAMPLE == 1
     open iris.gdt --frompkg=PairPlot --quiet
-    series factor = variety
     list y = 1..4    		# list of series to plot
     PairPlot(y)
 elif SAMPLE == 2
     open credscore.gdt --quiet
     list y = 1..4
-    series factor = Selfempl
     PairPlot(y)         	# no factor series
 elif SAMPLE == 3
     open abdata --quiet
@@ -636,11 +637,15 @@ matrix opts.aspect_scale = 1
 scalar opts.use_circles = FALSE
 scalar opts.transparency_level = 0.5
 string opts.type = &quot;matrix&quot;	# &quot;matrix&quot;, &quot;triangle&quot;, &quot;row&quot;, &quot;column&quot;
-#string opts.filename = &quot;foo.png&quot;
+# string opts.filename = &quot;foo.png&quot;
 
 
 # A plot should pop-up now
-scalar err = PairPlot(y, factor, opts)		# with 'factor' series
+if exists(factor)
+    scalar err = PairPlot(y, factor, opts)		# with 'factor' series
+else
+    scalar err = PairPlot(y, null, opts)        # without 'factor' series
+endif
 printf &quot;\nInfo: Error code returned = %d\n&quot;, err
 </sample-script>
 </gretl-function-package>

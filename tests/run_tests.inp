@@ -1,12 +1,9 @@
 set verbose off
 clear
 
-#include assertion.gfn
 set assert stop
 
 include "./src/PairPlot.inp" --force
-#include ridge.gfn
-#include string_utils.gfn
 
 
 
@@ -159,6 +156,29 @@ function void test_set_offsets (void)
 end function
 test_set_offsets()
 
+
+loop i=1..4
+    if i == 1
+        open "./data/iris.csv" --quiet
+        list y = 1..4           # list of series to plot
+        err = PairPlot(y)
+    elif i == 2
+        open credscore.gdt --quiet
+        list y = 1..4
+        err = PairPlot(y)             # no factor series
+    elif i == 3
+        open abdata --quiet
+        list y = n k ys
+        series factor = IND
+        err = PairPlot(y, factor)     # with factor series
+    elif i == 4
+        open mroz87 --quiet
+        list y = KL6 K618 WA WE RPWG HHRS HA HE HW FAMINC
+        err = PairPlot(y)
+    endif
+
+    assert(err == FALSE)
+endloop
 
 print "Succesfully finished all tests."
 quit
