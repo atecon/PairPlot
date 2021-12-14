@@ -484,7 +484,7 @@ function string write_options (const bundle self)
     string buffer
 
     outfile --buffer=buffer
-        printf "%s", set_offsets(self.offset_level)
+        printf "%s\n", set_offsets(self.offset_level)
 
         if self.with_key
             printf "set key %s\n", self.key_position

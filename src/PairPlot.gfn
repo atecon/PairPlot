@@ -552,7 +552,7 @@ return r
 set force_decpoint on
 string buffer
 outfile --buffer=buffer
-  printf &quot;%s&quot;, set_offsets(self.offset_level)
+  printf &quot;%s\n&quot;, set_offsets(self.offset_level)
   if self.with_key
     printf &quot;set key %s\n&quot;, self.key_position
   else
