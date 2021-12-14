@@ -141,5 +141,24 @@ function void test_plottype_to_cols_map (const bundles P)
 end function
 test_plottype_to_cols_map(Params)
 
+
+function void test_set_offsets (void)
+    print "Start testing function set_offsets()"
+
+    # Given
+    scalar offset_level = 0.11
+
+    # When
+    string actual = set_offsets(offset_level)
+    string expected = sprintf("set offsets %g, %g, %g, %g",\
+                              offset_level, offset_level, offset_level, offset_level\
+                             )
+
+    # Then
+    assert(actual == expected)
+end function
+test_set_offsets()
+
+
 print "Succesfully finished all tests."
 quit

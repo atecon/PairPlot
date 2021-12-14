@@ -461,6 +461,21 @@ function void write_plot_cmd (const bundle self)
 end function
 
 
+function string set_offsets (const scalar offset_level)
+    /* Write settings for offsets
+    return: string, offsets parameters */
+
+    string r = "set offsets "
+
+    loop i=1..4 -q
+        r += sprintf("%.2f", offset_level)
+        r += i < 4 ? ", " : ""
+    endloop
+
+    return r
+end function
+
+
 function string write_options (const bundle self)
     /* Write gnuplot options to buffer and return as string. */
 
@@ -469,15 +484,7 @@ function string write_options (const bundle self)
     string buffer
 
     outfile --buffer=buffer
-        printf "set offsets "
-        loop i=1..self.n_L -q
-            printf "%.2f", self.offset_level
-            if i < self.n_L
-                printf ", "
-            else
-                printf "\n"
-            endif
-        endloop
+        printf "%s", set_offsets(self.offset_level)
 
         if self.with_key
             printf "set key %s\n", self.key_position

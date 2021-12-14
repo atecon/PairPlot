@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.7</version>
-<date>2021-10-16</date>
+<version>0.8</version>
+<date>2021-12-14</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -94,6 +94,8 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
+Version 0.8 (December 2021):
+  - Bugfix of gnuplot's &quot;offset&quot; option: More than at maximum 4 parameters were passed in case of more than 4 features to plot.
 Version 0.7 (October 2021):
   - Enforce full sample instead of using '--replace' option
   - Changed ordering of the colours when plotting distinct factors
@@ -528,6 +530,20 @@ loop i=1..self.n_factors -q
 endloop
 </code>
 </gretl-function>
+<gretl-function name="set_offsets" type="string" private="1">
+ <params count="1">
+  <param name="offset_level" type="scalar" const="true"/>
+ </params>
+<code>/* Write settings for offsets
+return: string, offsets parameters */
+string r = &quot;set offsets &quot;
+loop i=1..4 -q
+  r += sprintf(&quot;%.2f&quot;, offset_level)
+  r += i &lt; 4 ? &quot;, &quot; : &quot;&quot;
+endloop
+return r
+</code>
+</gretl-function>
 <gretl-function name="write_options" type="string" private="1">
  <params count="1">
   <param name="self" type="bundle" const="true"/>
@@ -536,15 +552,7 @@ endloop
 set force_decpoint on
 string buffer
 outfile --buffer=buffer
-  printf &quot;set offsets &quot;
-  loop i=1..self.n_L -q
-    printf &quot;%.2f&quot;, self.offset_level
-    if i &lt; self.n_L
-      printf &quot;, &quot;
-    else
-      printf &quot;\n&quot;
-    endif
-  endloop
+  printf &quot;%s&quot;, set_offsets(self.offset_level)
   if self.with_key
     printf &quot;set key %s\n&quot;, self.key_position
   else
