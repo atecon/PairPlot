@@ -215,7 +215,7 @@ function string write_settings (bundle *self)
 
     buffer += sprintf("set encoding utf8\n")
     buffer += construct_terminal_cmd(self)
-    buffer += write_linetype(self)
+    buffer += write_linetype(self.n_L, get_color_definitions())
 
     buffer += sprintf("set multiplot layout %d,%d\n",\
                 plottype_to_rows_map(self), plottype_to_cols_map(self))
@@ -544,18 +544,18 @@ function strings get_color_definitions (void)
 end function
 
 
-function string write_linetype (const bundle self)
+function string write_linetype (const int n_L[1::],
+                                const strings color_definitions)
     /* Print linetype commands. */
-
-    strings color_definitions = get_color_definitions()
 
     string linetype_out = ""
     scalar counter = 1
+
     outfile --buffer=linetype_out
-        loop i=1..self.n_L -q
+        loop i=1..n_L -q
             printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[counter]
+            counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
         endloop
-        counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
     end outfile
 
     return linetype_out

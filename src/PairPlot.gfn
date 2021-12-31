@@ -3,7 +3,7 @@
 <gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.8</version>
-<date>2021-12-14</date>
+<date>2021-12-31</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -322,7 +322,7 @@ endif
 string buffer
 buffer += sprintf(&quot;set encoding utf8\n&quot;)
 buffer += construct_terminal_cmd(self)
-buffer += write_linetype(self)
+buffer += write_linetype(self.n_L, get_color_definitions())
 buffer += sprintf(&quot;set multiplot layout %d,%d\n&quot;, plottype_to_rows_map(self), plottype_to_cols_map(self))
 if self.transparency_level
   if self.use_circles
@@ -587,18 +587,18 @@ return defarray( &quot;#1B9E77&quot;, &quot;#D95F02&quot;, &quot;#7570B3&quot;, 
 </code>
 </gretl-function>
 <gretl-function name="write_linetype" type="string" private="1">
- <params count="1">
-  <param name="self" type="bundle" const="true"/>
+ <params count="2">
+  <param name="n_L" type="int" min="1" const="true"/>
+  <param name="color_definitions" type="strings" const="true"/>
  </params>
 <code>/* Print linetype commands. */
-strings color_definitions = get_color_definitions()
 string linetype_out = &quot;&quot;
 scalar counter = 1
 outfile --buffer=linetype_out
-  loop i=1..self.n_L -q
+  loop i=1..n_L -q
     printf &quot;set linetype %d lc rgb '%s'\n&quot;, $i, color_definitions[counter]
+    counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
   endloop
-  counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
 end outfile
 return linetype_out
 </code>
@@ -609,7 +609,7 @@ set verbose off
 
 include PairPlot.gfn
 
-scalar SAMPLE = 1		# Select an example
+scalar SAMPLE = 3		# Select an example
 
 if SAMPLE == 1
     open iris.gdt --frompkg=PairPlot --quiet

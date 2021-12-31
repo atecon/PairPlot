@@ -180,5 +180,32 @@ loop i=1..4
     assert(err == FALSE)
 endloop
 
+
+function void test_write_linetype (void)
+    print "Start testing write_linetype()"
+
+    # given
+    strings color_definitions = defarray("A", "B", "C")
+    scalar n_L = nelem(color_definitions)
+    strings expected = defarray(\
+                                "set linetype 1 lc rgb 'A'",\
+                                "set linetype 2 lc rgb 'B'",\
+                                "set linetype 3 lc rgb 'C'"\
+                                )
+
+    # When
+    string actual = write_linetype(n_L, color_definitions)
+    strings actuals = strsplit(actual, "\n")
+
+    # Then
+    loop foreach i expected
+        assert(actuals[i] == expected[i])
+    endloop
+end function
+test_write_linetype()
+
+
+
+
 print "Succesfully finished all tests."
 quit
