@@ -47,6 +47,11 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
     self.n_L = nelem(L)
 
+    # Handle eventual missing values
+    list  ALL = L
+    ALL += exists(factor) ? factor : null
+    smpl ALL --no-missing
+
     # Set some global(s)
     string self.plot_type = (self.use_circles == TRUE) ? "circles" : \
                                                          "points"

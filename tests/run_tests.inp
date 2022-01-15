@@ -157,7 +157,8 @@ end function
 test_set_offsets()
 
 
-loop i=1..4
+nulldata 128
+loop i=1..5
     if i == 1
         open "./data/iris.csv" --quiet
         list y = 1..4           # list of series to plot
@@ -175,6 +176,13 @@ loop i=1..4
         open mroz87 --quiet
         list y = KL6 K618 WA WE RPWG HHRS HA HE HW FAMINC
         err = PairPlot(y)
+
+    elif i == 5
+        series x = log(normal()) # note: this has NAs by construction
+        series z = uniform()
+        list X = x z
+        series fac = ok(x)
+        err = PairPlot(X, fac)
     endif
 
     assert(err == FALSE)

@@ -3,7 +3,7 @@
 <gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.8</version>
-<date>2021-12-31</date>
+<date>2022-01-15</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -142,6 +142,10 @@ if !has_min_two_series(L)
   return TRUE
 endif
 self.n_L = nelem(L)
+# Handle eventual missing values
+list  ALL = L
+ALL += exists(factor) ? factor : null
+smpl ALL --no-missing
 # Set some global(s)
 string self.plot_type = (self.use_circles == TRUE) ? &quot;circles&quot; : &quot;points&quot;
 if exists(factor)
