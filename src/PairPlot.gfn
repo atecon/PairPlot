@@ -95,6 +95,7 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 Changelog:
 ----------
 Version 0.8 (December 2021):
+  - Handle eventual missing values in passed series.
   - Bugfix of gnuplot's &quot;offset&quot; option: More than at maximum 4 parameters were
     passed in case of more than 4 features to plot.
   - Bugfix: Works now with more than 8 features.
