@@ -3,7 +3,7 @@
 <gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.8</version>
-<date>2022-01-15</date>
+<date>2022-01-18</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -94,7 +94,7 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
-Version 0.8 (December 2021):
+Version 0.8 (January 2022):
   - Handle eventual missing values in passed series.
   - Bugfix of gnuplot's &quot;offset&quot; option: More than at maximum 4 parameters were
     passed in case of more than 4 features to plot.
