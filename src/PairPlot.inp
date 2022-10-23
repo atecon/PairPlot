@@ -78,7 +78,7 @@ end function
 
 
 function string type_to_function_map (const string type)
-    /* Mape type to function name. */
+    /* Map type to function name. */
 
     map =_(\
             triangle = "write_plot_cmd_and_data_tri",\
@@ -94,7 +94,9 @@ function string compile_gnuplot_cmd_data_buffer (const list L,
                                                  const bundle self)
     /*  Compile gnuplot commands and data buffer for plotting. */
 
-    return feval(type_to_function_map(self.type), L, &self)
+    string funcname = type_to_function_map(self.type)
+
+    return feval(funcname, L, self)
 end function
 
 
@@ -128,9 +130,8 @@ function void add_filetype (bundle *self)
         self.filetype = "png"
     else
         scalar length = strlen(self.filename)
-        string tmp = strstr(\
-                        substr(self.filename, (length - 4), length),\
-                        ".")
+        string s = substr(self.filename, (length - 4), length)
+        string tmp = strstr(s, ".")
         string self.filetype = strsub(tmp, ".", "")
     endif
 end function
@@ -291,7 +292,7 @@ end function
 
 
 function string write_plot_cmd_and_data_mat (const list L,
-                                             bundle *self)
+                                             const bundle self)
     /* For case self.type=="matrix" case */
 
     string BUFFER = ""
@@ -332,7 +333,7 @@ end function
 
 
 function string write_plot_cmd_and_data_tri (const list L,
-                                             bundle *self)
+                                             const bundle self)
     /* For self.type=="triangle" case */
 
     string BUFFER = ""

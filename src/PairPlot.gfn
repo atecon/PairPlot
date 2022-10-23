@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="PairPlot" minver="2020e" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.8</version>
-<date>2022-01-18</date>
+<version>0.9</version>
+<date>2022-10-23</date>
 <description>Scatterplot matrix with factor separation</description>
 <tags>C88</tags>
 <label>Pair Plot</label>
@@ -94,6 +94,10 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
+Version 0.9 (October 2022):
+  - Fix bug with const inheritance: its illegal for a function which receives
+    an argument A that is declared as const to pass A on in pointer form to
+    another function which does not promise to treat it as const.
 Version 0.8 (January 2022):
   - Handle eventual missing values in passed series.
   - Bugfix of gnuplot's &quot;offset&quot; option: More than at maximum 4 parameters were
@@ -229,7 +233,7 @@ endif
  <params count="1">
   <param name="type" type="string" const="true"/>
  </params>
-<code>/* Mape type to function name. */
+<code>/* Map type to function name. */
 map =_( triangle = &quot;write_plot_cmd_and_data_tri&quot;, matrix = &quot;write_plot_cmd_and_data_mat&quot;, row = &quot;write_plot_cmd_and_data_mat&quot;, column = &quot;write_plot_cmd_and_data_mat&quot; )
 return map[&quot;@type&quot;]
 </code>
@@ -240,7 +244,8 @@ return map[&quot;@type&quot;]
   <param name="self" type="bundle" const="true"/>
  </params>
 <code>/*  Compile gnuplot commands and data buffer for plotting. */
-return feval(type_to_function_map(self.type), L, &amp;self)
+string funcname = type_to_function_map(self.type)
+return feval(funcname, L, self)
 </code>
 </gretl-function>
 <gretl-function name="add_filetype" type="void" private="1">
@@ -252,7 +257,8 @@ if self.filename == &quot;display&quot;
   self.filetype = &quot;png&quot;
 else
   scalar length = strlen(self.filename)
-  string tmp = strstr( substr(self.filename, (length - 4), length), &quot;.&quot;)
+  string s = substr(self.filename, (length - 4), length)
+  string tmp = strstr(s, &quot;.&quot;)
   string self.filetype = strsub(tmp, &quot;.&quot;, &quot;&quot;)
 endif
 </code>
@@ -385,7 +391,7 @@ return $error
 <gretl-function name="write_plot_cmd_and_data_mat" type="string" private="1">
  <params count="2">
   <param name="L" type="list" const="true"/>
-  <param name="self" type="bundleref"/>
+  <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* For case self.type==&quot;matrix&quot; case */
 string BUFFER = &quot;&quot;
@@ -417,7 +423,7 @@ return BUFFER
 <gretl-function name="write_plot_cmd_and_data_tri" type="string" private="1">
  <params count="2">
   <param name="L" type="list" const="true"/>
-  <param name="self" type="bundleref"/>
+  <param name="self" type="bundle" const="true"/>
  </params>
 <code>/* For self.type==&quot;triangle&quot; case */
 string BUFFER = &quot;&quot;
