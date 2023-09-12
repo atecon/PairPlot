@@ -83,6 +83,8 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
+Version 1.0 (September 2023):
+  - Bugfix: Path with blanks failed under Windows sometimes.
 Version 0.9 (October 2022):
   - Fix bug with const inheritance: its illegal for a function which receives
     an argument A that is declared as const to pass A on in pointer form to
