@@ -9,3 +9,6 @@ $(PKG).zip: $(PKG).gfn iris.gdt
 #  Only if the manual is a pdf file or you provide an external dataset
 install: $(PKG).zip
 	echo pkg install $(PKG).zip --local | gretlcli -b -
+
+clean:
+	rm -f $(PKG).gfn
