@@ -285,7 +285,7 @@ function scalar send_to_gnuplot (const string buffer,
         print buffer
     end outfile
 
-    catch gnuplot --input=@mytemp --output=@filename
+    catch gnuplot --input="@mytemp" --output="@filename"
 
     return $error
 end function
