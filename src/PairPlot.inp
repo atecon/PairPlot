@@ -264,7 +264,7 @@ function bundle default_options (void)
     scalar self.with_key = 1					# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
     scalar self.use_circles = TRUE
-    scalar self.transparency_level = 0.5
+    scalar self.transparency_level = 0
     string self.type = "triangle"
     scalar self.tics = TRUE		 # print no x/y tics
     scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
