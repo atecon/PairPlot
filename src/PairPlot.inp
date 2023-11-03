@@ -25,6 +25,15 @@ function void add_information_of_factor (const series factor, bundle *self)
 end function
 
 
+function string get_plot_type (const bundle self)
+    /* Retrieve plot type. */
+
+    string type = (self.use_circles == TRUE) ? "circles" : "points"
+
+    return type
+end function
+
+
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
                           bundle opts[null] "Set options through bundle")
@@ -53,8 +62,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     smpl ALL --no-missing
 
     # Set some global(s)
-    string self.plot_type = (self.use_circles == TRUE) ? "circles" : \
-                                                         "points"
+    string self.plot_type = get_plot_type(self)
 
     if exists(factor)
         add_information_of_factor(factor, &self)
