@@ -436,9 +436,37 @@ function void write_plot_data (const list yx, const bundle self)
         smpl --no-missing yx
         matrix m = {yx}
         cnameset(m, S)   # avoid variable names as column labels
-        printf "%16.3f", m_yx
+        printf "%16.3f", m
         printf "\ne\n"
     endloop
+end function
+
+
+function void print_using_cmd (const bundle self, const int idx)
+    /* Print gnuplot data details. */
+
+    printf "'-' using 1:2 w %s", self.plot_type
+
+    if self.plot_type == "points"
+         printf " pt %d", self.pointtype[idx]
+    endif
+
+    printf "\n"
+end function
+
+
+function void print_plot_title (const bundle self, const int idx)
+    /* Print title string. */
+
+    if inbundle(self, "factor_str_values")
+        printf " title '%s'", self.factor_str_values[idx]
+    else
+        if self.n_factors == 1
+            print " title ''"
+        else
+            printf " title 'F=%d'", self.factor_values[idx]
+        endif
+    endif
 end function
 
 
@@ -447,18 +475,9 @@ function void write_plot_cmd (const bundle self)
 
     printf "plot \\\n"
 
-    loop i=1..self.n_factors -q
-        printf "'-' using 1:2 w %s pt %d", self.plot_type, self.pointtype[i]
-
-        if inbundle(self, "factor_str_values")
-            printf " title '%s'", self.factor_str_values[i]
-        else
-            if self.n_factors == 1
-                print " title ''"
-            else
-                printf " title 'F=%d'", self.factor_values[i]
-            endif
-        endif
+    loop i=1..self.n_factors
+        print_using_cmd(self, $i)
+        print_plot_title(self, $i)
 
         if i < self.n_factors
             printf ", \\\n"
