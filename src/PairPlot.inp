@@ -45,7 +45,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     if !has_min_two_series(L)
         return TRUE
     endif
-    self.n_L = nelem(L)
+    self.n_variables = nelem(L)
 
     # Handle eventual missing values
     list  ALL = L
@@ -193,9 +193,9 @@ function scalar plottype_to_rows_map (const bundle self)
     /* Determine number of rows of multiplot depending on plot type. */
 
     map =_(\
-            triangle = self.n_L - 1,\
-            column = self.n_L - 1,\
-            matrix = self.n_L,\
+            triangle = self.n_variables - 1,
+            column = self.n_variables - 1,
+            matrix = self.n_variables,
             row = 1\
           )
 
@@ -207,7 +207,7 @@ function scalar plottype_to_cols_map (const bundle self)
     /* Determine number of columns of multiplot depending on plot type. */
 
     if self.type != "column"
-        return self.n_L - 1
+        return self.n_variables - 1
     else
         return 1
     endif
@@ -221,7 +221,7 @@ function string write_settings (bundle *self)
 
     buffer += sprintf("set encoding utf8\n")
     buffer += construct_terminal_cmd(self)
-    buffer += write_linetype(self.n_L, get_color_definitions())
+    buffer += write_linetype(self.n_variables, get_color_definitions())
 
     buffer += sprintf("set multiplot layout %d,%d\n",\
                 plottype_to_rows_map(self), plottype_to_cols_map(self))
@@ -550,7 +550,7 @@ function strings get_color_definitions (void)
 end function
 
 
-function string write_linetype (const int n_L[1::],
+function string write_linetype (const int n_variables[1::],
                                 const strings color_definitions)
     /* Print linetype commands. */
 
@@ -558,7 +558,7 @@ function string write_linetype (const int n_L[1::],
     scalar counter = 1
 
     outfile --buffer=linetype_out
-        loop i=1..n_L -q
+        loop i=1..n_variables -q
             printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[counter]
             counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
         endloop

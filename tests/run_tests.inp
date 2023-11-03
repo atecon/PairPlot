@@ -101,11 +101,11 @@ test_filetype_to_terminal_map(Params)
 
 
 bundles Params = null
-Params = Params + _(type = "triangle", n_L = 2, expected = 1)
-Params = Params + _(type = "column", n_L = 3, expected = 2)
-Params = Params + _(type = "matrix", n_L = 3, expected = 3)
-Params = Params + _(type = "row", n_L = 3, expected = 1)
-Params = Params + _(type = "row", n_L = 2, expected = 1)
+Params = Params + _(type = "triangle", n_variables = 2, expected = 1)
+Params = Params + _(type = "column", n_variables = 3, expected = 2)
+Params = Params + _(type = "matrix", n_variables = 3, expected = 3)
+Params = Params + _(type = "row", n_variables = 3, expected = 1)
+Params = Params + _(type = "row", n_variables = 2, expected = 1)
 function void test_plottype_to_rows_map (const bundles P)
     print "Start testing plottype_to_rows_map()"
 
@@ -121,10 +121,10 @@ test_plottype_to_rows_map(Params)
 
 
 bundles Params = null
-Params = Params + _(type = "triangle", n_L = 2, expected = 1)
-Params = Params + _(type = "column", n_L = 3, expected = 1)
-Params = Params + _(type = "matrix", n_L = 3, expected = 2)
-Params = Params + _(type = "row", n_L = 3, expected = 2)
+Params = Params + _(type = "triangle", n_variables = 2, expected = 1)
+Params = Params + _(type = "column", n_variables = 3, expected = 1)
+Params = Params + _(type = "matrix", n_variables = 3, expected = 2)
+Params = Params + _(type = "row", n_variables = 3, expected = 2)
 function void test_plottype_to_cols_map (const bundles P)
     print "Start testing plottype_to_cols_map()"
 
@@ -194,7 +194,7 @@ function void test_write_linetype (void)
 
     # given
     strings color_definitions = defarray("A", "B", "C")
-    scalar n_L = nelem(color_definitions)
+    scalar n_variables = nelem(color_definitions)
     strings expected = defarray(\
                                 "set linetype 1 lc rgb 'A'",\
                                 "set linetype 2 lc rgb 'B'",\
@@ -202,7 +202,7 @@ function void test_write_linetype (void)
                                 )
 
     # When
-    string actual = write_linetype(n_L, color_definitions)
+    string actual = write_linetype(n_variables, color_definitions)
     strings actuals = strsplit(actual, "\n")
 
     # Then
