@@ -425,6 +425,8 @@ end function
 function void write_plot_data (const list yx, const bundle self)
     /* Write data for a single subplot. */
 
+    strings S = array(0)
+
     loop i=1..self.n_factors -q
         smpl full
         if self.n_factors > 1
@@ -432,8 +434,8 @@ function void write_plot_data (const list yx, const bundle self)
         endif
 
         smpl --no-missing yx
-        matrix m_yx = {yx}
-
+        matrix m = {yx}
+        cnameset(m, S)   # avoid variable names as column labels
         printf "%16.3f", m_yx
         printf "\ne\n"
     endloop
