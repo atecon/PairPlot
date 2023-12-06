@@ -1,15 +1,28 @@
-Produce grid of subplots depicting pairwise relationships in a dataset. This package maps each variable in a list onto a column and row in a grid of multiple axes.
+Produce grid of subplots depicting pairwise relationships in a dataset. This
+package maps each variable in a list onto a column and row in a grid of
+multiple axes.
 
-It can also represent an additional level of conditionalization with the 'factor' argument (a series) which plots different subsets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
+It can also represent an additional level of conditionalization with the
+'factor' argument (a series) which plots different subsets of data in different
+colors and/or point/circle types. This is used to resolve elements on a third
+dimension.
 
-For a more detailed manual, see <https://github.com/atecon/PairPlot/blob/master/README.md>.
+For a more detailed manual, see
+<https://github.com/atecon/PairPlot/blob/master/README.md>.
 
-Please report bugs or comments on the gretl mailing list or write to atecon@posteo.de.
+*** IMPORTANT*** Currently PairPlot fails if a series whose name starts with
+'e' (or 'E') is not in the last position in list 'L'. This is known and will be
+fixed with the next version.
+
+
+Please report bugs or comments on the gretl mailing list or write to
+atecon@posteo.de.
 
 
 Usage via the GUI
 =================
-The function PairPlot() can be accessed through the GUI. The menu entry is "View->Graph specified vars->Pair Plot".
+The function PairPlot() can be accessed through the GUI. The menu entry is
+"View->Graph specified vars->Pair Plot".
 However, via scripting the user can control many more details.
 
 
@@ -35,7 +48,8 @@ An integer of value '0' (FALSE) if no error occurs, otherwise 1 (TRUE).
 
 Options passed to the PairPlot() function by means of the 'opts' bundle
 =======================================================================
-The user can control the following aspects by adding the respective parameter to the 'opts' bundle.
+The user can control the following aspects by adding the respective parameter
+to the 'opts' bundle.
 
 filename   -- string, Path plus filename plus file type. Currently the following
               file types are supported: png, pdf, eps and svg (monochrome only).
@@ -44,7 +58,8 @@ filename   -- string, Path plus filename plus file type. Currently the following
 size       -- series, Placeholder for future feature (optional, default: null).
 type       -- string, Select the type of plot. The following types are
               supported:
-               (i) "matrix": Scatterplot matrix which draws a scatter plot between all
+               (i) "matrix": Scatterplot matrix which draws a scatter plot
+between all
                combinations of variables included in list L.
                (ii) "triangle": Lower triangular version of the scatterplot
                "matrix" type.
@@ -83,7 +98,7 @@ offset_level - scalar, Provides a mechanism to put a boundary around the data
 
 Changelog:
 ----------
-Version 1.0 (September 2023):
+Version 0.95 (December 2023):
   - Bugfix: Path with blanks failed under Windows sometimes.
 Version 0.9 (October 2022):
   - Fix bug with const inheritance: its illegal for a function which receives
