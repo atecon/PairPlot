@@ -1,7 +1,7 @@
 PKG = PairPlot
 
 $(PKG).gfn: $(PKG).inp $(PKG).spec $(PKG)_sample.inp
-	fold -s -w 80 $(PKG)_help.txt | tee $(PKG)_help.txt
+	fold -s -w 78 $(PKG)_help.txt | tee $(PKG)_help.txt
 	gretlcli --makepkg $(PKG).inp
 
 $(PKG).zip: $(PKG).gfn iris.gdt
