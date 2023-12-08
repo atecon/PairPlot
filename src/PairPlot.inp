@@ -440,11 +440,11 @@ function void write_plot_data (const list yx, const bundle self)
         if self.n_factors > 1
             smpl self.factor_series == self.factor_values[i] --restrict
         endif
-
         smpl --no-missing yx
-        matrix m = {yx}
-        cnameset(m, S)   # avoid variable names as column labels
-        printf "%16.3f", m
+
+        matrix m = {yx}   # TODO: for huge data, this may become a bottleneck
+        cnameset(m, "")   # avoid variable names as column labels
+        printf "%12.8g", m
         printf "\ne\n"
     endloop
 end function
@@ -467,6 +467,7 @@ function void print_plot_title (const bundle self, const int idx)
     /* Print title string. */
 
     if inbundle(self, "factor_str_values")
+        # If factor series comprises strings, these are used
         printf " title '%s'", self.factor_str_values[idx]
     else
         if self.n_factors == 1
