@@ -265,7 +265,7 @@ function bundle default_options (void)
 
     scalar self.aspect_scale = 1.5	# scaling factor for size
     scalar self.fontsize = 8
-    string self.font = "" # TODO: "League Spartan"?
+    string self.font = ""
     scalar self.pointsize = 0.5
     matrix self.pointtype = mshape(7, 20, 1)
     scalar self.offset_level = 0.02
