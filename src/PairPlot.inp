@@ -226,8 +226,6 @@ function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
     string buffer
-
-    buffer += sprintf("set encoding utf8\n")
     buffer += construct_terminal_cmd(self)
     buffer += write_linetype(self.n_variables, get_color_definitions())
 
