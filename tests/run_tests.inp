@@ -176,16 +176,17 @@ function void test_write_linetype (void)
     print "Start testing write_linetype()"
 
     # given
+    scalar TRANSPARENCY = 10
     strings color_definitions = defarray("A", "B", "C")
     scalar n_variables = nelem(color_definitions)
     strings expected = defarray(\
-                                "set linetype 1 lc rgb 'A'",\
-                                "set linetype 2 lc rgb 'B'",\
-                                "set linetype 3 lc rgb 'C'"\
+                                "set linetype 1 lc rgb '# aA'",\
+                                "set linetype 2 lc rgb '# aB'",\
+                                "set linetype 3 lc rgb '# aC'"\
                                 )
 
     # When
-    string actual = write_linetype(n_variables, color_definitions)
+    string actual = write_linetype(n_variables, color_definitions, TRANSPARENCY)
     strings actuals = strsplit(actual, "\n")
 
     # Then

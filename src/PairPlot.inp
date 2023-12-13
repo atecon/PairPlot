@@ -190,28 +190,16 @@ function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
     string buffer
-    buffer += write_linetype(self.n_variables, get_color_definitions())
+    buffer += write_linetype(self.n_variables,
+                             get_color_definitions(),
+                             self.transparency_level)
 
     buffer += sprintf("set multiplot layout %d,%d\n",\
-                plottype_to_rows_map(self), plottype_to_cols_map(self))
-
-
-    if self.transparency_level
-        if self.use_circles
-            printf "\nWarning: Transparency is only supported for points but not circles.\n"
-        else
-            set force_decpoint on
-            buffer += sprintf("set style fill transparent solid %.1f noborder\n", \
-              self.transparency_level)
-            set force_decpoint off
-        endif
-
-    endif
+                      plottype_to_rows_map(self), plottype_to_cols_map(self))
 
     buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
     # drop right and upper border
-    self.border_cmd = sprintf("set border 3 front ls 101\n")
-    buffer += self.border_cmd
+    buffer += sprintf("set border 3 front ls 101\n")
     buffer += write_options(self)
 
     return buffer
@@ -484,34 +472,35 @@ function strings get_color_definitions (void)
 
     /*
     return defarray(\
-                    "#C41E3A", \
-                    "#4682B4", \
-                    "#FFBF00", \
-                    "#ff0000", \
-                    "#00cc00", \
-                    "#8faab3", \
-                    "#0000ff", \
-                    "#bf25b2", \
-                    "#ffa500"\
+                    "C41E3A", \
+                    "4682B4", \
+                    "FFBF00", \
+                    "ff0000", \
+                    "00cc00", \
+                    "8faab3", \
+                    "0000ff", \
+                    "bf25b2", \
+                    "ffa500"\
                     )
     */
 
     # "dark2" palette
     return defarray(\
-                    "#1B9E77",\
-                    "#D95F02",\
-                    "#7570B3",\
-                    "#E7298A",\
-                    "#66A61E",\
-                    "#E6AB02",\
-                    "#A6761D",\
-                    "#666666"\
+                    "1B9E77",\
+                    "D95F02",\
+                    "7570B3",\
+                    "E7298A",\
+                    "66A61E",\
+                    "E6AB02",\
+                    "A6761D",\
+                    "666666"\
                     )
 end function
 
 
 function string write_linetype (const int n_variables[1::],
-                                const strings color_definitions)
+                                const strings color_definitions,
+                                const int transparency_level[0:255:0])
     /* Print linetype commands. */
 
     string linetype_out = ""
@@ -519,7 +508,8 @@ function string write_linetype (const int n_variables[1::],
 
     outfile --buffer=linetype_out
         loop i=1..n_variables -q
-            printf "set linetype %d lc rgb '%s'\n", $i, color_definitions[counter]
+            printf "set linetype %d lc rgb '#%2x%s'\n",
+              $i, transparency_level, color_definitions[counter]
             counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
         endloop
     end outfile
