@@ -208,7 +208,6 @@ function string write_settings (bundle *self)
 
     endif
 
-    buffer += sprintf("set datafile missing '%s'\n", self.gnuplot_missing_value)
     buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
     # drop right and upper border
     self.border_cmd = sprintf("set border 3 front ls 101\n")
@@ -238,7 +237,6 @@ function bundle default_options (void)
     scalar self.tics = TRUE		 # print no x/y tics
     scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
 
-    string self.gnuplot_missing_value = "NaN"
     string self.filename = "display"
 
     return self
