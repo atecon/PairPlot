@@ -82,23 +82,6 @@ end function
 test_add_filetype(Params)
 
 
-bundles Params = null
-Params = Params + _(filetype = "svg", expected = "svg")
-Params = Params + _(filetype = "png", expected = "pngcairo")
-function void test_filetype_to_terminal_map (const bundles P)
-    print "Start testing filetype_to_terminal_map()"
-
-    loop foreach i P
-        # Given + When
-        actual = filetype_to_terminal_map(P[i].filetype)
-
-        # Then
-        actual
-        assert(actual == P[i].expected)
-    endloop
-end function
-test_filetype_to_terminal_map(Params)
-
 
 bundles Params = null
 Params = Params + _(type = "triangle", n_variables = 2, expected = 1)

@@ -160,42 +160,6 @@ function scalar isok_length_pointtype_vector (const bundle self)
 end function
 
 
-function string filetype_to_terminal_map (const string filetype)
-    /* Return gnuplot terminal name depending on filetype. */
-
-    map =_(\
-            png = "pngcairo",\
-            pdf = "pdfcairo",\
-            eps = "postscript eps",\
-            svg ="svg"\
-          )
-
-    return map["@filetype"]
-end function
-
-
-function string construct_terminal_cmd (const bundle self)
-    /* Construct the terminal for output. */
-
-    set force_decpoint on
-
-    string set_cmd = "set terminal "
-    set_cmd += filetype_to_terminal_map(self.filetype)
-    set_cmd += sprintf(" font '%s,%d' ", self.font, self.fontsize)
-
-    if self.filetype != "svg"
-        set_cmd += "color"
-    endif
-    set_cmd += ";"
-
-    # Set size ratio
-    set_cmd += sprintf("set size %.1f, %.1f\n", self.aspect_scale, self.aspect_scale)
-
-    set force_decpoint off
-
-    return set_cmd
-end function
-
 
 function scalar plottype_to_rows_map (const bundle self)
     /* Determine number of rows of multiplot depending on plot type. */
@@ -226,7 +190,6 @@ function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
     string buffer
-    buffer += construct_terminal_cmd(self)
     buffer += write_linetype(self.n_variables, get_color_definitions())
 
     buffer += sprintf("set multiplot layout %d,%d\n",\
