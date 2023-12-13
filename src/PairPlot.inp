@@ -269,7 +269,7 @@ function bundle default_options (void)
     scalar self.offset_level = 0.02
     scalar self.with_key = 1	# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
-    scalar self.use_circles = TRUE
+    scalar self.use_circles = FALSE
     scalar self.transparency_level = 0
     string self.type = "triangle"
     scalar self.tics = TRUE		 # print no x/y tics
