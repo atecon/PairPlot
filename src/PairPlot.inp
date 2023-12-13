@@ -339,8 +339,6 @@ function string write_plot_cmd_and_data_tri (const list L,
 end function
 
 
-
-
 function void write_labels (const string yname, const string xname)
     printf "set ylabel '%s'\n", yname
     printf "set xlabel '%s'\n", xname
@@ -360,7 +358,7 @@ function void write_plot_data (const list yx, const bundle self)
         smpl --no-missing yx
 
         matrix m = {yx}   # TODO: for huge data, this may become a bottleneck
-        cnameset(m, "")   # avoid variable names as column labels
+        cnameset(m, "")   # avoid printing variable names to the gp-file
         printf "%12.8g", m
         printf "\ne\n"
     endloop
