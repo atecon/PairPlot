@@ -13,3 +13,4 @@ install: $(PKG).zip
 
 clean:
 	rm -f $(PKG).gfn
+	rm -f $(PKG).zip
