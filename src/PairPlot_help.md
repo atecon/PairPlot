@@ -37,8 +37,9 @@ An integer of value '0' (FALSE) if no error occurs, otherwise 1 (TRUE).
 The user can control the following aspects by adding the respective parameter to the 'opts' bundle.
 
 - `centroid`: string, Highlight the centroid of the 2-dim. data. Possible options are `mean`, `median` and `none` (default: "none"). If a `factor` series is passed, the centroid for each distinct factor is shown.
-- `centroid_pointsize`: int, Size of the point (default: 2).
 - `centroid_label`: bool, Show the label of the centroid statistics of TRUE, otherwise do not show of FALSE (default: FALSE).
+- `centroid_linewidth`: int, Width of the point (default: 4).
+- `centroid_pointsize`: int, Size of the point (default: 4).
 - `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen).
 - `fontsize`: int, Control the font size of the labels default: 12.
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
