@@ -4,18 +4,15 @@ Produce grid of subplots depicting pairwise relationships in a dataset. This pac
 
 It can also represent an additional level of conditionalization with the 'factor' argument (a series) which plots different subsets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
 
-For a more detailed manual, see <https://github.com/atecon/PairPlot/blob/master/README.md>.
+Please report bugs or comments on the gretl mailing list, report an issue on github (https://github.com/atecon/PairPlot/issues) or write to atecon@posteo.de.
 
 
-Please report bugs or comments on the gretl mailing list or write to atecon@posteo.de.
-
-
-## Usage via the GUI
+# Usage via the GUI
 
 The function `PairPlot()` can be accessed through the GUI. The menu entry is "View->Graph specified vars->Pair Plot". However, via scripting the user can control many more details.
 
 
-# Public functions
+# Public function
 
 ```
 PairPlot(const list L, const series factor[null], bundle opts[null])
@@ -39,7 +36,10 @@ An integer of value '0' (FALSE) if no error occurs, otherwise 1 (TRUE).
 
 The user can control the following aspects by adding the respective parameter to the 'opts' bundle.
 
-`filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen).
+- `centroid`: string, Highlight the centroid of the 2-dim. data. Possible options are `mean`, `median` and `none` (default: "none"). If a `factor` series is passed, the centroid for each distinct factor is shown.
+- `centroid_pointsize`: int, Size of the point (default: 2).
+- `centroid_label`: bool, Show the label of the centroid statistics of TRUE, otherwise do not show of FALSE (default: FALSE).
+- `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen).
 - `fontsize`: int, Control the font size of the labels default: 12.
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
 
@@ -60,7 +60,7 @@ The user can control the following aspects by adding the respective parameter to
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
 - `tics_fontsize` int, Control the font size of the x-y tics. Default: 8
 - `transparency_level`: int, Controls the transparency level of points and circles (between 0 (no transparency) and 255 (full transparency)). Default: 0.
-- `type`: string, Select the type of plot (default: "triangle"). The following types are supported:
+- `type`: string, Select the type of plot (default: "triangle"). The following types are supported: `matrix` (all combinations), `triangle` (lower trinangular of matrix),  `row` (single row) and `column` (single column).
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
 
 - `aspect_scale`: scalar, Positive scaling factor for controlling the size of the plot. default: 1.
@@ -76,6 +76,7 @@ The user can control the following aspects by adding the respective parameter to
 	* Fix handling of transparency
 	* Add `grid` option for (optionally) drawing a grid in the background
 	* Add options `key_fontsize` and `tics_fontsize`.
+	* Add support for drawing centroids of 2-dimensional space.
 	* Remove the `font` option for setting the font (controlled by gretl now)
 	* Increase default font size to 12
 	* Switch to markdown-based help file

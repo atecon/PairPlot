@@ -225,7 +225,9 @@ function bundle default_options (void)
     string self.type = "triangle"
     scalar self.tics = TRUE		 # print no x/y tics
     scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
-
+    string self.centroid = "none"
+    scalar self.centroid_label = FALSE
+    scalar self.centroid_pointsize = 2
     string self.filename = "display"
 
     return self
@@ -321,7 +323,8 @@ function string write_plot_cmd_and_data_tri (const list L,
 
                 if y_counter > x_counter
                     outfile --buffer=buffer
-                        write_labels(vnames[2], vnames[1])
+                        write_labels(vnames[2], vnames[1], self.fontsize)
+                        write_centroids(yx, self)
                         write_plot_cmd(self)
                         write_plot_data(yx, self)
                     end outfile
@@ -338,6 +341,44 @@ function string write_plot_cmd_and_data_tri (const list L,
     BUFFER += sprintf("unset multiplot")
 
     return BUFFER
+end function
+
+
+function void write_centroids (const list yx, const bundle self)
+    /*
+    This function calculates and writes the centroids for a given list of variables. The type of centroid (mean or median) is determined by the 'centroid' field in the 'self' bundle. If the 'centroid' field is set to 'none', the function does nothing.
+
+    Parameters:
+    yx: A list of variables for which the centroids are to be calculated.
+    self: A bundle containing various options for the function. It should have the following fields:
+        - 'centroid': A string that determines the type of centroid to calculate. It can be 'mean', 'median', or 'none'.
+        - 'centroid_label': A boolean that determines whether to label the centroids. If true, the centroids are labeled with their type ('Mean' or 'Median'). If false, no label is added.
+        - 'centroid_pointsize': An integer that determines the point size of the centroids in the plot.
+
+    The function calculates the centroids by looping over the variables in 'yx' and calculating their mean or median, depending on the 'centroid' field in 'self'. The centroids are then written to the plot with a label (if 'centroid_label' is true) and a specified point size ('centroid_pointsize'). The centroids are colored red.
+
+    Note: This function does not return anything.
+*/
+    if self.centroid != "none"
+        matrix centroids = mshape(NA, 2, 1)     # x,y
+
+        loop loop foreach i yx
+            if self.centroid == "mean"
+                centroids[i] = mean(yx.$i)
+            elif self.centroid == "median"
+                centroids[i] = median(yx.$i)
+            endif
+        endloop
+
+        if self.centroid == "mean"
+            string label = self.centroid_label == TRUE ? "Mean" : ""
+        elif self.centroid == "median"
+            string label = self.centroid_label == TRUE ? "Median" : ""
+        endif
+        printf "set label 1 \"%s\" at %g,%g point ps %d pt 1",
+            label, centroids[1], centroids[2], self.centroid_pointsize
+        printf " lc rgb 'red' front\n"
+    endif
 end function
 
 
