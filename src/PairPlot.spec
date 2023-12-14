@@ -1,10 +1,10 @@
 author = Artur Tarassow
 email = atecon@posteo.de
 version = 0.95
-date = 2023-12-06
+date = 2023-12-14
 description = Scatterplot matrix with factor separation
 tags = C88
-min-version = 2020e
+min-version = 2022d
 gui-main = GUI_PairPlot
 label = Pair Plot
 menu-attachment = MAINWIN/View/GraphVars
