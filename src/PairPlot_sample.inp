@@ -3,42 +3,52 @@ set verbose off
 
 include PairPlot.gfn
 
-scalar SAMPLE = 3		# Select an example
+scalar SAMPLE = 1		# Select an example
 
 if SAMPLE == 1
     open iris.gdt --frompkg=PairPlot --quiet
-    list y = 1..4    		# list of series to plot
-    PairPlot(y)
-elif SAMPLE == 2
-    open credscore.gdt --quiet
     list y = 1..4
-    PairPlot(y)         	# no factor series
-elif SAMPLE == 3
+    PairPlot(y)
+
+elif SAMPLE == 2  # factorized scatterplots + centroids
+    open credscore.gdt --quiet
+    list y = 1..3
+    series factor = Selfempl
+
+    bundle opts = _(transparency_level = 100,
+                    centroid = "mean",
+                    grid = TRUE)
+    PairPlot(y, factor, opts)
+
+elif SAMPLE == 3  # factorized plus some tweaking
     open abdata --quiet
-    list y = n k ys
+    list y = n k
     series factor = IND
-    PairPlot(y, factor) 	# with factor series
+
+    bundle opts = _(transparency_level = 175,
+                    centroid = "median",
+                    tics = FALSE,
+                    pointsize = 1.5,
+                    centroid_pointsize = 3,
+                    centroid_linewidth = 3,
+                    height = 600,
+                    width = 600)
+
+    PairPlot(y, factor, opts)
+
+elif SAMPLE == 4  # factorized scatter + string-valued factor series
+    open mrw --quiet
+    list y = gdp60 gdp85 inv
+    series factor =  1 + OECD
+    strings svalues = defarray("non-oecd", "oecd")
+    stringify(factor, svalues)
+
+    bundle opts = _(centroid = "mean",
+                    transparency_level = 150,
+                    type = "matrix",
+                    grid = TRUE,
+                    height = 800,
+                    width = 800,
+                    filename = "foo.png") # store locally
+    PairPlot(y, factor, opts)
 endif
-
-
-# Optional: override default value by your own parameters
-# See help text for all available options
-bundle opts = null
-scalar opts.pointsize = 0.75
-matrix opts.fontsize = 10
-matrix opts.aspect_scale = 1
-#scalar opts.key = 0		# print values of factor as legend
-#scalar opts.tics = 0
-scalar opts.use_circles = FALSE
-scalar opts.transparency_level = 0.5
-string opts.type = "matrix"	# "matrix", "triangle", "row", "column"
-# string opts.filename = "foo.png"
-
-
-# A plot should pop-up now
-if exists(factor)
-    scalar err = PairPlot(y, factor, opts)		# with 'factor' series
-else
-    scalar err = PairPlot(y, null, opts)        # without 'factor' series
-endif
-printf "\nInfo: Error code returned = %d\n", err
