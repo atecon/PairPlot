@@ -190,7 +190,7 @@ function string write_settings (bundle *self)
     /* Write various settings to a string buffer. */
 
     string buffer
-    buffer += sprintf("set terminal png size 1280, 480 font ',%d'\n", self.fontsize)
+    buffer += construct_terminal_cmd(self)
 
     buffer += write_linetype(self.n_variables * self.n_factors,
                              get_color_definitions(),
@@ -213,7 +213,8 @@ function bundle default_options (void)
 
     bundle self = null
 
-    scalar self.aspect_scale = 1.5	# scaling factor for size
+    scalar self.height = 600
+    scalar self.width = 900
     scalar self.fontsize = 12
     scalar self.pointsize = 1
     matrix self.pointtype = {7; 5; 6; 15; 13; 11; 8; 4; 1; 2; 14; 3; 9; 10; 12; 14}
@@ -631,3 +632,34 @@ function string write_linetype (const int n_variables[1::],
 
     return linetype_out
 end function
+
+
+function string filetype_to_terminal_map (const string filetype)
+    /* Return gnuplot terminal name depending on filetype. */
+
+    map =_(\
+            png = "pngcairo",\
+            pdf = "pdf",\
+            eps = "postscript eps enhanced",\
+            svg ="svg color"\
+          )
+
+    return map["@filetype"]
+end function
+
+
+function string construct_terminal_cmd (const bundle self)
+    /* Construct the terminal for output. */
+
+    set force_decpoint on
+
+    string set_cmd = "set terminal "
+    set_cmd += filetype_to_terminal_map(self.filetype)
+    set_cmd += sprintf(" font ',%d' ", self.fontsize)
+    set_cmd += sprintf(" size %d, %d\n", self.width, self.height)
+
+    set force_decpoint off
+
+    return set_cmd
+end function
+
