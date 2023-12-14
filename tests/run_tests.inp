@@ -139,7 +139,7 @@ function void test_set_offsets (void)
 end function
 test_set_offsets()
 
-
+print "Start running and test examples"
 nulldata 128
 loop i=1..5
     if i == 1
@@ -149,6 +149,7 @@ loop i=1..5
     elif i == 2
         open credscore.gdt --quiet
         list y = 1..4
+        rename Acc eee        # just test that variables beginning with 'e' work
         err = PairPlot(y)             # no factor series
     elif i == 3
         open abdata --quiet
