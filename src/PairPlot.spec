@@ -10,6 +10,6 @@ label = Pair Plot
 menu-attachment = MAINWIN/View/GraphVars
 public = PairPlot GUI_PairPlot
 no-print = GUI_PairPlot
-help = PairPlot_help.txt
+help = PairPlot_help.md
 sample-script = PairPlot_sample.inp
 data-files = iris.gdt
