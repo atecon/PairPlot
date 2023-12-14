@@ -229,9 +229,11 @@ function bundle default_options (void)
     scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
     string self.centroid = "none"
     scalar self.centroid_label = FALSE
-    scalar self.centroid_pointsize = 4
-    scalar self.centroid_linewidth = 4
+    scalar self.centroid_pointsize = 3
+    scalar self.centroid_linewidth = 3
     string self.filename = "display"
+    scalar self.y_logscale = NA
+    scalar self.x_logscale = NA
 
     return self
 end function
