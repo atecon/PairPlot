@@ -216,7 +216,7 @@ function bundle default_options (void)
     scalar self.aspect_scale = 1.5	# scaling factor for size
     scalar self.fontsize = 12
     scalar self.pointsize = 0.5
-    matrix self.pointtype = mshape(7, 20, 1)
+    matrix self.pointtype = {7; 5; 6; 15; 13; 11; 8; 4; 1; 2; 14; 3; 9; 10; 12; 14}
     scalar self.offset_level = 0.02
     scalar self.with_key = 1	# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
