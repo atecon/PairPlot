@@ -40,18 +40,9 @@ The user can control the following aspects by adding the respective parameter to
 - `centroid_label`: bool, Show the label of the centroid statistics of TRUE, otherwise do not show of FALSE (default: FALSE).
 - `centroid_linewidth`: int, Width of the point (default: 4).
 - `centroid_pointsize`: int, Size of the point (default: 4).
-- `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen).
+- `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen). Currently figures can only be stored in **png** format.
 - `fontsize`: int, Control the font size of the labels default: 12.
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
-
-- **(i)** "matrix": Scatterplot matrix which draws a scatter plot between all combinations of variables included in list `L`.
-
-- **(ii)** "triangle": Lower triangular version of the scatterplot "matrix" type.
-
-- **(iii)** "row": Plot the first series element in list `L` in a single row against all remaining list members.
-
-- **(iv)** "column": Works like type "row" but subplots are arranged in a single column instead.
-
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
 - `key_fontsize` int, Control the font size for the key. Default: 8
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
@@ -61,7 +52,15 @@ The user can control the following aspects by adding the respective parameter to
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
 - `tics_fontsize` int, Control the font size of the x-y tics. Default: 8
 - `transparency_level`: int, Controls the transparency level of points and circles (between 0 (no transparency) and 255 (full transparency)). Default: 0.
-- `type`: string, Select the type of plot (default: "triangle"). The following types are supported: `matrix` (all combinations), `triangle` (lower trinangular of matrix),  `row` (single row) and `column` (single column).
+- `type`: string, Select the type of plot (default: "triangle"). The following types are supported:
+- **(i)** "matrix": Scatterplot matrix which draws a scatter plot between all combinations of variables included in list `L`.
+
+- **(ii)** "triangle": Lower triangular version of the scatterplot "matrix" type.
+
+- **(iii)** "row": Plot the first series element in list `L` in a single row against all remaining list members.
+
+- **(iv)** "column": Works like type "row" but subplots are arranged in a single column instead.
+
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
 
 
@@ -78,6 +77,7 @@ The user can control the following aspects by adding the respective parameter to
 	* Remove the `font` option for setting the font (controlled by gretl now)
 	* Increase default font size to 12
 	* Switch to markdown-based help file
+	* Increase minimum gretl version to 2022d
 
 * **v0.9 (October 2022)**
 	* Fix bug with `const` inheritance: its illegal for a function which receives an argument A that is declared as const to pass A on in pointer form to another function which does not promise to treat it as `const`.
