@@ -218,7 +218,9 @@ function bundle default_options (void)
     scalar self.offset_level = 0.02
     scalar self.with_key = 1	# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
+    scalar self.key_fontsize = 8
     scalar self.use_circles = FALSE
+    scalar self.tics_fontsize = 8
     scalar self.transparency_level = 0
     string self.type = "triangle"
     scalar self.tics = TRUE		 # print no x/y tics
@@ -264,7 +266,7 @@ function string write_plot_cmd_and_data_mat (const list L,
                 strings vnames = varnames(yx)
 
                 outfile --buffer=buffer
-                    write_labels(vnames[2], vnames[1])
+                    write_labels(vnames[2], vnames[1], self.fontsize)
                     write_plot_cmd(self)
                     write_plot_data(yx, self)
                 end outfile
@@ -339,9 +341,11 @@ function string write_plot_cmd_and_data_tri (const list L,
 end function
 
 
-function void write_labels (const string yname, const string xname)
-    printf "set ylabel '%s'\n", yname
-    printf "set xlabel '%s'\n", xname
+function void write_labels (const string yname,
+                            const string xname,
+                            const int fontsize)
+    printf "set ylabel '%s' font ',%d'\n", yname, fontsize
+    printf "set xlabel '%s' font ',%d'\n", xname, fontsize
 end function
 
 
@@ -436,13 +440,14 @@ function string write_options (const bundle self)
         printf "%s\n", set_offsets(self.offset_level)
 
         if self.with_key
-            printf "set key %s\n", self.key_position
+            printf "set key %s font ',%d'\n", self.key_position,
+                self.key_fontsize
         else
             printf "set nokey\n"
         endif
         if self.tics
-            printf "set xtics\n"
-            printf "set ytics\n"
+            printf "set xtics font ',%d'\n", self.tics_fontsize
+            printf "set ytics font ',%d' \n", self.tics_fontsize
         else
             printf "set noxtics\n"
             printf "set noytics\n"
