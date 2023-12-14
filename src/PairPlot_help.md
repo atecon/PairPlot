@@ -64,9 +64,6 @@ The user can control the following aspects by adding the respective parameter to
 - `type`: string, Select the type of plot (default: "triangle"). The following types are supported: `matrix` (all combinations), `triangle` (lower trinangular of matrix),  `row` (single row) and `column` (single column).
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
 
-- `aspect_scale`: scalar, Positive scaling factor for controlling the size of the plot. default: 1.
-- `size`: series, Placeholder for future feature (optional, default: null).
-
 
 # Changelog
 
