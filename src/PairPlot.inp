@@ -426,7 +426,8 @@ function void write_centroids (const list yx, const bundle self)
         # Draw some symbol for the i-th centroid
         printf "set label %d \"%s\" at %g,%g point ps %d pt %d lw %d",
             self.ith_factor, label, centroids[1], centroids[2],
-            self.centroid_pointsize, self.ith_factor, self.centroid_linewidth
+            self.centroid_pointsize, self.pointtype[self.ith_factor],
+            self.centroid_linewidth
         # Color of centroid equals the color of the i-th factor
         printf " lc rgb '#%s' front\n", color
     endif
