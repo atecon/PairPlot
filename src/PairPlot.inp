@@ -373,8 +373,6 @@ function void print_using_cmd (const bundle self, const int idx)
     if self.plot_type == "points"
          printf " pt %d", self.pointtype[idx]
     endif
-
-    printf "\n"
 end function
 
 
