@@ -552,6 +552,17 @@ function string write_options (const bundle self)
         endif
 
         printf "set pointsize %.2f\n", self.pointsize
+
+        # No documented yet, as it errors
+        /*
+        if ok(self.y_logscale)
+            printf "set logscale y %d\n", self.y_logscale
+        endif
+        if ok(self.x_logscale)
+            printf "set logscale x %d\n", self.x_logscale
+        endif
+        */
+
     end outfile
 
     set force_decpoint off
