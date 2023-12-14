@@ -275,6 +275,9 @@ function string write_plot_cmd_and_data_mat (const list L,
                 outfile --buffer=buffer
                     write_labels(vnames[2], vnames[1], self.fontsize)
                     factorized_centroids(yx, self)
+                    if y_counter > 2  # show key only for 1st pairplot
+                        printf "set nokey\n"
+                    endif
                     write_plot_cmd(self)
                     write_plot_data(yx, self)
                 end outfile
@@ -331,6 +334,9 @@ function string write_plot_cmd_and_data_tri (const list L,
                     outfile --buffer=buffer
                         write_labels(vnames[2], vnames[1], self.fontsize)
                         factorized_centroids(yx, self)
+                        if y_counter > 2  # show key only for 1st pairplot
+                            printf "set nokey\n"
+                        endif
                         write_plot_cmd(self)
                         write_plot_data(yx, self)
                     end outfile
