@@ -229,8 +229,8 @@ function bundle default_options (void)
     scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
     string self.centroid = "none"
     scalar self.centroid_label = FALSE
-    scalar self.centroid_pointsize = 3
-    scalar self.centroid_linewidth = 3
+    scalar self.centroid_pointsize = 2
+    scalar self.centroid_linewidth = 2
     string self.filename = "display"
     scalar self.y_logscale = NA
     scalar self.x_logscale = NA
@@ -275,7 +275,7 @@ function string write_plot_cmd_and_data_mat (const list L,
                 outfile --buffer=buffer
                     write_labels(vnames[2], vnames[1], self.fontsize)
                     factorized_centroids(yx, self)
-                    if y_counter > 2  # show key only for 1st pairplot
+                    if y > 2  # show key only for 1st pairplot
                         printf "set nokey\n"
                     endif
                     write_plot_cmd(self)
