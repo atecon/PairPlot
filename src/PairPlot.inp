@@ -14,9 +14,9 @@ function void add_information_of_factor (const series factor, bundle *self)
     /*  Gather information of factor series. */
 
     series self.factor_series = factor
-
     matrix self.factor_values = values(factor)
     scalar self.n_factors = nelem(self.factor_values)
+    # strings self.factor_strings = strvals(factor)
 
     bundle b = getinfo(factor)
     if b.has_string_table
