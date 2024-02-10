@@ -425,7 +425,7 @@ function void write_centroids (const list yx, const bundle self)
         endif
 
         # Draw some symbol for the i-th centroid
-        printf "set label %d \"%s\" at %g,%g point ps %d pt %d lw %d",
+        printf "set label %d \"%s\" at %g,%g point ps %g pt %d lw %g",
             self.ith_factor, label, centroids[1], centroids[2],
             self.centroid_pointsize, self.pointtype[self.ith_factor],
             self.centroid_linewidth
@@ -552,7 +552,7 @@ function string write_options (const bundle self)
             printf "set grid ls 12\n"
         endif
 
-        printf "set pointsize %.2f\n", self.pointsize
+        printf "set pointsize %g\n", self.pointsize
 
         # No documented yet, as it errors
         /*
@@ -638,10 +638,10 @@ function string filetype_to_terminal_map (const string filetype)
     /* Return gnuplot terminal name depending on filetype. */
 
     map =_(\
-            png = "pngcairo",\
-            pdf = "pdf",\
-            eps = "postscript eps enhanced",\
-            svg ="svg color"\
+            png = "pngcairo noenhanced",\
+            pdf = "pdf noenhanced",\
+            eps = "postscript eps color noenhanced",\
+            svg ="svg noenhanced"\
           )
 
     return map["@filetype"]
@@ -656,7 +656,7 @@ function string construct_terminal_cmd (const bundle self)
     string set_cmd = "set terminal "
     set_cmd += filetype_to_terminal_map(self.filetype)
     set_cmd += sprintf(" font ',%d' ", self.fontsize)
-    set_cmd += sprintf(" size %d, %d\n", self.width, self.height)
+    set_cmd += sprintf(" size %g, %g\n", self.width, self.height)
 
     set force_decpoint off
 

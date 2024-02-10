@@ -38,12 +38,12 @@ The user can control the following aspects by adding the respective parameter to
 
 - `centroid`: string, Highlight the centroid of the 2-dim. data. Possible options are `mean`, `median` and `none` (default: "none"). If a `factor` series is passed, the centroid for each distinct factor is shown.
 - `centroid_label`: bool, Show the label of the centroid statistics of TRUE, otherwise do not show of FALSE (default: FALSE).
-- `centroid_linewidth`: int, Width of the point (default: 4).
-- `centroid_pointsize`: int, Size of the point (default: 4).
+- `centroid_linewidth`: scalar, Width of the point (default: 2).
+- `centroid_pointsize`: scalar, Size of the point (default: 2).
 - `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen). Currently figures can only be stored in **png** format.
 - `fontsize`: int, Control the font size of the labels default: 12.
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
-- `height`: int, Height of the canvas plot (default: 600).
+- `height`: scalar, Height of the canvas plot (default: 600).
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
 - `key_fontsize` int, Control the font size for the key. Default: 8
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
@@ -63,9 +63,13 @@ The user can control the following aspects by adding the respective parameter to
 - **(iv)** "column": Works like type "row" but subplots are arranged in a single column instead.
 
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
-- `width`: int, Width of the canvas plot (default: 900).
+- `width`: scalar, Width of the canvas plot (default: 900).
 
 # Changelog
+
+* **v0.96 (February 2024)**
+	* Set all terminals to 'noenhanced' mode to respect eventual underscores in variable names
+	* Allow the parameters 'centroid_pointsize', 'centroid_linewidth', 'width' and 'height' to be scalar values instead of integers.
 
 * **v0.95 (December 2023)**
 	* Bugfix: Path with blanks failed under Windows sometimes.
