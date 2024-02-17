@@ -145,28 +145,33 @@ loop i=1..5
     if i == 1
         open "./data/iris.csv" --quiet
         list y = 1..4           # list of series to plot
-        err = PairPlot(y)
+        string filename = sprintf("%s/foo.png", $dotdir)
+        err = PairPlot(y, null, _(filename))
     elif i == 2
         open credscore.gdt --quiet
         list y = 1..4
         rename Acc eee        # just test that variables beginning with 'e' work
-        err = PairPlot(y)             # no factor series
+        string filename = sprintf("%s/foo.png", $dotdir)
+        err = PairPlot(y, null, _(filename))
     elif i == 3
         open abdata --quiet
         list y = n k ys
         series factor = IND
-        err = PairPlot(y, factor)     # with factor series
+        string filename = sprintf("%s/foo.png", $dotdir)
+        err = PairPlot(y, factor, _(filename))
     elif i == 4
         open mroz87 --quiet
         list y = KL6 K618 WA WE RPWG HHRS HA HE HW FAMINC
-        err = PairPlot(y)
+        string filename = sprintf("%s/foo.png", $dotdir)
+        err = PairPlot(y, null, _(filename))
 
     elif i == 5
         series x = log(normal()) # note: this has NAs by construction
         series z = uniform()
         list X = x z
         series fac = ok(x)
-        err = PairPlot(X, fac)
+        string filename = sprintf("%s/foo.png", $dotdir)
+        err = PairPlot(X, fac, _(filename))
     endif
 
     assert(err == FALSE)

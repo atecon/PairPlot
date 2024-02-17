@@ -67,6 +67,9 @@ The user can control the following aspects by adding the respective parameter to
 
 # Changelog
 
+* **v0.97 (February 2024)**
+	* Error in case of CLI-mode if a plot is expected to appear on the screen (filename="display")
+
 * **v0.96 (February 2024)**
 	* Set all terminals to 'noenhanced' mode to respect eventual underscores in variable names
 	* Allow the parameters 'centroid_pointsize', 'centroid_linewidth', 'width' and 'height' to be scalar values instead of integers.

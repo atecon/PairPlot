@@ -46,6 +46,10 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
     self = self + default_options()
 
+    errorif($sysinfo.gui_mode == FALSE && self.filename == "display",
+            "the 'output=display`-mode is not supported with gretlcli,\
+            please use the GUI program instead or store the plot, if possible")
+
     # Some checks
     if nelem(self.filename) == 0
         printf "\nError: Invalid file name.\n"
