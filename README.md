@@ -41,18 +41,18 @@ The user can control the following aspects by adding the respective parameter to
 - `centroid_linewidth`: scalar, Width of the point (default: 2).
 - `centroid_pointsize`: scalar, Size of the point (default: 2).
 - `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen). Currently figures can only be stored in **png** format.
-- `fontsize`: int, Control the font size of the labels default: 12.
+- `fontsize`: int, Control the font size of the labels (default: 16) .
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
 - `height`: scalar, Height of the canvas plot (default: 600).
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
-- `key_fontsize` int, Control the font size for the key. Default: 8
+- `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
 - `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: <http://gnuplot.sourceforge.net/docs_4.2/node209.html>, Default: 0.02.
 - `pointsize`: int, Control the size of points (default: 0.5). No support for circles.
 - `pointtype`: matrix, Control the type of points. Can be either an integer entry such that points associated to different levels of `factor` are of the same type. One may also provide a vector of integers for each distinct value of the `factor` series. Default: 7. See also: <https://i.imgur.com/xNZa7Rz.png>
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
-- `tics_fontsize` int, Control the font size of the x-y tics. Default: 8
-- `transparency_level`: int, Controls the transparency level of points and circles (between 0 (no transparency) and 255 (full transparency)). Default: 0.
+- `tics_fontsize` int, Control the font size of the x-y tics. Default: 12
+- `transparency_level`: int, Controls the transparency level of points and circles (between 0 (no transparency) and 255 (full transparency)). Default: 90.
 - `type`: string, Select the type of plot (default: "triangle"). The following types are supported:
 - **(i)** "matrix": Scatterplot matrix which draws a scatter plot between all combinations of variables included in list `L`.
 
@@ -66,6 +66,11 @@ The user can control the following aspects by adding the respective parameter to
 - `width`: scalar, Width of the canvas plot (default: 900).
 
 # Changelog
+
+* **v0.98 (April 2024)**
+	* Make width, height, fontsizes and pointsize a function of the number of variables for better readability in case of many variables.
+	* Set parameter `transparency per default to 90.
+	* Minor update of the sample script
 
 * **v0.97 (February 2024)**
 	* Error in case of CLI-mode if a plot is expected to appear on the screen (filename="display")

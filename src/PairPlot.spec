@@ -1,7 +1,7 @@
 author = Artur Tarassow
 email = atecon@posteo.de
-version = 0.97
-date = 2024-02-17
+version = 0.98
+date = 2024-04-24
 description = Scatterplot matrix with factor separation
 tags = C88
 min-version = 2022d
