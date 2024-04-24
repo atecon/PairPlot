@@ -48,7 +48,7 @@ The user can control the following aspects by adding the respective parameter to
 - `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
 - `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: <http://gnuplot.sourceforge.net/docs_4.2/node209.html>, Default: 0.02.
-- `pointsize`: int, Control the size of points (default: 0.5). No support for circles.
+- `pointsize`: int, Control the size of points (default: 2). No support for circles.
 - `pointtype`: matrix, Control the type of points. Can be either an integer entry such that points associated to different levels of `factor` are of the same type. One may also provide a vector of integers for each distinct value of the `factor` series. Default: 7. See also: <https://i.imgur.com/xNZa7Rz.png>
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
 - `tics_fontsize` int, Control the font size of the x-y tics. Default: 12
