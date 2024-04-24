@@ -38,7 +38,7 @@ elif SAMPLE == 3  # factorized plus some tweaking
 
 elif SAMPLE == 4  # factorized scatter + string-valued factor series
     open mrw --quiet
-    list y = gdp60 gdp85 inv
+    list y = gdp60 gdp85 school
     series factor =  1 + OECD
     strings svalues = defarray("non-oecd", "oecd")
     stringify(factor, svalues)
@@ -52,3 +52,5 @@ elif SAMPLE == 4  # factorized scatter + string-valued factor series
                     filename = "foo.png") # store locally
     PairPlot(y, factor, opts)
 endif
+
+
