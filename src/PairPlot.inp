@@ -59,6 +59,26 @@ function scalar PairPlot (const list L "List of variables to plot",
     endif
     self.n_variables = nelem(L)
 
+    # Adjust fontsize as a function of the number of variables
+    if !exists(opts) || inbundle(opts, "fontsize") == FALSE
+        self.fontsize = calculate_fontsize(self.fontsize, self.n_variables)
+    endif
+    if !exists(opts) || inbundle(opts, "key_fontsize") == FALSE
+        self.key_fontsize = calculate_fontsize(self.key_fontsize, self.n_variables)
+    endif
+    if !exists(opts) || inbundle(opts, "tics_fontsize") == FALSE
+        self.tics_fontsize = calculate_fontsize(self.tics_fontsize, self.n_variables)
+    endif
+    if !exists(opts) || inbundle(opts, "pointsize") == FALSE
+        self.pointsize = calculate_pointsize(self.pointsize, self.n_variables)
+    endif
+    if !exists(opts) || inbundle(opts, "width") == FALSE
+        self.width = calculate_plot_width(self.width, self.n_variables)
+    endif
+    if !exists(opts) || inbundle(opts, "height") == FALSE
+        self.height = calculate_plot_height(self.height, self.n_variables)
+    endif
+
     # Handle eventual missing values
     list  ALL = L
     ALL += exists(factor) ? factor : null
@@ -199,7 +219,7 @@ function string write_settings (bundle *self)
                              get_color_definitions(),
                              self.transparency_level)
 
-    buffer += sprintf("set multiplot layout %d,%d\n",\
+    buffer += sprintf("set multiplot layout %d,%d\n",
                       plottype_to_rows_map(self), plottype_to_cols_map(self))
 
     buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
@@ -218,16 +238,16 @@ function bundle default_options (void)
 
     scalar self.height = 600
     scalar self.width = 900
-    scalar self.fontsize = 12
-    scalar self.pointsize = 1
-    matrix self.pointtype = {7; 5; 6; 15; 13; 11; 8; 4; 1; 2; 14; 3; 9; 10; 12; 14}
+    scalar self.fontsize = 16
+    scalar self.pointsize = 2
+    matrix self.pointtype = {6; 4; 7; 15; 13; 11; 8; 5; 1; 2; 14; 3; 9; 10; 12; 14}
     scalar self.offset_level = 0.02
     scalar self.with_key = 1	# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
-    scalar self.key_fontsize = 8
+    scalar self.key_fontsize = 14
     scalar self.use_circles = FALSE
-    scalar self.tics_fontsize = 8
-    scalar self.transparency_level = 0
+    scalar self.tics_fontsize = 12
+    scalar self.transparency_level = 90
     string self.type = "triangle"
     scalar self.tics = TRUE		 # print no x/y tics
     scalar self.grid = FALSE     # add grid (works only if self.tics=1) - not supported!
@@ -666,3 +686,44 @@ function string construct_terminal_cmd (const bundle self)
     return set_cmd
 end function
 
+
+function scalar calculate_pointsize (const scalar default_pointsize,
+                                     const int n_variables)
+    /* Compute optimal fontsizeo as a function of the number
+     of variables to plot. */
+
+    scalar pointsize = xmin(5, default_pointsize / sqrt(n_variables))
+
+    return pointsize
+end function
+
+function scalar calculate_fontsize (const scalar default_fontsize,
+                                    const int n_variables)
+    /* Compute optimal fontsizeo as a function of the number
+     of variables to plot. */
+
+    scalar fontsize = xmin(20, default_fontsize / sqrt(n_variables))
+
+    return ceil(fontsize)
+end function
+
+
+function scalar calculate_plot_width (const scalar default_width,
+                                      const int n_variables)
+    /* Compute optimal width of plot as a function of the number
+     of variables to plot. */
+
+    scalar width = xmin(2800, default_width * (1 + sqrt(n_variables)/20))
+
+    return width
+end function
+
+function scalar calculate_plot_height (const scalar default_height,
+                                      const int n_variables)
+    /* Compute optimal height of plot as a function of the number
+     of variables to plot. */
+
+    scalar height = xmin(2800, default_height * (1 + sqrt(n_variables)/20))
+
+    return height
+end function
