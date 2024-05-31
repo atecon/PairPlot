@@ -267,9 +267,9 @@ function void write_plot_data (const list xy, const bundle self)
         endif
         smpl --no-missing xy
 
-        matrix m = {xy}   # TODO: for huge data, this may become a bottleneck
-        cnameset(m, "")   # avoid printing variable names to the gp-file
-        printf "%12.8g", m
+        matrix m = {xy}     # TODO: for huge data, this may become a bottleneck
+        cnameset(m, "")     # avoid printing variable names to the gp-file
+        printf "%14.8g", m  # width 14 to avoid collisions
         printf "e\n"
     endloop
 end function
