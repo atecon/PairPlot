@@ -82,6 +82,7 @@ end function
 
 function bundle PP_ui_maker (void)
     /* set a specification for the first argument for GUI_PairPlot */
+
     bundle b
     b.L = _(no_singleton=1, n_const=1)
     return b
@@ -92,6 +93,7 @@ function void GUI_PairPlot (const list L "List of series to plot",
                             int type[1:4:1] "Plot type" {"triangle", "matrix", "row", "column"},
                             int centroids[1:3:1] "Centroids" {"none", "mean", "median"},
                             scalar transparency[0:1:0:0.1] "Transparency")
+    /* Callback for PairPlot menu item. */
 
     bundle opts
     strings typestrs = defarray("triangle", "matrix", "row", "column")
@@ -151,6 +153,14 @@ end function
 function string write_pp_plots (const list L,
                                 const bundle self,
                                 const string gp_opts)
+    /* Common code for the single-plot and multiplot cases.
+       - In the single case we construct one plot-specification buffer
+       and pass it back to call_gnuplot() for execution.
+       - In the multiplot case we construct two or more plot specs and
+       pass them in turn to gretl's "gnuplot" command, in the context
+       of a gpbuild block in call_gridplot(). In this case the return
+       value of @buffer is ignored.
+    */
 
     scalar tri = self.type == "triangle"
     string buffer = ""
@@ -175,14 +185,14 @@ function string write_pp_plots (const list L,
             strings vnames = varnames(xy)
             outfile --buffer=buffer
                 write_options(self, xy, k)
-                write_labels(vnames)
+                write_labels(vnames, self.fontsize)
                 if self.centroid != "none"
                     factorized_centroids(xy, self)
                 endif
                 write_plot_cmd(self)
                 write_plot_data(xy, self)
             end outfile
-            if self.n_plots > 1
+            if self.n_plots > 1 # using gridplot
                 gnuplot --inbuf=buffer @gp_opts
             endif
         endloop
@@ -242,18 +252,9 @@ function void write_centroids (const list xy, const bundle self,
     printf " lc rgb '#%s' front\n", color
 end function
 
-/*
-   function void write_labels (const string yname,
-   const string xname,
-   const int fontsize)
-   printf "set ylabel '%s' font ',%d'\n", yname, fontsize
-   printf "set xlabel '%s' font ',%d'\n", xname, fontsize
-   end function
-*/
-
-function void write_labels (const strings vnames)
-    printf "set xlabel '%s'\n", vnames[1]
-    printf "set ylabel '%s'\n", vnames[2]
+function void write_labels (const strings vnames, const int fontsize)
+    printf "set xlabel '%s' font ',%d'\n", vnames[1], fontsize
+    printf "set ylabel '%s' font ',%d'\n", vnames[2], fontsize
 end function
 
 function void write_plot_data (const list xy, const bundle self)
@@ -283,8 +284,8 @@ function void print_using_cmd (const bundle self, const int idx)
     endif
 end function
 
-function void print_plot_title (const bundle self, const int idx)
-    /* Print title string. */
+function void print_factor_title (const bundle self, const int idx)
+    /* Print title string for a factor. */
 
     if inbundle(self, "factor_str_values")
         # If factor series comprises strings, these are used
@@ -305,7 +306,7 @@ function void write_plot_cmd (const bundle self)
 
     loop i=1..self.n_factors
         print_using_cmd(self, $i)
-        print_plot_title(self, $i)
+        print_factor_title(self, $i)
 
         if i < self.n_factors
             printf ", \\\n"
@@ -402,9 +403,9 @@ end function
 
 function strings get_color_definitions (void)
     # "dark2" palette
-    return defarray( "1B9E77", "D95F02", "7570B3", "E7298A", "66A61E",
+    return defarray("1B9E77", "D95F02", "7570B3", "E7298A", "66A61E",
       "E6AB02", "A6761D", "666666", "C41E3A", "4682B4", "FFBF00", "FF0000",
-      "00CC00", "8FAAB3", "0000FF", "BF25B2", "FFA500" )
+      "00CC00", "8FAAB3", "0000FF", "BF25B2", "FFA500")
 end function
 
 function scalar calculate_pointsize (const scalar default_pointsize,
@@ -449,6 +450,8 @@ function scalar calculate_plot_height (const scalar default_height,
 end function
 
 function scalar get_n_plots (const string type, int nvars)
+    /* Figure the total number of plots required. */
+
     scalar n1 = nvars - 1
 
     if type == "triangle"
@@ -462,6 +465,7 @@ end function
 
 function matrix get_layout_matrix (int n)
     /* construct a suitable triangular layout matrix */
+
     matrix ret = zeros(n, n)
     scalar k = 1
     loop i=1..n
@@ -474,18 +478,20 @@ end function
 
 function string get_gp_opts (const bundle self)
     /* construct an options string for gretl's "gnuplot" command */
+
     string opts = ""
     if self.transparency_level > 0
         set force_decpoint on
         opts += sprintf("--alpha=%g", self.transparency_level / 255)
         set force_decpoint off
     endif
-    # FIXME font size choice
+    # FIXME font size choice?
     return opts
 end function
 
 function string get_gridplot_opts (const bundle self)
     /* construct an options string for the "gridplot" command */
+
     strings S = array(0)
     string opts = ""
 
@@ -502,6 +508,9 @@ function string get_gridplot_opts (const bundle self)
     if self.height != 600
         S += sprintf("--height=%d", self.height)
     endif
+    if inbundle(self, "title")
+        S += sprintf("--title=\"%s\"", self.title)
+    endif
 
     if nelem(S) > 0
         opts = S[1]
@@ -516,7 +525,8 @@ end function
 
 function scalar call_gridplot (const list L, const bundle self,
                                const string outspec)
-    /* Called if there's more than one component plot */
+    /* Called if there's more than one component plot. */
+
     string gp_opts = get_gp_opts(self)
     string grid_opts = get_gridplot_opts(self)
     matrix lmat
@@ -539,7 +549,8 @@ end function
 
 function scalar call_gnuplot (const list L, const bundle self,
                               const string outspec)
-    /* Called if just a single plot is to be produced */
+    /* Called if just a single plot is to be produced. */
+
     string buffer = write_pp_plots(L, self, "")
     string gp_opts = get_gp_opts(self)
 
