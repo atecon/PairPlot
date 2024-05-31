@@ -12,7 +12,8 @@ eval PairPlot(y, null, _(filename = "sample1.png"))
 
 list y = 1..4
 bundle opts = _(transparency_level = 120,
-  filename = "sample2.png")
+  filename = "sample2.png",
+  title = "Iris characteristics by variety")
 eval PairPlot(y, variety, opts)
 
 open credscore.gdt --quiet
@@ -21,6 +22,7 @@ series factor = OwnRent + 1
 stringify(factor, defarray("renter", "owner"))
 bundle opts = _(transparency_level = 100,
   filename = "sample3.png",
+  title = "Credit data by home-ownership status",
   centroid = "mean",
   grid = TRUE)
 PairPlot(y, factor, opts)

@@ -13,7 +13,8 @@ if SAMPLE == 1  # simple plot of the iris data
 elif SAMPLE == 2  # fancier plot of the iris data
     open iris.gdt --quiet
     list y = 1..4
-    bundle opts = _(transparency_level = 120)
+    bundle opts = _(transparency_level = 120,
+      title = "Iris characteristics by variety")
     eval PairPlot(y, variety, opts)
 
 elif SAMPLE == 3  # factorized scatterplots + centroids
@@ -22,6 +23,7 @@ elif SAMPLE == 3  # factorized scatterplots + centroids
     series factor = OwnRent + 1
     stringify(factor, defarray("renter", "owner"))
     bundle opts = _(transparency_level = 100,
+      title = "Credit data by home-ownership status",
       centroid = "mean",
       grid = TRUE)
     PairPlot(y, factor, opts)
