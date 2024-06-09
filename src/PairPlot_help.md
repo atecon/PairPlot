@@ -44,6 +44,7 @@ The user can control the following aspects by adding the respective parameter to
 - `fontsize`: int, Control the font size of the labels (default: 16) .
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
 - `height`: scalar, Height of the canvas plot (default: 600).
+- `title`: string: set an overall title for the plot(s).
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
 - `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
