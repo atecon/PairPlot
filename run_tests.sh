@@ -2,13 +2,15 @@
 set -e
 
 DIR=$(dirname $(realpath "$0")) 	# locate folder where this sh-script is located in
-SCRIPT="./tests/run_tests.inp"
+SCRIPT_1="./tests/run_tests.inp"
+SCRIPT_2="./tests/pngtests.inp"
 PROJECT="PairPlot"
 
 cd $DIR
 echo "Switched to ${DIR}"
 
-gretlcli -b -e -q ${SCRIPT}
+gretlcli -b -e -q ${SCRIPT_1}
+gretlcli -b -e -q ${SCRIPT_2}
 
 if [ $? -eq 0 ]
 then
