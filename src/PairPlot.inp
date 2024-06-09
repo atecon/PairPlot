@@ -124,29 +124,6 @@ end function
 
 
 
-function string type_to_function_map (const string type)
-    /* Map type to function name. */
-
-    map =_(\
-            triangle = "write_plot_cmd_and_data_tri",\
-            matrix = "write_plot_cmd_and_data_mat",\
-            row = "write_plot_cmd_and_data_mat",\
-            column = "write_plot_cmd_and_data_mat"\
-          )
-
-    return map["@type"]
-end function
-
-function string compile_gnuplot_cmd_data_buffer (const list L,
-                                                 const bundle self)
-    /*  Compile gnuplot commands and data buffer for plotting. */
-
-    string funcname = type_to_function_map(self.type)
-
-    return feval(funcname, L, self)
-end function
-
-
 function void GUI_PairPlot (const list L "List of variables to plot",
                             const series factor[null] "Discrete series for factorization",
                             int type[1:4:1] "Plot type" {"triangle", "matrix", "row", "column"})
@@ -170,19 +147,6 @@ function void GUI_PairPlot (const list L "List of variables to plot",
 end function
 
 
-function void add_filetype (bundle *self)
-    /* Determine type for plot file. */
-
-    if self.filename == "display"
-        self.filetype = "png"
-    else
-        scalar length = strlen(self.filename)
-        string s = substr(self.filename, (length - 4), length)
-        string tmp = strstr(s, ".")
-        string self.filetype = strsub(tmp, ".", "")
-    endif
-end function
-
 
 function scalar isok_length_pointtype_vector (const bundle self)
     /* Make sure length of 'pointtype' vector is at least as long the number of distinct factor values.
@@ -198,53 +162,6 @@ function scalar isok_length_pointtype_vector (const bundle self)
     return TRUE
 end function
 
-
-
-function scalar plottype_to_rows_map (const bundle self)
-    /* Determine number of rows of multiplot depending on plot type. */
-
-    map =_(\
-            triangle = self.n_variables - 1,
-            column = self.n_variables - 1,
-            matrix = self.n_variables,
-            row = 1\
-          )
-
-    return map[self.type]
-end function
-
-
-function scalar plottype_to_cols_map (const bundle self)
-    /* Determine number of columns of multiplot depending on plot type. */
-
-    if self.type != "column"
-        return self.n_variables - 1
-    else
-        return 1
-    endif
-end function
-
-
-function string write_settings (bundle *self)
-    /* Write various settings to a string buffer. */
-
-    string buffer
-    buffer += construct_terminal_cmd(self)
-
-    buffer += write_linetype(self.n_variables * self.n_factors,
-                             get_color_definitions(),
-                             self.transparency_level)
-
-    buffer += sprintf("set multiplot layout %d,%d\n",
-                      plottype_to_rows_map(self), plottype_to_cols_map(self))
-
-    buffer += sprintf("set style line 101 lc rgb '#808080' lt 1 lw 1\n")
-    # drop right and upper border
-    buffer += sprintf("set border 3 front ls 101\n")
-    buffer += write_options(self)
-
-    return buffer
-end function
 
 
 function bundle default_options (void)
@@ -648,58 +565,6 @@ function strings get_color_definitions (void)
                     "bf25b2",\
                     "ffa500"\
                     )
-end function
-
-
-function string write_linetype (const int n_variables[1::],
-                                const strings color_definitions,
-                                const int transparency_level[0:255:0])
-    /* Print linetype commands. */
-
-    string linetype_out = ""
-    scalar counter = 1
-
-    outfile --buffer=linetype_out
-        loop i=1..n_variables -q
-            printf "set linetype %d lc rgb '#%2x%s'\n",
-              $i, transparency_level, color_definitions[counter]
-
-            # Repeat colors if needed
-            counter = (counter == nelem(color_definitions)) ? 1 : (counter + 1)
-        endloop
-    end outfile
-
-    return linetype_out
-end function
-
-
-function string filetype_to_terminal_map (const string filetype)
-    /* Return gnuplot terminal name depending on filetype. */
-
-    map =_(\
-            png = "pngcairo noenhanced",\
-            pdf = "pdf noenhanced",\
-            eps = "postscript eps color noenhanced",\
-            svg ="svg noenhanced"\
-          )
-
-    return map["@filetype"]
-end function
-
-
-function string construct_terminal_cmd (const bundle self)
-    /* Construct the terminal for output. */
-
-    set force_decpoint on
-
-    string set_cmd = "set terminal "
-    set_cmd += filetype_to_terminal_map(self.filetype)
-    set_cmd += sprintf(" font ',%d' ", self.fontsize)
-    set_cmd += sprintf(" size %g, %g\n", self.width, self.height)
-
-    set force_decpoint off
-
-    return set_cmd
 end function
 
 
