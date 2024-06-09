@@ -1,4 +1,4 @@
-author = Artur Tarassow
+author = Artur Tarassow and Allin Cottrell
 email = atecon@posteo.de
 version = 0.99
 date = 2024-06-10
