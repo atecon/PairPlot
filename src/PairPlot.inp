@@ -33,6 +33,14 @@ function string get_plot_type (const bundle self)
     return type
 end function
 
+function scalar is_valid_filename (const string filename)
+    if filename == ""
+        printf "\nError: Invalid file name.\n"
+        return FALSE
+    endif
+    return TRUE
+end function
+
 
 function scalar PairPlot (const list L "List of variables to plot",
                           const series factor[null] "Discrete series for factorization",
@@ -40,24 +48,13 @@ function scalar PairPlot (const list L "List of variables to plot",
     /* Main public function.
     return: TRUE on error, otherwise FALSE. */
 
-    bundle self
-    if exists(opts)
-        self = opts
-    endif
+    bundle self = exists(opts) ? opts : _()
     self = self + default_options()
-
-    errorif($sysinfo.gui_mode == FALSE && self.filename == "display",
-            "the 'output=display`-mode is not supported with gretlcli, please use the GUI program instead or store the plot, if possible")
-
-    # Some checks
-    if nelem(self.filename) == 0
-        printf "\nError: Invalid file name.\n"
-        return TRUE
-    endif
-    if !has_min_two_series(L)
-        return TRUE
-    endif
     self.n_variables = nelem(L)
+
+    if !is_valid_filename(self.filename) || !has_min_two_series(L)
+        return TRUE
+    endif
 
     # Adjust fontsize as a function of the number of variables
     if !exists(opts) || inbundle(opts, "fontsize") == FALSE
@@ -81,11 +78,14 @@ function scalar PairPlot (const list L "List of variables to plot",
 
     # Handle eventual missing values
     list  ALL = L
-    ALL += exists(factor) ? factor : null
+    if exists(factor)
+        ALL += factor
+    endif
     smpl ALL --no-missing
 
     # Set some global(s)
     string self.plot_type = get_plot_type(self)
+    scalar self.n_plots = get_n_plots(self.type, self.n_variables)
 
     if exists(factor)
         add_information_of_factor(factor, &self)
@@ -93,8 +93,8 @@ function scalar PairPlot (const list L "List of variables to plot",
         scalar self.n_factors = 1
         matrix self.factor_values = {1}
     endif
-    code = isok_length_pointtype_vector(self)
-    if !code
+
+    if !isok_length_pointtype_vector(self)
         return TRUE
     endif
 
@@ -106,6 +106,22 @@ function scalar PairPlot (const list L "List of variables to plot",
 
     return send_to_gnuplot(buffer, self.filename)
 end function
+
+
+function scalar get_n_plots (const string type, int nvars)
+    /* Figure the total number of plots required. */
+
+    scalar n1 = nvars - 1
+
+    if type == "triangle"
+        return n1 * nvars / 2
+    elif type == "matrix"
+        return n1 * nvars
+    else # row or column
+        return n1
+    endif
+end function
+
 
 
 function string type_to_function_map (const string type)
