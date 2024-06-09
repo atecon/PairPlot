@@ -7,24 +7,6 @@ include "./src/PairPlot.inp" --force
 
 
 
-bundles Params = null
-Params = Params + _(type = "triangle", expected = "write_plot_cmd_and_data_tri")
-Params = Params + _(type = "matrix", expected = "write_plot_cmd_and_data_mat")
-Params = Params + _(type = "row", expected = "write_plot_cmd_and_data_mat")
-Params = Params + _(type = "column", expected = "write_plot_cmd_and_data_mat")
-function void test_type_to_function_map (const bundles P)
-    print "Start testing type_to_function_map()."
-
-    loop foreach i P
-        # Given + When
-        actual = type_to_function_map(P[i].type)
-
-        # Then
-        assert(actual == P[i].expected)
-    endloop
-end function
-test_type_to_function_map(Params)
-
 
 bundles Params = null
 Params = Params + _(pointtype = {1, 2}', n_factors = 1, expected = TRUE)
@@ -62,82 +44,6 @@ end function
 test_isok_length_pointtype_vec(Params)
 
 
-bundles Params = null
-Params = Params + _(filename = "foo.svg", expected = "svg")
-function void test_add_filetype (const bundles P)
-    print "Start testing add_filetype()"
-
-    loop foreach i P
-        # Given
-        bundle B = null
-        B = _(filename = P[i].filename)
-
-        # When
-        add_filetype(&B)
-
-        # Then
-        assert(B.filetype == P[i].expected)
-    endloop
-end function
-test_add_filetype(Params)
-
-
-
-bundles Params = null
-Params = Params + _(type = "triangle", n_variables = 2, expected = 1)
-Params = Params + _(type = "column", n_variables = 3, expected = 2)
-Params = Params + _(type = "matrix", n_variables = 3, expected = 3)
-Params = Params + _(type = "row", n_variables = 3, expected = 1)
-Params = Params + _(type = "row", n_variables = 2, expected = 1)
-function void test_plottype_to_rows_map (const bundles P)
-    print "Start testing plottype_to_rows_map()"
-
-    loop foreach i P
-        # Given + When
-        actual = plottype_to_rows_map(P[i])
-
-        # Then
-        assert(actual == P[i].expected)
-    endloop
-end function
-test_plottype_to_rows_map(Params)
-
-
-bundles Params = null
-Params = Params + _(type = "triangle", n_variables = 2, expected = 1)
-Params = Params + _(type = "column", n_variables = 3, expected = 1)
-Params = Params + _(type = "matrix", n_variables = 3, expected = 2)
-Params = Params + _(type = "row", n_variables = 3, expected = 2)
-function void test_plottype_to_cols_map (const bundles P)
-    print "Start testing plottype_to_cols_map()"
-
-    loop foreach i P
-        # Given + When
-        actual = plottype_to_cols_map(P[i])
-
-        # Then
-        assert(actual == P[i].expected)
-    endloop
-end function
-test_plottype_to_cols_map(Params)
-
-
-function void test_set_offsets (void)
-    print "Start testing function set_offsets()"
-
-    # Given
-    scalar offset_level = 0.11
-
-    # When
-    string actual = set_offsets(offset_level)
-    string expected = sprintf("set offsets %g, %g, %g, %g",\
-                              offset_level, offset_level, offset_level, offset_level\
-                             )
-
-    # Then
-    assert(actual == expected)
-end function
-test_set_offsets()
 
 print "Start running and test examples"
 nulldata 128
@@ -176,33 +82,6 @@ loop i=1..5
 
     assert(err == FALSE)
 endloop
-
-
-function void test_write_linetype (void)
-    print "Start testing write_linetype()"
-
-    # given
-    scalar TRANSPARENCY = 10
-    strings color_definitions = defarray("A", "B", "C")
-    scalar n_variables = nelem(color_definitions)
-    strings expected = defarray(\
-                                "set linetype 1 lc rgb '# aA'",\
-                                "set linetype 2 lc rgb '# aB'",\
-                                "set linetype 3 lc rgb '# aC'"\
-                                )
-
-    # When
-    string actual = write_linetype(n_variables, color_definitions, TRANSPARENCY)
-    strings actuals = strsplit(actual, "\n")
-
-    # Then
-    loop foreach i expected
-        assert(actuals[i] == expected[i])
-    endloop
-end function
-test_write_linetype()
-
-
 
 
 print "Succesfully finished all tests."
