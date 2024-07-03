@@ -69,8 +69,8 @@ The user can control the following aspects by adding the respective parameter to
 
 # Changelog
 
-* **v0.99 (June 2024)**
-	* Add new parameter `title` for setting an oveall title
+* **v0.99 (Jule 2024)**
+	* Add new parameter `title` for setting an overall title
 	* Internal refactoring: Switch to gretl's built-in gridplot aparatus which means that all the graphics file formats supported by gretl can be used.
 	* It also means that usage via gretlcli in "display" mode works.
 	* In case the user's specification calls for just a single plot, no "multiplot" is created.
