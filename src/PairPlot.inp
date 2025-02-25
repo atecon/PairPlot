@@ -52,6 +52,8 @@ function scalar PairPlot (const list L "List of variables to plot",
     self = self + default_options()
     self.n_variables = nelem(L)
 
+    errorif(self.width < 100 || self.height < 100, "Invalid width or height. Must be at least 100.")
+
     if !is_valid_filename(self.filename) || !has_min_two_series(L)
         return TRUE
     endif
@@ -175,6 +177,7 @@ function scalar call_gridplot (const list L, const bundle self)
     scalar err = $error
     if err
         printf "Error in call_gridplot: %s\n", errmsg(err)
+        printf "grid_opts: %s\n", grid_opts
     endif
     return err
 end function
