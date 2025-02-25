@@ -43,7 +43,7 @@ The user can control the following aspects by adding the respective parameter to
 - `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen). Currently figures can only be stored in **png** format.
 - `fontsize`: int, Control the font size of the labels (default: 16) .
 - `grid`: bool, Draw a grid in the background if TRUE (=1) (default: FALSE)
-- `height`: scalar, Height of the canvas plot (default: 600).
+- `height`: scalar, Height of the canvas plot (default: 600, min. size: 100).
 - `title`: string: set an overall title for the plot(s).
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
 - `key_fontsize` int, Control the font size for the key. Default: 14
@@ -64,12 +64,16 @@ The user can control the following aspects by adding the respective parameter to
 - **(iv)** "column": Works like type "row" but subplots are arranged in a single column instead.
 
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
-- `width`: scalar, Width of the canvas plot (default: 900).
+- `width`: scalar, Width of the canvas plot (default: 900, min. size: 100).
 
 
 # Changelog
 
-* **v0.99 (Jule 2024)**
+* **v1.0 (February 2025)**
+	* Bugfix: Catch error in case size of width or height is less than 100.
+	* Bugfix: Sample 2 not working before as reference to dataset `iris.gdt` was missing.
+
+* **v0.99 (July 2024)**
 	* Add new parameter `title` for setting an overall title
 	* Internal refactoring: Switch to gretl's built-in gridplot aparatus which means that all the graphics file formats supported by gretl can be used.
 	* It also means that usage via gretlcli in "display" mode works.
@@ -123,4 +127,3 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.5  (Oct. 2019)**
 	* Initial version
-
