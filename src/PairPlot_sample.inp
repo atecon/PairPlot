@@ -11,7 +11,7 @@ if SAMPLE == 1  # simple plot of the iris data
     PairPlot(y)
 
 elif SAMPLE == 2  # fancier plot of the iris data
-    open iris.gdt --quiet
+    open iris.gdt --frompkg=PairPlot --quiet
     list y = 1..4
     bundle opts = _(transparency_level = 120,
                     title = "Iris characteristics by variety")
