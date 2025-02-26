@@ -32,6 +32,8 @@ elif SAMPLE == 4  # factorized plus some tweaking
     open abdata --quiet
     list y = n k
     series factor = IND
+    setinfo factor --discrete
+
     bundle opts = _(transparency_level = 175,
                     centroid = "median",
                     tics = FALSE,
