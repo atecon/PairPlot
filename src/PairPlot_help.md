@@ -23,9 +23,8 @@ Main function for creating pair-plots.
 ## Parameters
 
 - `L`: list, Series to plot against each other
-- `factor`: series, Categorical (numeric or string-valued) variable for mapping plot aspects to different colors and/or points/ circles (optional, default: null).
+- `factor`: series, Categorical (numeric or string-valued) variable for mapping plot aspects to different colors and/or points/ circles (optional, default: null). This series must be of type 'discrete'. To set a series to discrete, use the command `setinfo <series name> --discrete`.
 - `opts`: bundle, Optional for passing additional parameters. See below for explanation (default: null)
-
 
 ## Returns
 
@@ -36,9 +35,9 @@ An integer of value '0' (FALSE) if no error occurs, otherwise 1 (TRUE).
 
 The user can control the following aspects by adding the respective parameter to the 'opts' bundle.
 
-- `centroid`: string, Highlight the centroid of the 2-dim. data. Possible options are `mean`, `median` and `none` (default: "none"). If a `factor` series is passed, the centroid for each distinct factor is shown.
-- `centroid_label`: bool, Show the label of the centroid statistics of TRUE, otherwise do not show of FALSE (default: FALSE).
-- `centroid_linewidth`: scalar, Width of the point (default: 2).
+- `centroid`: string, Draw a symbol highlighting the centroid of the 2-dimensional data. Possible options are `mean`, `median` and `none` (default: "none"). If a `factor` series is passed, the centroid for each distinct factor is shown.
+- `centroid_label`: bool, Show the label of the centroid statistics if TRUE, otherwise do not show if FALSE (default: FALSE).
+- `centroid_linewidth`: scalar, Width of the line (default: 2).
 - `centroid_pointsize`: scalar, Size of the point (default: 2).
 - `filename`: string, Path plus filename plus file type. (optional, default: `display` which draws the resulting plot directly at the screen). Currently figures can only be stored in **png** format.
 - `fontsize`: int, Control the font size of the labels (default: 16) .
@@ -48,7 +47,7 @@ The user can control the following aspects by adding the respective parameter to
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
 - `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
-- `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: <http://gnuplot.sourceforge.net/docs_4.2/node209.html>, Default: 0.02.
+- `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: <https://gnuplot.sourceforge.net/docs_4.2/node209.html>, Default: 0.02.
 - `pointsize`: int, Control the size of points (default: 2). No support for circles.
 - `pointtype`: matrix, Control the type of points. Can be either an integer entry such that points associated to different levels of `factor` are of the same type. One may also provide a vector of integers for each distinct value of the `factor` series. Default: 7. See also: <https://i.imgur.com/xNZa7Rz.png>
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
@@ -72,6 +71,7 @@ The user can control the following aspects by adding the respective parameter to
 * **v1.0 (February 2025)**
 	* Bugfix: Catch error in case size of width or height is less than 100.
 	* Bugfix: Sample 2 not working before as reference to dataset `iris.gdt` was missing.
+	* Ensure that the `factor` series is of type 'discrete'. If not, an error message is thrown.
 
 * **v0.99 (July 2024)**
 	* Add new parameter `title` for setting an overall title
@@ -81,8 +81,8 @@ The user can control the following aspects by adding the respective parameter to
 	* The graphical interface is enhanced, with more options.
 
 * **v0.98 (April 2024)**
-	* Make width, height, fontsizes and pointsize a function of the number of variables for better readability in case of many variables.
-	* Set parameter `transparency per default to 90.
+	* Make width, height, font size and point size a function of the number of variables for better readability in case of many variables.
+	* Set parameter `transparency` per default to 90.
 	* Minor update of the sample script
 
 * **v0.97 (February 2024)**
