@@ -1,6 +1,4 @@
 function scalar has_min_two_series (const list L)
-    /*  */
-
     if nelem(L) < 2
         printf "\nError: List of variables must be comprise at least two series.\n"
         return FALSE
@@ -92,6 +90,7 @@ function scalar PairPlot (const list L "List of variables to plot",
     if exists(factor)
         errorif(!isdiscrete(factor),
           "Factor series must be discrete. Mark series as discrete using the 'setinfo' command.")
+        errorif(nelem(values(factor)) > 16, "Factor series must have at most 16 distinct values.")
         add_information_of_factor(factor, &self)
     else
         scalar self.n_factors = 1

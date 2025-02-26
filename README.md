@@ -23,7 +23,7 @@ Main function for creating pair-plots.
 ## Parameters
 
 - `L`: list, Series to plot against each other
-- `factor`: series, Categorical (numeric or string-valued) variable for mapping plot aspects to different colors and/or points/ circles (optional, default: null). This series must be of type 'discrete'. To set a series to discrete, use the command `setinfo <series name> --discrete`.
+- `factor`: series, Categorical (numeric or string-valued) variable for mapping plot aspects to different colors and/or points/ circles (optional, default: null). The factor series should have at most 16 distinct values. This series must be of type 'discrete'. To set a series to discrete, use the command `setinfo <series name> --discrete`.
 - `opts`: bundle, Optional for passing additional parameters. See below for explanation (default: null)
 
 ## Returns
@@ -72,6 +72,7 @@ The user can control the following aspects by adding the respective parameter to
 	* Bugfix: Catch error in case size of width or height is less than 100.
 	* Bugfix: Sample 2 not working before as reference to dataset `iris.gdt` was missing.
 	* Ensure that the `factor` series is of type 'discrete'. If not, an error message is thrown.
+	* Throw an error if the `factor` series has more than 16 distinct values.
 
 * **v0.99 (July 2024)**
 	* Add new parameter `title` for setting an overall title
