@@ -90,6 +90,8 @@ function scalar PairPlot (const list L "List of variables to plot",
     scalar self.n_plots = get_n_plots(self.type, self.n_variables)
 
     if exists(factor)
+        errorif(!isdiscrete(factor),
+          "Factor series must be discrete. Mark series as discrete using the 'setinfo' command.")
         add_information_of_factor(factor, &self)
     else
         scalar self.n_factors = 1
