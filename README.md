@@ -4,7 +4,7 @@ Produce grid of subplots depicting pairwise relationships in a dataset. This pac
 
 It can also represent an additional level of conditionalization with the 'factor' argument (a series) which plots different subsets of data in different colors and/or point/circle types. This is used to resolve elements on a third dimension.
 
-Please report bugs or comments on the gretl mailing list, report an issue on github (https://github.com/atecon/PairPlot/issues) or write to atecon@posteo.de.
+Please report bugs or comments on the gretl mailing list, report an issue on github ( https://github.com/atecon/PairPlot/issues ) or write to atecon@posteo.de.
 
 
 # Usage via the GUI
@@ -47,7 +47,7 @@ The user can control the following aspects by adding the respective parameter to
 - `key`: bool, If the `factor` series is provided, a legend shows the color and point pattern for each distinct value of the `factor` variable. Default: 1 (TRUE).
 - `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
-- `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: <https://gnuplot.sourceforge.net/docs_4.2/node209.html>, Default: 0.02.
+- `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: https://gnuplot.sourceforge.net/docs_4.2/node209.html , Default: 0.02.
 - `pointsize`: int, Control the size of points (default: 2). No support for circles.
 - `pointtype`: matrix, Control the type of points. Can be either an integer entry such that points associated to different levels of `factor` are of the same type. One may also provide a vector of integers for each distinct value of the `factor` series. Default: 7. See also: <https://i.imgur.com/xNZa7Rz.png>
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
