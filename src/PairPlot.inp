@@ -250,7 +250,7 @@ function bundle default_options (void)
     scalar self.fontsize = 16
     scalar self.pointsize = 2
     matrix self.pointtype = {6; 4; 7; 15; 13; 11; 8; 5; 1; 2; 14; 3; 9; 10; 12; 14}
-    scalar self.offset_level = 0.02
+    scalar self.offset_level = 0.02 # x and y axis ranges to match the coordinates of the data
     scalar self.with_key = 1	# print distinct values of factor variable
     string self.key_position = "top left"	# position of legend
     scalar self.key_fontsize = 14
@@ -267,6 +267,8 @@ function bundle default_options (void)
     string self.filename = "display"
     scalar self.y_logscale = NA
     scalar self.x_logscale = NA
+    scalar self.xlabel_offset = 0
+    scalar self.ylabel_offset = 0
 
     return self
 end function
@@ -309,19 +311,21 @@ function string write_pp_plots (const list L,
                 write_options(self, xy, k)
                 if tri == TRUE
                     if j == 1
-                        write_ylabel(vnames, self.fontsize)
+                        write_ylabel(vnames, self.fontsize, self.ylabel_offset)
                     endif
                     if i == n
-                        write_xlabel(vnames, self.fontsize)
+                        write_xlabel(vnames, self.fontsize, self.xlabel_offset)
                     endif
                 else
-                    write_ylabel(vnames, self.fontsize)
-                    write_xlabel(vnames, self.fontsize)
+                    write_ylabel(vnames, self.fontsize, self.ylabel_offset)
+                    write_xlabel(vnames, self.fontsize, self.xlabel_offset)
                 endif
 
                 if self.centroid != "none"
                     factorized_centroids(xy, self)
                 endif
+
+                write_margins(self)
                 write_plot_cmd(self)
                 write_plot_data(xy, self)
             end outfile
@@ -416,12 +420,12 @@ function void write_centroids (const list xy, const bundle self,
 end function
 
 
-function void write_ylabel (const strings vnames, const int fontsize)
-    printf "set ylabel '%s' font ',%d'\n", vnames[2], fontsize
+function void write_ylabel (const strings vnames, const int fontsize, const scalar ylabel_offset)
+    printf "set ylabel '%s' font ',%d' offset %f\n", vnames[2], fontsize, ylabel_offset
 end function
 
-function void write_xlabel (const strings vnames, const int fontsize)
-    printf "set xlabel '%s' font ',%d'\n", vnames[1], fontsize
+function void write_xlabel (const strings vnames, const int fontsize, const scalar xlabel_offset)
+    printf "set xlabel '%s' font ',%d' offset %f\n", vnames[1], fontsize, xlabel_offset
 end function
 
 function void write_plot_data (const list xy, const bundle self)
@@ -468,6 +472,20 @@ function void print_factor_title (const bundle self, const int idx)
     endif
 end function
 
+function void write_margins (const bundle self)
+    if inbundle(self, "tmargin")
+        printf "set tmargin %g\n", self.tmargin
+    endif
+    if inbundle(self, "bmargin")
+        printf "set bmargin %g\n", self.bmargin
+    endif
+    if inbundle(self, "lmargin")
+        printf "set lmargin %g\n", self.lmargin
+    endif
+    if inbundle(self, "rmargin")
+        printf "set rmargin %g\n", self.rmargin
+    endif
+end function
 
 function void write_plot_cmd (const bundle self)
     /* Compile gnuplot initial commands. */
