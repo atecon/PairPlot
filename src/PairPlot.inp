@@ -267,8 +267,10 @@ function bundle default_options (void)
     string self.filename = "display"
     scalar self.y_logscale = NA
     scalar self.x_logscale = NA
-    scalar self.xlabel_offset = 0
-    scalar self.ylabel_offset = 0
+    scalar self.xlabel_offset_horizontal = 0
+    scalar self.xlabel_offset_vertical = 0
+    scalar self.ylabel_offset_horizontal = 0
+    scalar self.ylabel_offset_vertical = 0
 
     return self
 end function
@@ -311,20 +313,23 @@ function string write_pp_plots (const list L,
                 write_options(self, xy, k)
                 if tri == TRUE
                     if j == 1
-                        write_ylabel(vnames[2], self.fontsize, self.ylabel_offset)
+                        write_ylabel(vnames[2], self.fontsize,
+                                     self.ylabel_offset_vertical, self.ylabel_offset_horizontal)
                     endif
                     if i == n
-                        write_xlabel(vnames[1], self.fontsize, self.xlabel_offset)
+                        write_xlabel(vnames[1], self.fontsize,
+                                     self.xlabel_offset_horizontal, self.xlabel_offset_vertical)
                     endif
                 else
-                    write_ylabel(vnames[2], self.fontsize, self.ylabel_offset)
-                    write_xlabel(vnames[1], self.fontsize, self.xlabel_offset)
+                    write_ylabel(vnames[2], self.fontsize,
+                                 self.ylabel_offset_vertical, self.ylabel_offset_horizontal)
+                    write_xlabel(vnames[1], self.fontsize,
+                                 self.xlabel_offset_horizontal, self.xlabel_offset_vertical)
                 endif
 
                 if self.centroid != "none"
                     factorized_centroids(xy, self)
                 endif
-
                 write_margins(self)
                 write_plot_cmd(self)
                 write_plot_data(xy, self)
@@ -420,12 +425,18 @@ function void write_centroids (const list xy, const bundle self,
 end function
 
 
-function void write_ylabel (const string vname, const int fontsize, const scalar ylabel_offset)
-    printf "set ylabel '%s' font ',%d' offset %f\n", vname, fontsize, ylabel_offset
+function void write_ylabel (const string vname, const int fontsize,
+                            const scalar ylabel_offset_vertical,
+                            const scalar ylabel_offset_horizontal)
+    printf "set ylabel '%s' font ',%d' offset %f,%f\n", vname, fontsize,
+        ylabel_offset_horizontal, ylabel_offset_vertical
 end function
 
-function void write_xlabel (const string vname, const int fontsize, const scalar xlabel_offset)
-    printf "set xlabel '%s' font ',%d' offset %f\n", vname, fontsize, xlabel_offset
+function void write_xlabel (const string vname, const int fontsize,
+                            const scalar xlabel_offset_vertical,
+                            const scalar xlabel_offset_horizontal)
+    printf "set xlabel '%s' font ',%d' offset %f,%f\n", vname, fontsize,
+        xlabel_offset_vertical, xlabel_offset_horizontal
 end function
 
 function void write_plot_data (const list xy, const bundle self)
