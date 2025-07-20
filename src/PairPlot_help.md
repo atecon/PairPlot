@@ -88,7 +88,7 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.99 (July 2024)**
 	* Add new parameter `title` for setting an overall title
-	* Internal refactoring: Switch to gretl's built-in gridplot aparatus which means that all the graphics file formats supported by gretl can be used.
+	* Internal refactoring: Switch to gretl's built-in gridplot apparatus which means that all the graphics file formats supported by gretl can be used.
 	* It also means that usage via gretlcli in "display" mode works.
 	* In case the user's specification calls for just a single plot, no "multiplot" is created.
 	* The graphical interface is enhanced, with more options.
@@ -107,8 +107,8 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.95 (December 2023)**
 	* Bugfix: Path with blanks failed under Windows sometimes.
-	* Bugfix: An error occured with negative values in some cases
-	* Bugfix: An error occured of the name of the last variable in the list starts with 'e' (or 'E')
+	* Bugfix: An error occurred with negative values in some cases
+	* Bugfix: An error occurred of the name of the last variable in the list starts with 'e' (or 'E')
 	* Fix handling of transparency
 	* Add `grid` option for (optionally) drawing a grid in the background
 	* Add options `key_fontsize` and `tics_fontsize`.
@@ -127,8 +127,8 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.7 (October 2021)**
 	* Enforce full sample instead of using `--replace` option
-	* Changed ordering of the colours when plotting distinct factors
-	* Change the colour palette to "dark2"
+	* Changed ordering of the colors when plotting distinct factors
+	* Change the color palette to "dark2"
 
 * **v0.6 (March 2021)**
 	* New API for `PairPlot()` -- backward-incompatible
