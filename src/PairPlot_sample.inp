@@ -59,7 +59,7 @@ elif SAMPLE == 5  # factorized scatter + string-valued factor series
                     width = 900,
                     fontsize = 16,
                     key_fontsize = 11,
-                    ylabel_offset = 1.5)
+                    ylabel_offset_horizontal = 1.5)
     PairPlot(y, factor, opts)
 
 elif SAMPLE == 6  # string-valued factor series, using defaults
