@@ -48,6 +48,10 @@ The user can control the following aspects by adding the respective parameter to
 - `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
 - `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: https://gnuplot.sourceforge.net/docs_4.2/node209.html , Default: 0.02.
+- `tmargin`: scalar, Top margin of the plot in lines.
+- `bmargin`: scalar, Bottom margin of the plot in lines.
+- `lmargin`: scalar, Left margin of the plot in lines.
+- `rmargin`: scalar, Right margin of the plot in lines.
 - `pointsize`: int, Control the size of points (default: 2). No support for circles.
 - `pointtype`: matrix, Control the type of points. Can be either an integer entry such that points associated to different levels of `factor` are of the same type. One may also provide a vector of integers for each distinct value of the `factor` series. Default: 7. See also: <https://i.imgur.com/xNZa7Rz.png>
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
@@ -64,9 +68,17 @@ The user can control the following aspects by adding the respective parameter to
 
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
 - `width`: scalar, Width of the canvas plot (default: 900, min. size: 100).
+- `xlabel_offset`: scalar, Horizontal offset for the X-axis label (default: 0). Negative value move the label to the left, and vice versa.
+- `ylabel_offset`: scalar, Vertical offset for the Y-axis label (default: 0).
+
 
 
 # Changelog
+
+* **v1.1 (August 2025)**
+	* For triangle-type of plot: improved x-/y-label positioning
+	* Make margins of the plot configurable via `tmargin`, `bmargin`, `lmargin` and `rmargin` parameters.
+	* Added `xlabel_offset` and `ylabel_offset` parameter to control X-axis and Y-axis label offset.
 
 * **v1.0 (February 2025)**
 	* Bugfix: Catch error in case size of width or height is less than 100.
@@ -76,7 +88,7 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.99 (July 2024)**
 	* Add new parameter `title` for setting an overall title
-	* Internal refactoring: Switch to gretl's built-in gridplot aparatus which means that all the graphics file formats supported by gretl can be used.
+	* Internal refactoring: Switch to gretl's built-in gridplot apparatus which means that all the graphics file formats supported by gretl can be used.
 	* It also means that usage via gretlcli in "display" mode works.
 	* In case the user's specification calls for just a single plot, no "multiplot" is created.
 	* The graphical interface is enhanced, with more options.
@@ -95,8 +107,8 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.95 (December 2023)**
 	* Bugfix: Path with blanks failed under Windows sometimes.
-	* Bugfix: An error occured with negative values in some cases
-	* Bugfix: An error occured of the name of the last variable in the list starts with 'e' (or 'E')
+	* Bugfix: An error occurred with negative values in some cases
+	* Bugfix: An error occurred of the name of the last variable in the list starts with 'e' (or 'E')
 	* Fix handling of transparency
 	* Add `grid` option for (optionally) drawing a grid in the background
 	* Add options `key_fontsize` and `tics_fontsize`.
@@ -115,8 +127,8 @@ The user can control the following aspects by adding the respective parameter to
 
 * **v0.7 (October 2021)**
 	* Enforce full sample instead of using `--replace` option
-	* Changed ordering of the colours when plotting distinct factors
-	* Change the colour palette to "dark2"
+	* Changed ordering of the colors when plotting distinct factors
+	* Change the color palette to "dark2"
 
 * **v0.6 (March 2021)**
 	* New API for `PairPlot()` -- backward-incompatible
