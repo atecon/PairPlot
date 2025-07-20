@@ -78,7 +78,7 @@ The user can control the following aspects by adding the respective parameter to
 
 # Changelog
 
-* **v1.1 (August 2025)**
+* **v1.1 (July 2025)**
 	* For triangle-type of plot: improved x-/y-label positioning
 	* Make margins of the plot configurable via `tmargin`, `bmargin`, `lmargin` and `rmargin` parameters.
 	* Added `xlabel_offset_horizontal`, `xlabel_offset_vertical`, `ylabel_offset_horizontal` and `ylabel_offset_vertical` parameter to control X-axis and Y-axis label offset.
