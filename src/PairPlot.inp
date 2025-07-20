@@ -307,7 +307,18 @@ function string write_pp_plots (const list L,
             strings vnames = varnames(xy)
             outfile --buffer=buffer
                 write_options(self, xy, k)
-                write_labels(vnames, self.fontsize)
+                if tri == TRUE
+                    if j == 1
+                        write_ylabel(vnames, self.fontsize)
+                    endif
+                    if i == n
+                        write_xlabel(vnames, self.fontsize)
+                    endif
+                else
+                    write_ylabel(vnames, self.fontsize)
+                    write_xlabel(vnames, self.fontsize)
+                endif
+
                 if self.centroid != "none"
                     factorized_centroids(xy, self)
                 endif
@@ -405,11 +416,13 @@ function void write_centroids (const list xy, const bundle self,
 end function
 
 
-function void write_labels (const strings vnames, const int fontsize)
-    printf "set xlabel '%s' font ',%d'\n", vnames[1], fontsize
+function void write_ylabel (const strings vnames, const int fontsize)
     printf "set ylabel '%s' font ',%d'\n", vnames[2], fontsize
 end function
 
+function void write_xlabel (const strings vnames, const int fontsize)
+    printf "set xlabel '%s' font ',%d'\n", vnames[1], fontsize
+end function
 
 function void write_plot_data (const list xy, const bundle self)
     /* Write data for a single subplot. */
