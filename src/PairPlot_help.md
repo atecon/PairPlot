@@ -48,6 +48,10 @@ The user can control the following aspects by adding the respective parameter to
 - `key_fontsize` int, Control the font size for the key. Default: 14
 - `key_position`: string, Controls the position of the legend in each subplot (use standard gnuplot options). default: "top left".
 - `offset_level`: scalar, Provides a mechanism to put a boundary around the data inside of an auto-scaled graph. For details see: https://gnuplot.sourceforge.net/docs_4.2/node209.html , Default: 0.02.
+- `tmargin`: scalar, Top margin of the plot in lines.
+- `bmargin`: scalar, Bottom margin of the plot in lines.
+- `lmargin`: scalar, Left margin of the plot in lines.
+- `rmargin`: scalar, Right margin of the plot in lines.
 - `pointsize`: int, Control the size of points (default: 2). No support for circles.
 - `pointtype`: matrix, Control the type of points. Can be either an integer entry such that points associated to different levels of `factor` are of the same type. One may also provide a vector of integers for each distinct value of the `factor` series. Default: 7. See also: <https://i.imgur.com/xNZa7Rz.png>
 - `tics`: bool, Print x-tics and y-tics if 1 (TRUE, default), or not if 0 (FALSE).
@@ -64,9 +68,17 @@ The user can control the following aspects by adding the respective parameter to
 
 - `use_circles`: bool, Draw circles instead of points if set to 1 (TRUE), default: 0 (FALSE).
 - `width`: scalar, Width of the canvas plot (default: 900, min. size: 100).
+- `xlabel_offset`: scalar, Horizontal offset for the X-axis label (default: 0). Negative value move the label to the left, and vice versa.
+- `ylabel_offset`: scalar, Vertical offset for the Y-axis label (default: 0).
+
 
 
 # Changelog
+
+* **v1.1 (August 2025)**
+	* For triangle-type of plot: improved x-/y-label positioning
+	* Make margins of the plot configurable via `tmargin`, `bmargin`, `lmargin` and `rmargin` parameters.
+	* Added `xlabel_offset` and `ylabel_offset` parameter to control X-axis and Y-axis label offset.
 
 * **v1.0 (February 2025)**
 	* Bugfix: Catch error in case size of width or height is less than 100.
