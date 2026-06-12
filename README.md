@@ -1,3 +1,8 @@
+**This package got archived on June 12 2026**
+The packages has become an official addon with gretl version 2026c and can be found in the official source code.
+
+See `https://sourceforge.net/p/gretl/git/ci/master/tree/addons/`
+
 # PairPlot
 
 Produce grid of subplots depicting pairwise relationships in a dataset. This package maps each variable in a list onto a column and row in a grid of multiple axes.
